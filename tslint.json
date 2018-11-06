@@ -1,0 +1,27 @@
+{
+  "defaultSeverity": "warning",
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "jsRules": {
+    "no-unused-expression": true
+  },
+  "linterOptions": {
+    "exclude": ["node_modules/**"]
+  },
+  "rules": {
+    "quotemark": [true, "single"],
+    "semicolon": [true, "never"],
+    "indent": [true, "spaces", 2],
+    "interface-name": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-consecutive-blank-lines": false,
+    "no-empty-interface": false,
+    "no-var-requires": false,
+    "no-empty": false,
+    "prettier": true,
+    "no-console": false,
+    "no-namespace": false,
+    "triple-equals": true,
+    "no-return-await": true
+  }
+}
