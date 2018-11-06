@@ -17,6 +17,10 @@
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
+  // "file": ["src/types/*.d.ts"],
+  "typeAcquisition": {
+    "enable": true
+  },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
