@@ -1,13 +1,13 @@
 <template>
-    <p> Compile</p>
+    <p> Analysis</p>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component
-export default class Compile extends Vue {
+export default class Analysis extends Vue {
   public mounted(): void {
-    console.log('Compile Mounted')
+    console.log('Analysis Mounted')
   }
 }
 </script>

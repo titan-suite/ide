@@ -1,10 +1,21 @@
 <template>
-  <div id="app">
-    <Editor :code="code" :cmOptions="cmOptions" />
-    <Console />
-    <FileExplorer />
-    <Sidebar />
-  </div>
+  <el-container class="main">
+    <el-aside width="200px">
+      <FileExplorer />
+    </el-aside>
+    <el-container>
+      <el-header height="10px">Header</el-header>
+      <el-main>
+        <Editor :code="code" :cmOptions="cmOptions" />
+      </el-main>
+      <el-footer>
+        <Console />
+      </el-footer>
+    </el-container>
+    <el-aside width="30%">
+      <Sidebar />
+    </el-aside>
+  </el-container>
 </template>
 
 <script>
@@ -12,7 +23,6 @@ import Editor from './components/Editor.vue'
 import Console from './components/Console.vue'
 import FileExplorer from './components/FileExplorer.vue'
 import Sidebar from './components/Sidebar/Index.vue'
-
 export default {
   name: 'app',
   components: {
@@ -37,12 +47,7 @@ export default {
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="stylus">
+.main
+  font:12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace
 </style>

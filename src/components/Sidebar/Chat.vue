@@ -1,13 +1,13 @@
 <template>
-    <p> Compile</p>
+    <p> Chat</p>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component
-export default class Compile extends Vue {
+export default class Chat extends Vue {
   public mounted(): void {
-    console.log('Compile Mounted')
+    console.log('Chat Mounted')
   }
 }
 </script>
