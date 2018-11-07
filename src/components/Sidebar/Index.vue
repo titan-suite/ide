@@ -1,14 +1,14 @@
 <template>
-    <p>FileExplorer</p>
+    <p>Sidebar</p>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component
-export default class FileExplorer extends Vue {
+export default class Sidebar extends Vue {
   public mounted(): void {
-    console.log('FileExplorer Mounted')
+    console.log('Sidebar Mounted')
   }
 }
 </script>
