@@ -1,5 +1,5 @@
-import { MutationTree } from 'vuex'
-import { WorkspaceState, File } from '../types'
+import { MutationTree, GetterTree } from 'vuex'
+import { IdeState, File, RootState, EditorOptions } from '../types'
 
 const defaultFile: File = {
   name: 'TestToken.sol',
@@ -81,22 +81,35 @@ contract TestToken is ERC20Basic {
   path: '/'
 }
 
-const workspaceState: WorkspaceState = {
-  name: '',
-  folders: [],
-  activeFile: defaultFile,
-  openFileNames: [],
-  editorOptions: {
-    tabSize: 4,
-    mode: 'text/javascript',
-    theme: 'monokai',
-    lineNumbers: true,
-    line: true,
-    gutters: ['CodeMirror-linenumbers', 'breakpoints']
-  }
+const ideState: IdeState = {
+  activeWorkSpaceIndex: 0,
+  workSpaces: [
+    {
+      name: 'one',
+      folders: [],
+      activeFile: defaultFile,
+      openFileNames: [],
+      editorOptions: {
+        tabSize: 4,
+        mode: 'text/javascript',
+        theme: 'monokai',
+        lineNumbers: true,
+        line: true,
+        gutters: ['CodeMirror-linenumbers', 'breakpoints']
+      }
+    }
+  ]
 }
 
-const mutations: MutationTree<WorkspaceState> = {
+const getters: GetterTree<IdeState, RootState> = {
+  code(state): string {
+    return state.workSpaces[state.activeWorkSpaceIndex].activeFile.code
+  },
+  editorOptions(state): EditorOptions {
+    return state.workSpaces[state.activeWorkSpaceIndex].editorOptions
+  }
+}
+const mutations: MutationTree<IdeState> = {
   addFile(state, payload: string) {
     // state.code = payload
   },
@@ -117,13 +130,14 @@ const mutations: MutationTree<WorkspaceState> = {
   },
   setActiveFileContent(state, payload: string) {
     console.log('in state' + payload)
-    state.activeFile.code = payload
+    state.workSpaces[state.activeWorkSpaceIndex].activeFile.code = payload
   }
 }
 
 const workspace = {
   namespaced: true,
-  state: workspaceState,
+  state: ideState,
+  getters,
   mutations
 }
 

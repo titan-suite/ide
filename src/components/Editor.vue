@@ -1,5 +1,5 @@
 <template>
-    <codemirror class="codemirror" ref="myCm" :value="state.code" :options="state.cmOptions" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick">
+    <codemirror class="codemirror" ref="myCm" :value="code" :options="editorOptions" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick">
     </codemirror>
 </template>
 
@@ -9,9 +9,9 @@ import { codemirror } from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/monokai.css'
 import 'codemirror/mode/javascript/javascript.js'
-import { State, Mutation } from 'vuex-class'
-import { EditorState } from '../store/types'
-const namespace: string = 'editor'
+import { State, Mutation, Getter } from 'vuex-class'
+import { EditorOptions } from '../store/types'
+const namespace: string = 'workspace'
 
 @Component({
     components: {
@@ -20,12 +20,13 @@ const namespace: string = 'editor'
 })
 
 export default class Editor extends Vue {
-    @State('editor') public state !: EditorState
-    @Mutation('changeCode', {namespace}) public changeCode: any
+    @Getter('code', {namespace}) public code !: string
+    @Getter('editorOptions', {namespace}) public editorOptions !: EditorOptions
+    @Mutation('setActiveFileContent', {namespace}) public setActiveFileContent: any
 
     public mounted(): void {
         const { codemirror: codemirrorRef }: any = this.$refs.myCm
-        console.log('this is current codemirror object', codemirrorRef)
+        console.log('this is current codemirror object', codemirrorRef, this.editorOptions, this.code)
     }
 
     public onCmReady(cm: any) {
@@ -38,7 +39,7 @@ export default class Editor extends Vue {
 
     public onCmCodeChange(code: any) {
       console.log('this is new code', code)
-      this.changeCode(code)
+      this.setActiveFileContent(code)
     }
     
     public onGutterClick(cm: any, n: any) {
