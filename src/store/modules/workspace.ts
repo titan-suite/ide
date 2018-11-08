@@ -129,7 +129,7 @@ const mutations: MutationTree<IdeState> = {
     // state.code = payload
   },
   setActiveFileContent(state, payload: string) {
-    console.log('in state' + payload)
+    console.log('in state' + JSON.stringify(payload))
     state.workSpaces[state.activeWorkSpaceIndex].activeFile.code = payload
   }
 }
