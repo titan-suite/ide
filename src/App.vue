@@ -1,26 +1,28 @@
 <template>
+
   <el-container class="main">
-    <el-aside width="auto">
-      <vue-draggable-resizable style=" height: 100%;margin-right:16px; border: 1px solid red; position: relative;" :draggable="false" axis="x" :handles="['mr']">
-        <FileExplorer />
-      </vue-draggable-resizable>
-    </el-aside>
-    <el-container>
-      <el-header height="10px">Header</el-header>
-      <el-main>
-        <Editor :code="code" :cmOptions="cmOptions" />
-      </el-main>
-      <el-footer height="auto">
-        <vue-draggable-resizable style="width: 100%; border: 1px solid red; position: relative;" :draggable="false" axis="y" :handles="['tm']">
-          <Console />
+    <el-header height="1rem">Header</el-header>
+    <el-container class="main">
+
+      <el-aside width="auto">
+        <vue-draggable-resizable style=" height: 100%;margin-right:16px; border: 1px solid red; position: relative;" :draggable="false" axis="x" :handles="['mr']">
+          <FileExplorer />
         </vue-draggable-resizable>
-      </el-footer>
+      </el-aside>
+      <el-container>
+        <el-main>
+          <Editor />
+          <vue-draggable-resizable style="width: 100%; border: 1px solid red; position: relative;" :draggable="false" axis="y" :handles="['tm']">
+            <Console />
+          </vue-draggable-resizable>
+        </el-main>
+      </el-container>
+      <el-aside width="auto">
+        <vue-draggable-resizable style=" height: 100%;left: 1rem; margin-right:16px; border: 1px solid red; position: relative;" :w="415" :draggable="false" axis="x" :handles="['ml']">
+          <Sidebar />
+        </vue-draggable-resizable>
+      </el-aside>
     </el-container>
-    <el-aside width="auto">
-      <vue-draggable-resizable style=" height: 100%;left: 1rem; margin-right:16px; border: 1px solid red; position: relative;" :w="430" :draggable="false" axis="x" :handles="['ml']">
-        <Sidebar />
-      </vue-draggable-resizable>
-    </el-aside>
   </el-container>
 </template>
 
@@ -41,15 +43,6 @@ export default {
   },
   data() {
     return {
-      code: `const jokes = "Welcome to Titan's IDe | the #1 mofo ide for mofo hardcore devs";`,
-      cmOptions: {
-        tabSize: 4,
-        mode: 'text/javascript',
-        theme: 'monokai',
-        lineNumbers: true,
-        line: true,
-        gutters: ['CodeMirror-linenumbers', 'breakpoints']
-      }
     }
   }
 }

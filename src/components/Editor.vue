@@ -1,8 +1,6 @@
 <template>
-    <div class="main">
-        <codemirror ref="myCm" :value="code" :options="cmOptions" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick">
-        </codemirror>
-    </div>
+    <codemirror class="codemirror" ref="myCm" :value="state.code" :options="state.cmOptions" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick">
+    </codemirror>
 </template>
 
 <script lang="ts">
@@ -11,6 +9,9 @@ import { codemirror } from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/monokai.css'
 import 'codemirror/mode/javascript/javascript.js'
+import { State, Mutation } from 'vuex-class'
+import { EditorState } from '../store/modules/editor'
+    const namespace: string = 'editor'
 
 @Component({
     components: {
@@ -19,14 +20,12 @@ import 'codemirror/mode/javascript/javascript.js'
 })
 
 export default class Editor extends Vue {
-    @Prop() private code!: string
-    @Prop() private cmOptions!: {}
+    @State('editor') public state !: EditorState
+    @Mutation('changeCode', {namespace}) public changeCode: any
 
     public mounted(): void {
         const { codemirror: codemirrorRef }: any = this.$refs.myCm
         console.log('this is current codemirror object', codemirrorRef)
-        console.log(this.code, this.cmOptions)
-        // you can use this.codemirror to do something...
     }
 
     public onCmReady(cm: any) {
@@ -39,7 +38,7 @@ export default class Editor extends Vue {
 
     public onCmCodeChange(code: any) {
       console.log('this is new code', code)
-      this.code = code
+      this.changeCode(code)
     }
     
     public onGutterClick(cm: any, n: any) {
@@ -58,7 +57,4 @@ export default class Editor extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.main {
-    margin: 40px 0 0;
-}
 </style>
