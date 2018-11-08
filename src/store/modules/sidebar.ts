@@ -1,4 +1,5 @@
-export interface SidebarState {}
+import { SidebarState } from '../types'
+
 const sideBarState: SidebarState = {}
 
 const sidebar = {

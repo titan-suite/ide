@@ -10,8 +10,8 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/monokai.css'
 import 'codemirror/mode/javascript/javascript.js'
 import { State, Mutation } from 'vuex-class'
-import { EditorState } from '../store/modules/editor'
-    const namespace: string = 'editor'
+import { EditorState } from '../store/types'
+const namespace: string = 'editor'
 
 @Component({
     components: {

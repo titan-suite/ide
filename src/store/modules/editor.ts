@@ -1,9 +1,6 @@
 import { MutationTree } from 'vuex'
+import { EditorState } from '../types'
 
-export interface EditorState {
-  code: string
-  cmOptions: any
-}
 const editorState: EditorState = {
   code: `pragma solidity ^0.4.9;
 
@@ -97,6 +94,7 @@ const mutations: MutationTree<EditorState> = {
     state.code = payload
   }
 }
+
 const editor = {
   namespaced: true,
   state: editorState,
