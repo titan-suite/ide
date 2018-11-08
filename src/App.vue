@@ -17,7 +17,7 @@
       </el-footer>
     </el-container>
     <el-aside width="auto">
-      <vue-draggable-resizable style=" height: 100%;left: 1rem; margin-right:16px; border: 1px solid red; position: relative;" :draggable="false" axis="x" :handles="['ml']">
+      <vue-draggable-resizable style=" height: 100%;left: 1rem; margin-right:16px; border: 1px solid red; position: relative;" :w="430" :draggable="false" axis="x" :handles="['ml']">
         <Sidebar />
       </vue-draggable-resizable>
     </el-aside>
