@@ -27,7 +27,7 @@ contract Example {
     uint128 public num = 5;
     event NumChanged (uint128);
 
-    function add(uint128 a) p ublic returns (uint128) {
+    function add(uint128 a) public returns (uint128) {
         return num+a;
     }
 
