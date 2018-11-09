@@ -1,9 +1,7 @@
 <template>
-
   <el-container class="main">
     <el-header height="1rem">Header</el-header>
     <el-container class="main">
-
       <el-aside width="auto">
         <vue-draggable-resizable style=" height: 100%;margin-right:16px; border: 1px solid red; position: relative;" :draggable="false" axis="x" :handles="['mr']">
           <FileExplorer />
@@ -11,8 +9,8 @@
       </el-aside>
       <el-container>
         <el-main>
-          <Editor />
-          <vue-draggable-resizable style="width: 100%; border: 1px solid red; position: relative;" :draggable="false" axis="y" :handles="['tm']">
+          <Editor :height="height" />
+          <vue-draggable-resizable @resizestop="onResizstop" style="width: 100%; display: flex; flex-direction: column;margin-bottom: -19px;top:0;bottom:0;z-index: 1000; display: flex; background: aliceblue;margin-top:16px;border: 1px solid red; position: relative;" :h="225" :draggable="false" axis="y" :handles="['tm']">
             <Console />
           </vue-draggable-resizable>
         </el-main>
@@ -26,27 +24,35 @@
   </el-container>
 </template>
 
-<script>
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import Editor from './components/Editor.vue'
 import Console from './components/Console.vue'
 import FileExplorer from './components/FileExplorer.vue'
 import Sidebar from './components/Sidebar/Index.vue'
 import VueDraggableResizable from 'vue-draggable-resizable'
-export default {
-  name: 'app',
-  components: {
-    VueDraggableResizable,
-    Editor,
-    Console,
-    FileExplorer,
-    Sidebar
-  },
-  data() {
-    return {
+@Component({
+    components: {
+        Editor,
+        Console,
+        FileExplorer,
+        Sidebar,
+        VueDraggableResizable,
     }
-  }
+})
+export default class App extends Vue {
+  public height:number = 0
+    public mounted(): void {
+        console.log('Console Mounted')
+    }
+    public onResizstop(left:number,top:number,width:number ,height:number) {
+        console.log({top,height})
+        // this.height = 1000-height
+        // console.log({newHeight:this.height})
+    }
 }
 </script>
+
 
 <style lang="stylus">
 .main {

@@ -26,18 +26,18 @@ import Analysis from './Analysis.vue'
 import Chat from './Chat.vue'
 import Settings from './Settings.vue'
 @Component({
-  components: {
-    Compile,
-    Run,
-    Analysis,
-    Chat,
-    Settings
-  }
+    components: {
+        Compile,
+        Run,
+        Analysis,
+        Chat,
+        Settings
+    }
 })
 export default class Sidebar extends Vue {
-  private activeName: string = 'first'
-  public mounted(): void {
-    console.log('Sidebar Mounted')
-  }
+    private activeName: string = 'first'
+    public mounted(): void {
+        console.log('Sidebar Mounted')
+    }
 }
 </script>

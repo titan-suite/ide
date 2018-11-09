@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "lib": [
+      /* Specify library files to be included in the compilation. */
+      "dom",
+      "es5",
+      "es6",
+      "esnext",
+      "esnext.asynciterable"
+    ],
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  },
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,5 +1,5 @@
 <template>
-    <codemirror class="codemirror" ref="myCm" :value="code" :options="editorOptions" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick">
+    <codemirror :style="{ height: height >0 && height + 'px' }" class="codemirror" ref="myCm" :value="code" :options="editorOptions" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick">
     </codemirror>
 </template>
 
@@ -20,28 +20,29 @@ const namespace: string = 'workspace'
 })
 
 export default class Editor extends Vue {
-    @Getter('code', {namespace}) public code !: string
-    @Getter('editorOptions', {namespace}) public editorOptions !: EditorOptions
-    @Mutation('setActiveFileContent', {namespace}) public setActiveFileContent: any
+    @Getter('code', { namespace }) public code!: string
+    @Getter('editorOptions', { namespace }) public editorOptions!: EditorOptions
+    @Mutation('setActiveFileContent', { namespace }) public setActiveFileContent: any
+    @Prop(Number) public height!:number
 
     public mounted(): void {
         const { codemirror: codemirrorRef }: any = this.$refs.myCm
-        console.log('this is current codemirror object', codemirrorRef, this.editorOptions, this.code)
+        console.log('this is current codemirror object', codemirrorRef, this.editorOptions, this.code, this.height)
     }
 
     public onCmReady(cm: any) {
-      console.log('the editor is readied!', cm)
+        console.log('the editor is readied!', cm)
     }
 
     public onCmFocus(cm: any) {
-      console.log('the editor is focus!', cm)
+        console.log('the editor is focus!', cm)
     }
 
     public onCmCodeChange(code: any) {
-      console.log('this is new code', code)
-      this.setActiveFileContent(code)
+        console.log('this is new code', code)
+        this.setActiveFileContent(code)
     }
-    
+
     public onGutterClick(cm: any, n: any) {
         const info = cm.lineInfo(n)
         console.log(info)
@@ -58,4 +59,7 @@ export default class Editor extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.codemirror {
+    width: 100%;
+}
 </style>
