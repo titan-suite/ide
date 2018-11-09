@@ -1,20 +1,32 @@
 export interface RootState {}
 export interface SidebarState {}
 export interface IdeState {
-  activeWorkSpaceIndex: number
-  workSpaces: WorkSpaceState[]
+  activeWorkspaceIndex: number
+  workspaces: Workspace[]
 }
-export interface WorkSpaceState {
+export interface Workspace {
+  index: number
   name: string
-  folders: File[]
-  activeFile: File
-  openFileNames: string[]
+  projectTree: Tree
+  activeFolderIndex: number
+  openFileIndices: number[]
   editorOptions: EditorOptions
 }
 export interface File {
+  index: number
   name: string
   code: string
   path: string
+}
+export interface Folder {
+  index: number
+  name: string
+  files: File[]
+  path: string
+  activeFileIndex: number
+}
+export interface Tree {
+  folders: Folder[]
 }
 export interface EditorOptions {
   tabSize: number
@@ -23,4 +35,8 @@ export interface EditorOptions {
   lineNumbers: boolean
   line: boolean
   gutters: string[]
+}
+export interface ActiveFile {
+  folderIndex: number
+  fileIndex: number
 }
