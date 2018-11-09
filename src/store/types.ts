@@ -1,9 +1,31 @@
+import { ContractAbi } from 'ethereum-types'
 export interface RootState {
-  sidebar: SidebarState
+  compile: CompileState
+  deploy: DeployState
   workspace: IdeState
 }
-export interface SidebarState {
-  compiledCode: string
+export interface CompileState {
+  compiledCode: {
+    [key: string]: {
+      code: string;
+      info: ContractInfo;
+    };
+  }
+  solVersions: SolVersions[]
+}
+export interface SolVersions {
+  value: string
+  label: string
+}
+export interface ContractInfo {
+  abiDefinition: ContractAbi[]
+  compilerVersion: string
+  language: string
+  languageVersion: string
+  source: string
+}
+export interface DeployState {
+  txDetails: { [key: string]: any }
 }
 export interface IdeState {
   activeWorkspaceIndex: number
