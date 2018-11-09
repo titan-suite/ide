@@ -1,5 +1,10 @@
-export interface RootState {}
-export interface SidebarState {}
+export interface RootState {
+  sidebar: SidebarState
+  workspace: IdeState
+}
+export interface SidebarState {
+  compiledCode: string
+}
 export interface IdeState {
   activeWorkSpaceIndex: number
   workSpaces: WorkSpaceState[]
