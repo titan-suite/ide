@@ -66,4 +66,5 @@ export interface EditorOptions {
 export interface ActiveFile {
   folderIndex: number
   fileIndex: number
+  code: string
 }

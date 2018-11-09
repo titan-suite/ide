@@ -13,7 +13,7 @@
 <script lang="ts">
   import { Component, Prop, Vue } from 'vue-property-decorator'
   import { State, Mutation, Getter } from 'vuex-class'
-  import { EditorOptions, ActiveFile, File } from '../../store/types'
+  import { EditorOptions, ActiveFile, File, Folder } from '../../store/types'
   import Item from './Item.vue'
   const namespace: string = 'workspace'
 
@@ -25,11 +25,12 @@
   export default class FileExplorer extends Vue {
     @Getter('code', {namespace}) public code!: any
     @Getter('fileById', {namespace}) public fileById!: any
+    @Getter('projectTree', {namespace}) public projectTree!: any
     @Mutation('setActiveFileContent', { namespace }) public setActiveFileContent: any
     
     private id = 1000
     
-    private data = [{
+    private data = [] /*= [{
         id: 1,
         label: 'Level one 1',
         type: 'folder',
@@ -73,7 +74,7 @@
           label: 'Level two 3-2',
           type: 'file',
         }]
-      }]
+      }]*/
     
     private defaultProps = {
       children: 'children',
@@ -82,6 +83,7 @@
     
     public mounted(): void {
       console.log('FileExplorer Mounted')
+      this.data = this.prepareData(this.projectTree.folders)
     }
     
     public handleDragStart(node: any, ev: any) {
@@ -111,6 +113,7 @@
     public handleNodeClick(data: any) {
       // console.log(data)
       const nodeId = data.id
+      console.log(nodeId)
       const file: File = this.fileById(0, nodeId)
       // console.log(file.code)
       this.setActiveFileContent(file.code)
@@ -130,6 +133,30 @@
         
     public renderContent(h: any, { node, data, store }: any) {
       return `<Item :data="data" />`
+    }
+
+    public prepareData(folders: Folder[]): any {
+      console.log(folders)
+
+      const data = folders.map(folder => {
+        const files = folder.files.map(file => { 
+          return {
+            id: file.index,
+            label: file.name,
+            type: 'file'
+          }
+        })
+
+        return {
+          id: folder.index,
+          label: folder.name,
+          type: 'folder',
+          children: files
+        }
+      })
+      console.log(data)
+
+      return data
     }
   }
 </script>

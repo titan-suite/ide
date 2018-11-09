@@ -10,8 +10,8 @@ const compileState: CompileState = {
       label: '0.4.9'
     },
     {
-      value: '0.4.26',
-      label: '0.4.26'
+      value: '0.4.15',
+      label: '0.4.15'
     }
   ]
 }
@@ -40,8 +40,8 @@ const compileActions: ActionTree<CompileState, RootState> = {
     solVersion
   ) {
     const code =
-      rootState.workspace.workSpaces[rootState.workspace.activeWorkSpaceIndex]
-        .activeFile.code
+      rootState.workspace.workspaces[rootState.workspace.activeWorkspaceIndex]
+        .projectTree.folders[0].files[0].code
     try {
       const web3 = new Web3(new Web3.providers.HttpProvider(nodeAddress))
       console.log({ web3 }, solVersion)

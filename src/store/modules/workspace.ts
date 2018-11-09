@@ -6,7 +6,8 @@ import {
   Tree,
   Workspace,
   RootState,
-  EditorOptions
+  EditorOptions,
+  ActiveFile
 } from '../types'
 
 const defaultFile: File = {
@@ -129,12 +130,14 @@ const mutations: MutationTree<IdeState> = {
   moveFolder(state, payload: string) {
     // state.code = payload
   },
-  setActiveFileContent(state, payload: string) {
+  setActiveFileContent(state, payload: ActiveFile) {
     console.log('in state' + JSON.stringify(payload))
     // state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
-    state.workspaces[
-      state.activeWorkspaceIndex
-    ].projectTree.folders[0].files[0].code = payload
+    const { folderIndex, fileIndex } = payload
+    state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
+      folderIndex
+    ].files[fileIndex].code =
+      payload.code
   }
   // setActiveFileIndex(state, payload: number) {
   //   console.log('in state' + JSON.stringify(payload))

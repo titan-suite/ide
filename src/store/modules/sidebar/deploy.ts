@@ -20,7 +20,9 @@ const deployMutations: MutationTree<DeployState> = {
 
 const deployActions: ActionTree<DeployState, RootState> = {
   async deploy({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    const code = rootState.workspace.workSpaces[rootState.workspace.activeWorkSpaceIndex].activeFile.code
+    const code =
+      rootState.workspace.workspaces[rootState.workspace.activeWorkspaceIndex]
+        .projectTree.folders[0].files[0].code
     try {
       const web3 = new Web3(new Web3.providers.HttpProvider(nodeAddress))
       console.log({ web3 })
