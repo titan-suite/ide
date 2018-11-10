@@ -9,20 +9,31 @@
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="24" :offset="8">
+            <el-col :span="24" :offset="10">
                 <el-button @click="handleCompile">
                     Start to Compile
                 </el-button>
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="24">
-                {{contracts}}
-            </el-col>
-            <el-col :span="24">
-                {{contractDetails}}
+            <el-col :span="18" :offset="3">
+                <el-select v-model="selectedContract" class="select" placeholder="">
+                    <el-option v-for="name in contractNames" :key="name" :label="name" :value="name">
+                    </el-option>
+                </el-select>
             </el-col>
         </el-row>
+        <el-row>
+            <el-col :span="24" :offset="10">
+                <el-button @click="dialogAbiDetailsVisible = true">
+                    Details
+                </el-button>
+            </el-col>
+        </el-row>
+
+        <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible">
+            {{getContractDetails()}}
+        </el-dialog>
     </div>
 </template>
 
@@ -30,21 +41,38 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Getter, State } from 'vuex-class'
 import { SolVersions } from '../../store/types'
-import { ContractAbi } from 'ethereum-types'
+import {
+    ContractNames,
+    ContractByteCode,
+    ContractAbi,
+    ContractDetails,
+} from '../../store/modules/sidebar/compile'
 
 const namespace: string = 'compile'
 @Component
 export default class Compile extends Vue {
+
     @State('solVersions', { namespace }) public solVersions!: SolVersions
-    @Getter('contracts', { namespace }) public contracts!: string[]
-    @Getter('contractDetails', { namespace }) public contractDetails!: ContractAbi
-    @Action('compile', { namespace }) public compile: any
+    @Getter('contractNames', { namespace }) public contractNames!: ContractNames
+    @Getter('contractAbi', { namespace }) public contractAbi!: ContractAbi
+    @Getter('contractDetails', { namespace }) public contractDetails!: ContractDetails
+    @Action('compile', { namespace }) public compile!: (selectedVersion: string) => void
+
     public selectedVersion: string = ''
+    public selectedContract: string = ''
+    public dialogAbiDetailsVisible: boolean = false
+
     public mounted(): void {
         console.log('Compile Mounted', this.solVersions)
     }
+
     public async handleCompile() {
         await this.compile(this.selectedVersion)
+        this.selectedContract = this.contractNames[0]
+    }
+
+    public getContractDetails() {
+        return this.contractDetails(this.selectedContract)
     }
 }
 </script>

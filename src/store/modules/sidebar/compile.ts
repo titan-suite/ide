@@ -1,7 +1,8 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
-import { CompileState, RootState } from '../../types'
+import { CompileState, RootState, CompiledCode } from '../../types'
 import Web3, { compile } from '../../../../@titan-suite/core/aion'
 import { nodeAddress } from '../../titanrc'
+import { ContractAbi as TypeContractAbi } from 'ethereum-types'
 const compileState: CompileState = {
   compiledCode: {},
   solVersions: [
@@ -16,14 +17,22 @@ const compileState: CompileState = {
   ]
 }
 
+export type ContractNames = string[]
+export type ContractByteCode = (contractName: string) => string
+export type ContractAbi = (contractName: string) => TypeContractAbi
+export type ContractDetails = (contractName: string) => CompiledCode
+
 const compileGetters: GetterTree<CompileState, RootState> = {
-  contracts(state): string[] {
+  contractNames(state): ContractNames {
     return Object.keys(state.compiledCode)
   },
-  contractAbi(state): (contractName: string) => any {
+  contractByteCode(state): ContractByteCode {
+    return contractName => state.compiledCode[contractName].code
+  },
+  contractAbi(state): ContractAbi {
     return contractName => state.compiledCode[contractName].info.abiDefinition
   },
-  contractDetails(state): (contractName: string) => any {
+  contractDetails(state): ContractDetails {
     return contractName => state.compiledCode[contractName]
   }
 }

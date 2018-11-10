@@ -6,19 +6,20 @@ export interface RootState {
 }
 export interface CompileState {
   compiledCode: {
-    [key: string]: {
-      code: string;
-      info: ContractInfo;
-    };
+    [key: string]: CompiledCode;
   }
   solVersions: SolVersions[]
+}
+export interface CompiledCode {
+  code: string
+  info: ContractInfo
 }
 export interface SolVersions {
   value: string
   label: string
 }
 export interface ContractInfo {
-  abiDefinition: ContractAbi[]
+  abiDefinition: ContractAbi
   compilerVersion: string
   language: string
   languageVersion: string
