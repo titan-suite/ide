@@ -10,14 +10,14 @@
         </el-row>
         <el-row>
             <el-col :span="24" :offset="10">
-                <el-button @click="handleCompile">
+                <el-button @click="handleCompile" :loading="loading">
                     Start to Compile
                 </el-button>
             </el-col>
         </el-row>
         <el-row>
             <el-col :span="18" :offset="3">
-                <el-select v-model="selectedContract" class="select" placeholder="">
+                <el-select v-model="selectedContract" class="select" placeholder="" :disabled="loading || selectedContract === ''">
                     <el-option v-for="name in contractNames" :key="name" :label="name" :value="name">
                     </el-option>
                 </el-select>
@@ -25,7 +25,7 @@
         </el-row>
         <el-row>
             <el-col :span="24" :offset="10">
-                <el-button @click="dialogAbiDetailsVisible = true">
+                <el-button @click="dialogAbiDetailsVisible = true" :disabled="loading || selectedContract === ''">
                     Details
                 </el-button>
             </el-col>
@@ -61,14 +61,17 @@ export default class Compile extends Vue {
     public selectedVersion: string = ''
     public selectedContract: string = ''
     public dialogAbiDetailsVisible: boolean = false
+    public loading: boolean = false
 
     public mounted(): void {
         console.log('Compile Mounted', this.solVersions)
     }
 
     public async handleCompile() {
+        this.loading = true
         await this.compile(this.selectedVersion)
         this.selectedContract = this.contractNames[0]
+        this.loading = false
     }
 
     public getContractDetails() {
