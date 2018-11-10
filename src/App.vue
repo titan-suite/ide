@@ -29,7 +29,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import Editor from './components/Editor.vue'
 import Console from './components/Console.vue'
-import FileExplorer from './components/FileExplorer.vue'
+import FileExplorer from './components/FileExplorer/Index.vue'
 import Sidebar from './components/Sidebar/Index.vue'
 import VueDraggableResizable from 'vue-draggable-resizable'
 @Component({

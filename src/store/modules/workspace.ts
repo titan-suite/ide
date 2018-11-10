@@ -1,114 +1,116 @@
-import { MutationTree, GetterTree } from 'vuex'
-import { IdeState, File, RootState, EditorOptions } from '../types'
+import { MutationTree, GetterTree, Getter } from 'vuex'
+import {
+  IdeState,
+  File,
+  Folder,
+  Tree,
+  Workspace,
+  RootState,
+  EditorOptions,
+  ActiveFile
+} from '../types'
 
 const defaultFile: File = {
+  index: 0,
   name: 'TestToken.sol',
   code: `pragma solidity ^0.4.9;
+
 /**
- * @title ERC20Basic
- * @dev Simpler version of ERC20 interface
- * See https://github.com/ethereum/EIPs/issues/179
+ * @title Hello
+ * @dev Simple contract
  */
-contract ERC20Basic {
-  function totalSupply() public returns (uint128);
-  function balanceOf(address who) public returns (uint128);
-  function transfer(address to, uint128 value) public returns (bool);
-  event Transfer(address indexed from, address indexed to, uint128 value);
+
+contract Hello {
+  
+  uint data = 100;
+
+  function getData() public returns (uint) {
+    return data;
+  }
 }
-
-contract TestToken is ERC20Basic {
-
-  mapping(address => uint128) balances;
-
-  uint128 public totalSupply_ = 10000000;
-  uint128 public decimals = 18;
-
-  function TestToken() public {
-      balances[msg.sender] = totalSupply_ * 10**decimals;
-  }
-
-  /**
-  * @dev Total number of tokens in existence
-  */
-  function totalSupply() public returns (uint128) {
-    return totalSupply_;
-  }
-
-  /**
-  * @dev Transfer token for a specified address
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  */
-  function transfer(address _to, uint128 _value) public returns (bool) {
-    if (_to == address(0)) throw;
-    if (_to == msg.sender) throw;
-    if (_value > balances[msg.sender]) throw;
-    if (balances[_to] + _value < balances[_to]) throw;
-
-    balances[msg.sender] = balances[msg.sender] - _value;
-    balances[_to] = balances[_to] + _value;
-    Transfer(msg.sender, _to, _value);
-    return true;
-  } 
-
-  /**
-   * @dev Transfer tokens from one address to another
-   * @param _from address The address which you want to send tokens from
-   * @param _to address The address which you want to transfer to
-   * @param _value uint128 the amount of tokens to be transferred
-   */
-  function transferFrom(address _from, address _to, uint128 _value) public returns (bool) {
-    if (_to == address(0)) throw;
-    if (_value > balances[_from]) throw;
-    if (balances[_to] + _value < balances[_to]) throw;
- 
-    balances[_from] = balances[_from] - _value;
-    balances[_to] = balances[_to] + _value;
-    Transfer(_from, _to, _value);
-    return true;
-  }
-
-  /**
-  * @dev Gets the balance of the specified address.
-  * @param _owner The address to query the the balance of.
-  * @return A uint128 representing the amount owned by the passed address.
-  */
-  function balanceOf(address _owner) public returns (uint128) {
-    return balances[_owner];
-  }
-
 `,
   path: '/'
 }
 
-const ideState: IdeState = {
-  activeWorkSpaceIndex: 0,
-  workSpaces: [
+const defaultFolder: Folder = {
+  index: 0,
+  name: 'Hello',
+  files: [
+    defaultFile,
     {
-      name: 'one',
-      folders: [],
-      activeFile: defaultFile,
-      openFileNames: [],
-      editorOptions: {
-        tabSize: 4,
-        mode: 'text/javascript',
-        theme: 'monokai',
-        lineNumbers: true,
-        line: true,
-        gutters: ['CodeMirror-linenumbers', 'breakpoints']
-      }
+      index: 1,
+      name: 'Ballot',
+      code: 'pragma solidity ^0.4.9; contract Ballot{}',
+      path: '/ballot'
+    },
+    {
+      index: 2,
+      name: 'Test',
+      code: 'pragma solidity ^0.4.9; contract Test{}',
+      path: '/test'
     }
-  ]
+  ],
+  path: '/',
+  activeFileIndex: 0
 }
 
-const getters: GetterTree<IdeState, RootState> = {
+const projectTree: Tree = {
+  folders: [defaultFolder]
+}
+
+const editorOptions: EditorOptions = {
+  tabSize: 4,
+  mode: 'text/javascript',
+  theme: 'monokai',
+  lineNumbers: true,
+  line: true,
+  gutters: ['CodeMirror-linenumbers', 'breakpoints']
+}
+
+const defaultWorkspace: Workspace = {
+  index: 0,
+  name: 'Project 1',
+  projectTree,
+  activeFolderIndex: 0,
+  openFileIndices: [0],
+  editorOptions
+}
+
+const ideState: IdeState = {
+  activeWorkspaceIndex: 0,
+  workspaces: [defaultWorkspace]
+}
+
+const ideGetters: GetterTree<IdeState, RootState> = {
+  activeWorkspace(state): Workspace {
+    return state.workspaces[state.activeWorkspaceIndex]
+  },
+  projectTree(state, getters): Tree {
+    return getters.activeWorkspace.projectTree
+  },
+  folderById(state, getters): (folderIndex: number) => Folder {
+    return (folderIndex: number) => {
+      return getters.projectTree.folders.find(
+        (f: Folder) => f.index === folderIndex
+      )
+    }
+  },
+  fileById(state, getters): (folderIndex: number, fileIndex: number) => File {
+    return (folderIndex: number, fileIndex: number) => {
+      return getters
+        .folderById(folderIndex)
+        .files.find((f: File) => f.index === fileIndex)
+    }
+  },
   code(state): string {
-    return state.workSpaces[state.activeWorkSpaceIndex].activeFile.code
+    return state.workspaces[state.activeWorkspaceIndex].projectTree.folders[0]
+      .files[0].code
   },
   editorOptions(state): EditorOptions {
-    return state.workSpaces[state.activeWorkSpaceIndex].editorOptions
+    return state.workspaces[state.activeWorkspaceIndex].editorOptions
   }
 }
+
 const mutations: MutationTree<IdeState> = {
   addFile(state, payload: string) {
     // state.code = payload
@@ -128,16 +130,25 @@ const mutations: MutationTree<IdeState> = {
   moveFolder(state, payload: string) {
     // state.code = payload
   },
-  setActiveFileContent(state, payload: string) {
+  setActiveFileContent(state, payload: ActiveFile) {
     console.log('in state' + JSON.stringify(payload))
-    state.workSpaces[state.activeWorkSpaceIndex].activeFile.code = payload
+    // state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
+    const { folderIndex, fileIndex } = payload
+    state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
+      folderIndex
+    ].files[fileIndex].code =
+      payload.code
   }
+  // setActiveFileIndex(state, payload: number) {
+  //   console.log('in state' + JSON.stringify(payload))
+  //   state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
+  // }
 }
 
 const workspace = {
   namespaced: true,
   state: ideState,
-  getters,
+  getters: ideGetters,
   mutations
 }
 
