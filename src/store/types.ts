@@ -1,7 +1,9 @@
 import { ContractAbi } from 'ethereum-types'
+import { Contract } from 'typechain/dist/parser/abiParser'
+
 export interface RootState {
   compile: CompileState
-  deploy: DeployState
+  run: RunState
   workspace: IdeState
 }
 export interface CompileState {
@@ -9,6 +11,13 @@ export interface CompileState {
     [key: string]: CompiledCode;
   }
   solVersions: SolVersions[]
+  contracts: {
+    [key: string]: Contract;
+  }
+  nodeAddress: string
+  selectedContract: string
+  selectedSolVersion: string
+  isConnectedToNode: boolean
 }
 export interface CompiledCode {
   code: string
@@ -25,8 +34,27 @@ export interface ContractInfo {
   languageVersion: string
   source: string
 }
-export interface DeployState {
-  txDetails: { [key: string]: any }
+export interface RunState {
+  // environment: any
+  selectedAccount: string
+  accounts: Account[]
+  accountPassword:string
+  gasLimit: number
+  value: Value
+  units: Unit[],
+  deployedContract:any
+}
+export interface Unit {
+  value: string
+  label: string
+}
+export interface Value {
+  amount: number
+  unit: string
+}
+export interface Account {
+  address: string
+  etherBalance: number
 }
 export interface IdeState {
   activeWorkspaceIndex: number

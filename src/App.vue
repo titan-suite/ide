@@ -1,31 +1,36 @@
 <template>
   <el-container class="main">
-    <el-aside width="auto">
-      <vue-draggable-resizable style=" height: 100%;margin-right:16px; border: 1px solid red; position: relative;" :draggable="false" axis="x" :handles="['mr']">
-        <FileExplorer />
-      </vue-draggable-resizable>
-    </el-aside>
+    <el-header height="2rem" class="tempColorWhite">Titan</el-header>
     <el-container>
-      <el-header height="1rem">Header</el-header>
-      <el-tabs v-model="openTabValue" type="border-card" editable @edit="handleTabsEdit">
-        <el-tab-pane v-for="(item) in openTabs" :key="item.name" :label="item.title" :name="item.name">
-          <el-main class="editor">
-            <Editor :height="height" :code="item.content" />
-          </el-main>
-        </el-tab-pane>
-      </el-tabs>
-      <el-footer height="auto">
-        <vue-draggable-resizable @resizestop="onResizstop" style="width: 100%; top:0;display: flex; flex-direction: column;z-index: 1000;
-                     display: flex; background: aliceblue;border: 1px solid red; position: relative;" :h="225" :draggable="false" axis="y" :handles="['tm']">
-          <Console />
+      <el-aside width="auto">
+        <vue-draggable-resizable :draggable="false" :handles="['mr']" class="tempColorWhite fileExplorerContainer" style=" height: 100%;margin-right:16px; border: 1px solid #ffab00; position: relative;" axis="x">
+          <FileExplorer />
         </vue-draggable-resizable>
-      </el-footer>
+      </el-aside>
+      <el-container>
+        <el-main style="padding:0">
+          <!-- <Editor :height="height" /> -->
+          <el-tabs v-model="openTabValue" type="border-card" editable @edit="handleTabsEdit">
+            <el-tab-pane v-for="(item) in openTabs" :key="item.name" :label="item.title" :name="item.name">
+              <el-main class="editor">
+                <Editor :height="height" :code="item.content" />
+              </el-main>
+            </el-tab-pane>
+          </el-tabs>
+        </el-main>
+        <el-footer height="auto" style="padding:0">
+          <vue-draggable-resizable :active="true" :draggable="false" :h="225" :handles="['tm']" class="tempColorWhite consoleContainer" axis="y" style="width: 100%; top:0;z-index: 1000;
+                         display: flex;border: 1px solid #ffab00; position: relative;" @resizestop="onResizstop">
+            <Console />
+          </vue-draggable-resizable>
+        </el-footer>
+      </el-container>
+      <el-aside width="auto">
+        <vue-draggable-resizable :w="415" :handles="['ml']" :draggable="false" class="tabContainer" drag-cancel=".enableFocus" axis="x" style=" height: 100%;left: 1rem; margin-right:16px; border: 1px solid #ffab00; position: relative;">
+          <Sidebar />
+        </vue-draggable-resizable>
+      </el-aside>
     </el-container>
-    <el-aside width="auto">
-      <vue-draggable-resizable style=" height: 100%;left: 1rem; margin-right:16px; border: 1px solid red; position: relative;" :w="415" :draggable="false" axis="x" :handles="['ml']">
-        <Sidebar />
-      </vue-draggable-resizable>
-    </el-aside>
   </el-container>
 </template>
 
@@ -37,9 +42,10 @@ import FileExplorer from './components/FileExplorer/Index.vue'
 import Sidebar from './components/Sidebar/Index.vue'
 import VueDraggableResizable from 'vue-draggable-resizable'
 import { State, Mutation, Getter } from 'vuex-class'
-  import { EditorOptions, ActiveFile, File, Folder } from './store/types'
+import { EditorOptions, ActiveFile, File, Folder } from './store/types'
 
-const namespace: string = 'workspace'
+const namespace = 'workspace'
+
 
 @Component({
     components: {
@@ -55,15 +61,7 @@ export default class App extends Vue {
 
     public height: number = 0
     public openTabValue!: string
-    public openTabs: any[] =  [/*{
-          title: 'Tab 1',
-          name: '1',
-          content: 'Tab 1 content'
-        }, {
-          title: 'Tab 2',
-          name: '2',
-          content: 'Tab 2 content'
-        }*/]
+    public openTabs: any[] = []
 
     public tabIndex: number = 2
     @Watch('openFiles', {immediate: true, deep: true})
@@ -75,6 +73,7 @@ export default class App extends Vue {
       console.log(this.openTabs)
       this.openTabValue = this.openTabs[this.openTabs.length-1].name
     }
+
 
     public mounted(): void {
         console.log('Console Mounted')
@@ -95,7 +94,7 @@ export default class App extends Vue {
     }
 
     public onResizstop(left: number, top: number, width: number, height: number) {
-        console.log({ top, height })
+        // console.log({ top, height })
         // this.height = 1000-height
         // console.log({newHeight:this.height})
     }
@@ -128,14 +127,16 @@ export default class App extends Vue {
         this.openTabs = tabs.filter(tab => tab.name !== targetName)
       }
     }
-
 }
 </script>
 
 
 <style lang="stylus">
 .main {
-  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-  height: 100vh;
+  height: 100%;
+}
+
+.tempColorWhite {
+  color: white;
 }
 </style>

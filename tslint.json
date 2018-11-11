@@ -23,6 +23,6 @@
     "no-namespace": false,
     "triple-equals": true,
     "no-return-await": true,
-    "no-submodule-imports": [true, "codemirror", "@titan-suite"]
+    "no-submodule-imports": [true, "codemirror", "@titan-suite", "typechain"]
   }
 }

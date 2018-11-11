@@ -1,21 +1,21 @@
 <template>
-    <el-tabs v-model="activeName">
-        <el-tab-pane label="Compile" name="first">
-            <Compile />
-        </el-tab-pane>
-        <el-tab-pane label="Run" name="second">
-            <Run />
-        </el-tab-pane>
-        <el-tab-pane label="Analysis" name="third">
-            <Analysis />
-        </el-tab-pane>
-        <el-tab-pane label="Chat" name="fourth">
-            <Chat />
-        </el-tab-pane>
-        <el-tab-pane label="Settings" name="fifth">
-            <Settings />
-        </el-tab-pane>
-    </el-tabs>
+  <el-tabs v-model="activeName" class="enableFocus" style="border: none;box-shadow:none;padding: 10px;">
+    <el-tab-pane label="Compile" name="first">
+      <Compile />
+    </el-tab-pane>
+    <el-tab-pane label="Run" name="second">
+      <Run />
+    </el-tab-pane>
+    <el-tab-pane label="Analysis" name="third">
+      <Analysis />
+    </el-tab-pane>
+    <el-tab-pane label="Chat" name="fourth">
+      <Chat />
+    </el-tab-pane>
+    <el-tab-pane label="Settings" name="fifth">
+      <Settings />
+    </el-tab-pane>
+  </el-tabs>
 </template>
 
 <script lang="ts">
@@ -41,3 +41,7 @@ export default class Sidebar extends Vue {
     }
 }
 </script>
+<style lang="stylus">
+.enableFocus {
+}
+</style>

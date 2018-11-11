@@ -1,2 +1,2 @@
 export { default as compile } from './compile'
-export { default as deploy } from './deploy'
+export { default as run } from './run'
