@@ -15,6 +15,7 @@ export interface CompileState {
     [key: string]: Contract;
   }
   nodeAddress: string
+  isConnectedToNode: boolean
 }
 export interface CompiledCode {
   code: string
@@ -33,13 +34,17 @@ export interface ContractInfo {
 }
 export interface RunState {
   // environment: any
-  accounts: string[]
+  selectedAccount: string
+  accounts: Account[]
   gasLimit: number
   value: {
     amount: number;
     unit: string;
   }
-  txDetails: { [key: string]: any }
+}
+export interface Account {
+  address: string
+  etherBalance: number
 }
 export interface IdeState {
   activeWorkspaceIndex: number

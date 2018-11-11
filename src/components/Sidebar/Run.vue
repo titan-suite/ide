@@ -1,63 +1,54 @@
 <template>
   <div>
-    <el-row>
-      <el-col :span="4" :offset="3">
-        <p>Environment</p>
-      </el-col>
-      <el-col :span="16" :offset="1">
-        <el-select v-model="selectedContract" :disabled="loading || selectedContract === ''" class="select" placeholder="">
-          <el-option v-for="name in contractNames" :key="name" :label="name" :value="name" />
+    <NodeAddressInput />
+    <el-row :gutter="11">
+      <el-col :span="18" :offset="3">
+        <el-select v-model="selectedAccountModel" :loading="loading" class="select" placeholder="Choose an Account" style="display: block">
+          <el-option v-for="account in accounts" :key="account.address" :label="account.label" :value="account.address" />
         </el-select>
       </el-col>
+      <el-col :span="3">
+        <el-button :loading="loading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
+      </el-col>
     </el-row>
-    <!-- <el-row>
-                <el-col :span="24" :offset="10">
-                    <el-button @click="dialogAbiDetailsVisible = true" :disabled="loading || selectedContract === ''">
-                        Details
-                    </el-button>
-                </el-col>
-            </el-row> -->
-    <!-- <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible">
-                {{getContractDetails()}}
-            </el-dialog> -->
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Action, Getter, State } from 'vuex-class'
-import { SolVersions } from '../../store/types'
-import {
-    ContractNames,
-    ContractByteCode,
-    ContractAbi,
-    ContractDetails,
-} from '../../store/modules/sidebar/compile'
-
-const namespace = 'compile'
-@Component
+import { Action, Mutation, Getter, State } from 'vuex-class'
+import { SolVersions, Account } from '../../store/types'
+import { ContractNames } from '../../store/modules/sidebar/compile'
+  import NodeAddressInput from './NodeAddressInput.vue'
+const namespace = 'run'
+      @Component({
+        components: {
+          NodeAddressInput
+        }
+      })
 export default class Run extends Vue {
 
-    @State('solVersions', { namespace }) public solVersions!: SolVersions
-    @Getter('contractNames', { namespace }) public contractNames!: ContractNames
-    @Getter('contractAbi', { namespace }) public contractAbi!: ContractAbi
-    @Getter('contractDetails', { namespace }) public contractDetails!: ContractDetails
-    @Action('compile', { namespace }) public compile!: (selectedVersion: string) => void
+    @State('selectedAccount', { namespace }) public selectedAccount!: string
+    @Getter('contractNames', { namespace:'compile' }) public contractNames!: ContractNames
+    @Getter('accounts', { namespace }) public accounts!: Account[]
+    @Mutation('setNodeStatus', { namespace:'compile' }) public setNodeStatus!: (status:boolean) => void
+    @Mutation('saveSelectAccount', { namespace }) public saveSelectAccount!: (account:string) => void
+    @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
 
-    public selectedVersion: string = ''
-    public selectedContract: string = ''
-    public dialogAbiDetailsVisible: boolean = false
     public loading: boolean = false
 
-    public async handleCompile() {
+    public async getAccounts(): Promise <void> {
+        console.log('fetching Accounts')
         this.loading = true
-        await this.compile(this.selectedVersion)
-        this.selectedContract = this.contractNames[0]
+        this.setNodeStatus(true)// TODO validate node and then fetch 
+        await this.fetchAccounts()
         this.loading = false
     }
-
-    public getContractDetails() {
-        return this.contractDetails(this.selectedContract)
+    public set selectedAccountModel(value: string) {
+        this.saveSelectAccount(value)
+    }
+    public get selectedAccountModel(): string {
+        return this.selectedAccount
     }
 }
 </script>
@@ -69,9 +60,5 @@ export default class Run extends Vue {
     &:last-child {
         margin-bottom: 0;
     }
-}
-
-.select {
-    display: block !important;
 }
 </style>

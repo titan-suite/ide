@@ -17,6 +17,7 @@
           "allowFirstLine": true
         }
       }
-    ]
+    ],
+    "no-extra-semi": "off"
   }
 }

@@ -9,7 +9,7 @@ body {
   overflow-y: hidden;
 }
 .textColorBlack {
-  color: #2b2b2b;
+  color: #252525;
 }
 
 /* override codemirror*/
@@ -34,19 +34,22 @@ body {
 .el-select-dropdown,
 .tabContainer {
   color: #ffab00;
-  background-color: #2b2b2b;
+  background-color: #252525;
 }
 
 /* .el-button, */
 .el-button.is-loading {
   color: #ffab00;
   background: #ffab00;
-  background-color: #2b2b2b;
+  background-color: #252525;
 
   /* rest props are overridden by scss file */
 }
 .el-button.is-loading:before {
   background-color: transparent;
+}
+.el-button--primary {
+  color: #252525;
 }
 
 .el-button--primary:hover,

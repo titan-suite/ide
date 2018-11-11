@@ -45,11 +45,8 @@ import VueDraggableResizable from 'vue-draggable-resizable'
 })
 export default class App extends Vue {
     public height: number = 0
-    public mounted(): void {
-        console.log('Console Mounted')
-    }
     public onResizstop(left: number, top: number, width: number, height: number) {
-        console.log({ top, height })
+        // console.log({ top, height })
         // this.height = 1000-height
         // console.log({newHeight:this.height})
     }

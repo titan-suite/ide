@@ -18,7 +18,8 @@ const compileState: CompileState = {
     }
   ],
   contracts: {},
-  nodeAddress
+  nodeAddress,
+  isConnectedToNode: false
 }
 
 export type ContractNames = string[]
@@ -31,13 +32,13 @@ const compileGetters: GetterTree<CompileState, RootState> = {
     return Object.keys(state.compiledCode)
   },
   contractByteCode(state): ContractByteCode {
-    return (contractName) => state.compiledCode[contractName].code
+    return contractName => state.compiledCode[contractName].code
   },
   contractAbi(state): ContractAbi {
-    return (contractName) => state.compiledCode[contractName].info.abiDefinition
+    return contractName => state.compiledCode[contractName].info.abiDefinition
   },
   contractDetails(state): ContractDetails {
-    return (contractName) => state.compiledCode[contractName]
+    return contractName => state.compiledCode[contractName]
   }
 }
 
@@ -50,6 +51,9 @@ const compileMutations: MutationTree<CompileState> = {
   },
   saveNodeAddress(state, payload) {
     state.nodeAddress = payload
+  },
+  setNodeStatus(state, status: boolean) {
+    state.isConnectedToNode = status
   }
 }
 
@@ -105,6 +109,7 @@ const compileActions: ActionTree<CompileState, RootState> = {
           data: parse(abiDefinition, contractName)
         })
       }
+      commit('setNodeStatus', true)
     } catch (error) {
       console.log(error)
       throw error
