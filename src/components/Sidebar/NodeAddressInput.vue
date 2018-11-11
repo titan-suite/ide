@@ -1,11 +1,7 @@
 <template>
-  <el-row>
-    <el-col :span="18" :offset="3">
-      <el-input v-model="nodeAddressModel" :value="nodeAddress" placeholder="Web3 Provider Url" clearable>
-        <!-- <template slot="prepend">Http://</template>-->
-      </el-input>
-    </el-col>
-  </el-row>
+  <el-input v-model="nodeAddressModel" :value="nodeAddress" placeholder="Web3 Provider Url" clearable>
+    <!-- <template slot="prepend">Http://</template>-->
+  </el-input>
 </template>
 
 <script lang="ts">
@@ -13,7 +9,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Mutation, State } from 'vuex-class'
 const namespace = 'compile'
 @Component
-export default class Compile extends Vue {
+export default class NodeAddressInput extends Vue {
 
     @State('nodeAddress', { namespace }) public nodeAddress!: string
     @Mutation('saveNodeAddress', { namespace }) public saveNodeAddress!: (nodeAddress: string) => void

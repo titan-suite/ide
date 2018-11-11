@@ -19,26 +19,32 @@ const compileState: CompileState = {
   ],
   contracts: {},
   nodeAddress,
+  selectedContract: '',
+  selectedSolVersion: '0.4.9',
   isConnectedToNode: false
 }
 
 export type ContractNames = string[]
-export type ContractByteCode = (contractName: string) => string
-export type ContractAbi = (contractName: string) => TypeContractAbi
-export type ContractDetails = (contractName: string) => CompiledCode
+export type ContractByteCode = (contractName?: string) => string
+export type ContractAbi = (contractName?: string) => TypeContractAbi
+export type ContractDetails = (contractName?: string) => CompiledCode
 
 const compileGetters: GetterTree<CompileState, RootState> = {
   contractNames(state): ContractNames {
-    return Object.keys(state.compiledCode)
+    const contractNames = Object.keys(state.compiledCode)
+    return contractNames
   },
   contractByteCode(state): ContractByteCode {
-    return contractName => state.compiledCode[contractName].code
+    return (contractName = state.selectedContract) =>
+      state.compiledCode[contractName].code
   },
   contractAbi(state): ContractAbi {
-    return contractName => state.compiledCode[contractName].info.abiDefinition
+    return (contractName = state.selectedContract) =>
+      state.compiledCode[contractName].info.abiDefinition
   },
   contractDetails(state): ContractDetails {
-    return contractName => state.compiledCode[contractName]
+    return (contractName = state.selectedContract) =>
+      state.compiledCode[contractName]
   }
 }
 
@@ -54,20 +60,23 @@ const compileMutations: MutationTree<CompileState> = {
   },
   setNodeStatus(state, status: boolean) {
     state.isConnectedToNode = status
+  },
+  setSolVersion(state, payload) {
+    state.selectedSolVersion = payload
+  },
+  setSelectedContract(state, payload) {
+    state.selectedContract = payload
   }
 }
 
 const compileActions: ActionTree<CompileState, RootState> = {
-  async compile(
-    { state, rootState, commit, dispatch, getters, rootGetters },
-    solVersion
-  ) {
+  async compile({ state, rootState, commit, dispatch, getters, rootGetters }) {
     const code =
       rootState.workspace.workspaces[rootState.workspace.activeWorkspaceIndex]
         .projectTree.folders[0].files[0].code
     try {
       const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
-      console.log({ web3 }, solVersion)
+      console.log({ web3 }, state.selectedContract)
       const contracts = await compile({
         contract: `pragma solidity ^0.4.9;
                     contract Example {
@@ -110,6 +119,7 @@ const compileActions: ActionTree<CompileState, RootState> = {
         })
       }
       commit('setNodeStatus', true)
+      commit('setSelectedContract', Object.keys(contracts)[0])
     } catch (error) {
       console.log(error)
       throw error

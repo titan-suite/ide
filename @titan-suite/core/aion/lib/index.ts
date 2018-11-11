@@ -1,6 +1,33 @@
 import Web3 from 'aion-web3'
 import { ContractAbi } from 'ethereum-types'
 
+export const getAccounts = ({ web3 }: { web3: Web3 }) => {
+  return new Promise((resolve, reject) => {
+    web3.eth.getAccounts((err, acc) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(acc)
+    })
+  })
+}
+export const getBalance = ({
+  address,
+  web3
+}: {
+  address: string;
+  web3: Web3;
+}) => {
+  return new Promise((resolve, reject) => {
+    web3.eth.getBalance(address, (err, balance) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(web3.fromWei(balance, 'ether'))
+    })
+  })
+}
+
 export const compile = async ({
   contract,
   web3

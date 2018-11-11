@@ -15,6 +15,8 @@ export interface CompileState {
     [key: string]: Contract;
   }
   nodeAddress: string
+  selectedContract: string
+  selectedSolVersion: string
   isConnectedToNode: boolean
 }
 export interface CompiledCode {
@@ -36,11 +38,19 @@ export interface RunState {
   // environment: any
   selectedAccount: string
   accounts: Account[]
+  accountPassword:string
   gasLimit: number
-  value: {
-    amount: number;
-    unit: string;
-  }
+  value: Value
+  units: Unit[],
+  deployedContract:any
+}
+export interface Unit {
+  value: string
+  label: string
+}
+export interface Value {
+  amount: number
+  unit: string
 }
 export interface Account {
   address: string
