@@ -3,8 +3,8 @@
 }
 body {
   background-color: #2b2b2b;
-  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
-    'source-code-pro', monospace;
+  font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
+    "source-code-pro", monospace;
   height: 99vh;
   overflow-y: hidden;
 }
@@ -32,7 +32,8 @@ body {
 .el-input__inner,
 .el-tabs,
 .el-select-dropdown,
-.tabContainer {
+.tabContainer,
+.el-tree {
   color: #ffab00;
   background-color: #252525;
 }
