@@ -1,4 +1,4 @@
-import { MutationTree, GetterTree, Getter } from 'vuex'
+import { MutationTree, GetterTree, Getter, ActionTree } from 'vuex'
 import {
   IdeState,
   File,
@@ -121,8 +121,17 @@ const ideGetters: GetterTree<IdeState, RootState> = {
 }
 
 const mutations: MutationTree<IdeState> = {
-  addFile(state, payload: string) {
-    // state.code = payload
+  updateFolder(state, payload: File) {
+    console.log('starting updateFolder')
+    state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
+      state.workspaces[state.activeWorkspaceIndex].activeFolderIndex
+    ].files.push(payload)
+    console.log(
+      'done',
+      state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
+        state.workspaces[state.activeWorkspaceIndex].activeFolderIndex
+      ].files
+    )
   },
   addFolder(state, payload: string) {
     // state.code = payload
@@ -167,11 +176,30 @@ const mutations: MutationTree<IdeState> = {
   }
 }
 
+const actions: ActionTree<IdeState, RootState> = {
+  addFile(
+    { state, rootState, commit, dispatch, getters, rootGetters },
+    payload
+  ) {
+    console.log(payload)
+    const projectFiles: File[] = getters.projectTree.folders[0].files
+    const lastFileIndex = projectFiles.length
+    const file: File = {
+      index: projectFiles.length,
+      name: payload,
+      code: '12rutyvngeritr',
+      path: ''
+    }
+    commit('updateFolder', file)
+  }
+}
+
 const workspace = {
   namespaced: true,
   state: ideState,
   getters: ideGetters,
-  mutations
+  mutations,
+  actions
 }
 
 export default workspace

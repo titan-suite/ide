@@ -3,7 +3,7 @@
     <el-header height="2rem" class="tempColorWhite">Titan</el-header>
     <el-container>
       <el-aside width="auto">
-        <vue-draggable-resizable :draggable="false" :handles="['mr']" class="tempColorWhite fileExplorerContainer" style=" height: 100%;margin-right:16px; border: 1px solid #ffab00; position: relative;" axis="x">
+        <vue-draggable-resizable :draggable="false" :handles="['mr']" drag-cancel=".enableFocus" class="tempColorWhite fileExplorerContainer" style=" height: 100%;margin-right:16px; border: 1px solid #ffab00; position: relative;" axis="x">
           <FileExplorer />
         </vue-draggable-resizable>
       </el-aside>

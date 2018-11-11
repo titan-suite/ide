@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div class="enableFocus">
     <p>File Explorer</p>
-    <el-tree :data="data" node-key="id" default-expand-all @node-drag-start="handleDragStart" @node-drag-enter="handleDragEnter" @node-drag-leave="handleDragLeave" @node-drag-over="handleDragOver" @node-drag-end="handleDragEnd" @node-drop="handleDrop" @node-click="handleNodeClick" draggable :allow-drop="allowDrop" :allow-drag="allowDrag">
-      <span class="custom-tree-node" slot-scope="{ node, data }">
+    <el-tree :data="data" :allow-drag="allowDrag" :allow-drop="allowDrop" node-key="id" default-expand-all draggable @node-drag-start="handleDragStart" @node-drag-enter="handleDragEnter" @node-drag-leave="handleDragLeave" @node-drag-over="handleDragOver" @node-drag-end="handleDragEnd" @node-drop="handleDrop" @node-click="handleNodeClick">
+      <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}</span>
-        <Item :data="data" :node="node" :handleClick="handleItemClick" />
+        <Item :data="data" :node="node" :handle-click="handleItemClick" />
       </span>
     </el-tree>
     <span class="dialog">
-      <FileDialog :dialogFormVisible="dialogFormVisible" />
+      <FileDialog :dialog-form-visible="dialogFormVisible" @dialogFormVisible="dialogFormVisible=false" />
     </span>
   </div>
 </template>
@@ -16,10 +16,10 @@
 <script lang="ts">
   import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
   import { State, Mutation, Getter } from 'vuex-class'
-  import { EditorOptions, ActiveFile, File, Folder } from '../../store/types'
+  import { EditorOptions, ActiveFile, File, Folder, Tree } from '../../store/types'
   import Item from './Item.vue'
   import FileDialog from './FileDialog.vue'
-  const namespace: string = 'workspace'
+  const namespace = 'workspace'
 
   @Component({
     components: {
@@ -34,11 +34,11 @@
     @Mutation('setActiveFileContent', { namespace }) public setActiveFileContent: any
     @Mutation('showTab', { namespace }) public showTab: any
     
-    private id = 100
-    private data = []
-    private dialogFormVisible: boolean = false
+    public id = 100
+    public data = []
+    public dialogFormVisible: boolean = false
     
-    private defaultProps = {
+    public defaultProps = {
       children: 'children',
       label: 'label'
     }
@@ -47,6 +47,13 @@
     public onToggleDialog(oldState: any, newState: any) {
       console.log(oldState)
       console.log(newState)
+    }
+
+    @Watch('projectTree', {immediate: true, deep: true})
+    public onProjectTreeUpdate(oldTree: Tree, newTree: Tree) {
+      console.log(oldTree)
+      console.log(newTree)
+      this.data = newTree && this.prepareData(newTree.folders)
     }
     
     public mounted(): void {
@@ -107,7 +114,7 @@
     }
 
     public prepareData(folders: Folder[]): any {
-      // console.log(folders)
+      console.log(folders)
 
       const data = folders.map(folder => {
         const files = folder.files.map(file => { 
@@ -135,16 +142,6 @@
         console.log('adding new node')
         this.dialogFormVisible = true
         console.log(this.dialogFormVisible)
-        const newChild = {
-          id: this.id++,
-          label: 'testtest',
-          type,
-          children: [],
-        }
-        if (!data.children) {
-          this.$set(data, 'children', [])
-        }
-        data.children.push(newChild)
       } else {
         const parent = node.parent
         const children = parent.data.children || parent.data
