@@ -1,10 +1,140 @@
+* {
+  font-size: 12px !important;
+}
+body {
+  background-color: #2b2b2b;
+  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
+    'source-code-pro', monospace;
+  height: 99vh;
+  overflow-y: hidden;
+}
+.textColorBlack {
+  color: #2b2b2b;
+}
+
+/* override codemirror*/
 .CodeMirror {
-  border: 1px solid #eee;
+  border: none;
   min-height: 30vh;
   height: auto;
   /* max-height: 70vh; */
 }
 
-.fullWidth {
+.cm-s-monokai .CodeMirror-gutters,
+.cm-s-monokai.CodeMirror {
+  background-color: #2b2b2b;
+}
+
+/* override elementui*/
+
+.el-input,
+.el-select,
+.el-input__inner,
+.el-tabs,
+.el-select-dropdown,
+.tabContainer {
+  color: #ffab00;
+  background-color: #2b2b2b;
+}
+
+/* .el-button, */
+.el-button.is-loading {
+  color: #ffab00;
+  background: #ffab00;
+  background-color: #2b2b2b;
+
+  /* rest props are overridden by scss file */
+}
+.el-button.is-loading:before {
+  background-color: transparent;
+}
+
+.el-button--primary:hover,
+.el-button--primary:focus {
+  background: #daa639;
+  border-color: #ffab00;
+  color: #303133;
+}
+/* dropdown color */
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background-color: #555555;
+  color: #ffab00;
+}
+/* tabs */
+.el-tabs__item {
+  color: white;
+  font-size: 12px;
+}
+/* sidebar dragger */
+.tabContainer > div.handle.handle-ml {
+  background-color: transparent;
+  height: 100%;
+  width: 5px;
+  top: 0px;
+  margin-top: 0;
+  left: -6px;
+  display: block !important;
+}
+.tabContainer > div.handle.handle-ml:hover {
+  background-color: #ffab00;
+  height: 100%;
+  width: 5px;
+  top: 0px;
+  margin-top: 0;
+  left: -6px;
+  display: block;
+}
+/* fileExplorer dragger */
+.fileExplorerContainer > div.handle.handle-mr {
+  background-color: transparent;
+  height: 100%;
+  width: 5px;
+  top: 0px;
+  right: -6px;
+  display: block !important;
+}
+.fileExplorerContainer > div.handle.handle-mr:hover {
+  background-color: #ffab00;
+  height: 100%;
+  width: 5px;
+  top: 0px;
+  right: -6px;
+  display: block;
+}
+/* console dragger */
+.consoleContainer > div.handle.handle-tm {
+  background-color: transparent;
   width: 100%;
+  height: 7px;
+  top: -6px;
+  left: 5px;
+  display: block !important;
+}
+.consoleContainer > div.handle.handle-tm:hover {
+  background-color: #ffab00;
+  width: 100%;
+  height: 7px;
+  top: -6px;
+  left: 5px;
+  display: block;
+}
+/* custom scrollbar */
+
+::-webkit-scrollbar {
+  width: 6.9px;
+  height: 6.9px;
+}
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffab00;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ad7b16;
 }
