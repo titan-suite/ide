@@ -29,23 +29,23 @@ contract Hello {
   }
 }
 `,
-  path: '/'
+  path: '/testToken'
 }
 
 const defaultFolder: Folder = {
   index: 0,
-  name: 'Hello',
+  name: 'Example',
   files: [
     defaultFile,
     {
       index: 1,
-      name: 'Ballot',
+      name: 'Ballot.sol',
       code: 'pragma solidity ^0.4.9; contract Ballot{}',
       path: '/ballot'
     },
     {
       index: 2,
-      name: 'Test',
+      name: 'Test.sol',
       code: 'pragma solidity ^0.4.9; contract Test{}',
       path: '/test'
     }
@@ -108,6 +108,15 @@ const ideGetters: GetterTree<IdeState, RootState> = {
   },
   editorOptions(state): EditorOptions {
     return state.workspaces[state.activeWorkspaceIndex].editorOptions
+  },
+  openFileIndices(state, getters): any[] {
+    return getters.activeWorkspace.openFileIndices
+  },
+  openFiles(state, getters): File[] {
+    return getters.openFileIndices.map((i: number) => {
+      console.log(i)
+      return getters.fileById(0, i)
+    })
   }
 }
 
@@ -131,18 +140,31 @@ const mutations: MutationTree<IdeState> = {
     // state.code = payload
   },
   setActiveFileContent(state, payload: ActiveFile) {
-    console.log('in state' + JSON.stringify(payload))
+    console.log('in state ' + JSON.stringify(payload))
     // state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
     const { folderIndex, fileIndex } = payload
     state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
       folderIndex
     ].files[fileIndex].code =
       payload.code
-  }
+  },
   // setActiveFileIndex(state, payload: number) {
   //   console.log('in state' + JSON.stringify(payload))
   //   state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
-  // }
+  // },
+  showTab(state, payload) {
+    // const { folderIndex, fileIndex } = payload
+    const openFiles =
+      state.workspaces[state.activeWorkspaceIndex].openFileIndices
+    if (openFiles.includes(payload)) {
+    } else {
+      console.log('about to open new tab', payload)
+      state.workspaces[state.activeWorkspaceIndex].openFileIndices.push(
+        payload
+      )
+      console.log(state.workspaces[state.activeWorkspaceIndex].openFileIndices)
+    }
+  }
 }
 
 const workspace = {

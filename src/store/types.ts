@@ -69,3 +69,11 @@ export interface ActiveFile {
   fileIndex: number
   code: string
 }
+export interface Node {
+  index: number
+  label: string
+  path: string
+  type: string
+  children?: Node[]
+  code?: string
+}

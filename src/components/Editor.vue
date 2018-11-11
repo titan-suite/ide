@@ -20,10 +20,11 @@ const namespace: string = 'workspace'
 })
 
 export default class Editor extends Vue {
-    @Getter('code', { namespace }) public code!: string
+    // @Getter('code', { namespace }) public code!: string
     @Getter('editorOptions', { namespace }) public editorOptions!: EditorOptions
     @Mutation('setActiveFileContent', { namespace }) public setActiveFileContent: any
     @Prop(Number) public height!:number
+    @Prop(String) public code!:string
 
     public mounted(): void {
         const { codemirror: codemirrorRef }: any = this.$refs.myCm
