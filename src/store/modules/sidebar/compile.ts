@@ -1,6 +1,6 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { CompileState, RootState, CompiledCode } from '../../types'
-import Web3, { compile } from '../../../../@titan-suite/core/aion'
+import Web3, { compile } from '@titan-suite/core/aion'
 import { nodeAddress } from '../../titanrc'
 import { ContractAbi as TypeContractAbi } from 'ethereum-types'
 import { parse } from 'typechain/dist/parser/abiParser'

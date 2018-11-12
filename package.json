@@ -11,6 +11,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@titan-suite/core": "file:./@titan-suite/core/",
     "codemirror": "^5.41.0",
     "element-ui": "^2.4.5",
     "ethereum-types": "^1.1.2",

@@ -5,7 +5,7 @@ import Web3, {
   unlock,
   getAccounts,
   getBalance
-} from '../../../../@titan-suite/core/aion/dist'
+} from '@titan-suite/core/aion'
 const runState: RunState = {
   // environment: [
   //  { name: 'Web3 Provider', endpoint: ''},
