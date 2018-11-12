@@ -49,6 +49,14 @@ body {
   color: #ffab00;
   background-color: #252525;
 }
+/* table */
+.el-table th.is-leaf, .el-table td {
+  border-bottom: 1px solid #505050;
+}
+.el-table::before {
+  background-color: #505050;
+}
+
 /* tree */
 .el-tree-node__content {
   padding-bottom: 1rem;

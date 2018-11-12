@@ -10,7 +10,7 @@
       <el-table-column prop="etherBalance" label="Balance" />
       <el-table-column align="right">
         <template slot-scope="slot" slot="header">
-          <el-button :loading="accountFetchLoading" type="primary" icon="el-icon-refresh" @click="getAccounts">
+          <el-button :loading="accountFetchLoading" type="primary" size="mini" icon="el-icon-refresh" @click="getAccounts">
             {{ accountFetchLoading?'Refreshing':'Refresh' }}</el-button>
         </template>
 
@@ -50,7 +50,7 @@ export default class Accounts extends Vue {
         this.accountFetchLoading = false
     }
     public get formattedAccounts() {
-        return this.accounts.length > 0 ? this.accounts.map(account => ({ ...account, popoverOpen: false, password: '', shortenAddress: this.shortenAddress(account.address) })) : [{ address: 'No accounts available', etherBalance: '', shortenAddress: 'No accounts available' }]
+        return this.accounts.length > 0 ? this.accounts.map(account => ({ ...account, popoverOpen: false, password: '', shortenAddress: this.shortenAddress(account.address) })) : [{ address: '', etherBalance: '', shortenAddress: '' }]
     }
     public shortenAddress(address: string): string {
         const len = address.length

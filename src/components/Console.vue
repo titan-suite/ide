@@ -1,5 +1,5 @@
 <template>
-  <p> Console</p>
+  <p style="margin-left:1rem;"> Console</p>
 </template>
 
 <script lang="ts">
