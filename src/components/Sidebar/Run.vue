@@ -66,7 +66,7 @@
     
     <el-row>
       <el-col :offset="1" :span="deployLoading ? 8: 7">
-        <el-button :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy">
+        <el-button :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy(false,'')">
           Deploy
         </el-button>
       </el-col>
@@ -96,7 +96,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { SolVersions, Account, Value, Unit } from '../../store/types'
 import { ContractNames } from '../../store/modules/sidebar/compile'
-import { SaveValue , Deploy} from '../../store/modules/sidebar/run'
+import { SaveValue, Deploy } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 
@@ -134,7 +134,6 @@ export default class Run extends Vue {
     public deployLoading: boolean = false
 
     public async getAccounts(): Promise < void > {
-        console.log('fetching Accounts')
         try {
             this.toggleAccountsLoading()
             this.setNodeStatus(true) // TODO validate node and then fetch 
@@ -146,7 +145,6 @@ export default class Run extends Vue {
         }
     }
     public async handleCompile(): Promise < void > {
-        console.log('compiling')
         this.compileLoading = true
         try {
             await this.compile()
@@ -156,11 +154,10 @@ export default class Run extends Vue {
             this.compileLoading = false
         }
     }
-    public async handleDeploy(fromAddress: boolean=false, address: string = ''): Promise < void > {
-        console.log('deploying')
+    public async handleDeploy(fromAddress = false, address = ''): Promise < void > {
         this.deployLoading = true
         try {
-            await this.deploy({fromAddress, address})
+            await this.deploy({ fromAddress, address })
         } catch (e) {
             throw e
         } finally {

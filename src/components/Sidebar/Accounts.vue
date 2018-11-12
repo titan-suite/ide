@@ -47,7 +47,6 @@ export default class Accounts extends Vue {
     @Mutation('setNodeStatus', { namespace: 'compile' }) public setNodeStatus!: (status: boolean) => void
 
     public async getAccounts(): Promise < void > {
-        console.log('fetching Accounts')
         try {
             this.toggleAccountsLoading()
             this.setNodeStatus(true) // TODO validate node and then fetch 

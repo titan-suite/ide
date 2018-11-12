@@ -66,7 +66,7 @@ body {
 
 /* table & el collapse */
 .el-table th.is-leaf,
-.el-table td, .el-collapse-item__header, .el-collapse {
+.el-table td, .el-collapse-item__header, .el-collapse,.el-collapse-item__wrap {
   border-bottom: 1px solid #505050;
 }
 .el-collapse{
@@ -75,7 +75,12 @@ body {
 .el-table::before {
   background-color: #505050;
 }
-
+.el-collapse-item__wrap{
+  background-color: transparent
+}
+.el-collapse-item__header{
+  overflow:hidden;
+}
 /* tree */
 .el-tree-node__content {
   padding-bottom: 1rem;

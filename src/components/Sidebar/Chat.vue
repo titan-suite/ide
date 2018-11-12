@@ -6,8 +6,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component
 export default class Chat extends Vue {
-    public mounted(): void {
-        console.log('Chat Mounted')
-    }
+    public mounted(): void {}
 }
 </script>

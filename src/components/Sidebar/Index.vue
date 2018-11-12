@@ -41,9 +41,6 @@ import Accounts from './Accounts.vue'
 })
 export default class Sidebar extends Vue {
     private activeName: string = 'first'
-    public mounted(): void {
-        console.log('Sidebar Mounted')
-    }
 }
 </script>
 

@@ -102,13 +102,13 @@ const runMutations: MutationTree<RunState> = {
   }
 }
 export type Deploy = (
-  { fromAddress, address }: { fromAddress?: boolean; address?: string }
+  { fromAddress, address }: { fromAddress: boolean; address: string }
 ) => void
 
 const runActions: ActionTree<RunState, RootState> = {
   async deploy(
     { state, rootState, commit, dispatch, getters, rootGetters },
-    { fromAddress = false, address }
+    { fromAddress, address }
   ) {
     try {
       const web3 = new Web3(
@@ -116,10 +116,19 @@ const runActions: ActionTree<RunState, RootState> = {
       )
       const contract = rootGetters['workspace/activeFileCode']
       const contractName = rootState.compile.selectedContract
-      if (!fromAddress) {
+      if (fromAddress===false) {
         const mainAccount = state.selectedAccount
         const gas = state.gasLimit
         const mainAccountPass = state.accountPassword
+        console.log('deploying with',{
+          contract,
+          contractName,
+          mainAccount,
+          mainAccountPass,
+          gas,
+          web3,
+          contractArguments: ''
+        })
         const res = await deploy({
           contract,
           contractName,
@@ -129,6 +138,7 @@ const runActions: ActionTree<RunState, RootState> = {
           web3,
           contractArguments: ''
         })
+        console.log(res)
         commit('saveDeployedContract', res)
       } else {
         const compiledCode = await compile({ contract, web3 })
@@ -141,7 +151,6 @@ const runActions: ActionTree<RunState, RootState> = {
         }
       }
     } catch (error) {
-      console.log(error)
       throw error
     }
   },
@@ -178,7 +187,6 @@ const runActions: ActionTree<RunState, RootState> = {
         throw new Error('Unable to fetch Accounts')
       }
     } catch (error) {
-      console.log(error)
       throw error
     }
   },
@@ -195,7 +203,6 @@ const runActions: ActionTree<RunState, RootState> = {
       commit('updateAccountStatus', { address, status: true })
       return
     } catch (error) {
-      console.log(error)
       throw error
     } finally {
       commit('toggleAccountLoadingStatus', address)

@@ -137,7 +137,6 @@ const ideGetters: GetterTree<IdeState, RootState> = {
   },
   openFiles(state, getters): File[] {
     return getters.openFileIndices.map((i: number) => {
-      console.log(i)
       return getters.fileById(0, i)
     })
   }
@@ -145,16 +144,9 @@ const ideGetters: GetterTree<IdeState, RootState> = {
 
 const mutations: MutationTree<IdeState> = {
   updateFolder(state, payload: File) {
-    console.log('starting updateFolder')
     state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
       state.workspaces[state.activeWorkspaceIndex].activeFolderIndex
     ].files.push(payload)
-    console.log(
-      'done',
-      state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
-        state.workspaces[state.activeWorkspaceIndex].activeFolderIndex
-      ].files
-    )
   },
   addFolder(state, payload: string) {
     // state.code = payload
@@ -172,7 +164,6 @@ const mutations: MutationTree<IdeState> = {
     // state.code = payload
   },
   setActiveFileCode(state, payload: string) {
-    console.log('in state' + JSON.stringify(payload))
     state.workspaces[state.activeWorkspaceIndex].activeFileCode = payload
   },
   showTab(state, payload) {
@@ -180,11 +171,9 @@ const mutations: MutationTree<IdeState> = {
       state.workspaces[state.activeWorkspaceIndex].openFileIndices
     if (openFiles.includes(payload)) {
     } else {
-      console.log('about to open new tab', payload)
       state.workspaces[state.activeWorkspaceIndex].openFileIndices.push(
         payload
       )
-      console.log(state.workspaces[state.activeWorkspaceIndex].openFileIndices)
     }
   }
 }
@@ -194,7 +183,6 @@ const actions: ActionTree<IdeState, RootState> = {
     { state, rootState, commit, dispatch, getters, rootGetters },
     payload
   ) {
-    console.log(payload)
     const projectFiles: File[] = getters.projectTree.folders[0].files
     const lastFileIndex = projectFiles.length
     const file: File = {

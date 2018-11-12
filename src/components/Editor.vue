@@ -1,5 +1,5 @@
 <template>
-  <codemirror ref="myCm" :value="code" :options="editorOptions" :style="{ height: height >0 && height + 'px' }" class="codemirror" @ready="onCmReady" @focus="onCmFocus" @input="onCmCodeChange" @gutterClick="onGutterClick" />
+  <codemirror ref="myCm" :value="code" :options="editorOptions" :style="{ height: height >0 && height + 'px' }" class="codemirror" @input="onCmCodeChange" @gutterClick="onGutterClick" />
 </template>
 
 <script lang="ts">
@@ -25,27 +25,16 @@ export default class Editor extends Vue {
     @Prop(Number) public height!: number
     @Prop(String) public code!: string
 
-    public mounted(): void {
-        const { codemirror: codemirrorRef }: any = this.$refs.myCm
-        console.log('this is current codemirror object', codemirrorRef, this.editorOptions, this.code, this.height)
-    }
-
-    public onCmReady(cm: any) {
-        console.log('the editor is readied!', cm)
-    }
-
-    public onCmFocus(cm: any) {
-        console.log('the editor is focus!', cm)
-    }
+    // public mounted(): void {
+    //     const { codemirror: codemirrorRef }: any = this.$refs.myCm
+    // }
 
     public onCmCodeChange(code: any) {
-        console.log('this is new code', code)
         this.setActiveFileCode(code)
     }
 
     public onGutterClick(cm: any, n: any) {
         const info = cm.lineInfo(n)
-        console.log(info)
         cm.setGutterMarker(n, 'breakpoints', info.gutterMarkers ? null : this.makeMarker())
     }
 

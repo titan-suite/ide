@@ -53,13 +53,8 @@
     }
     public formLabelWidth: string = '120px'
 
-    public mounted(): void {
-        console.log('FileDialog mounted', this.dialogFormVisible)
-    }
-
     public handleFormSubmit(d: any): void {
         const { form: theForm } = this.$refs
-        console.log(this.form.name, this.form.language, this.form.compiler)
         this.addFile(this.form.name)
         this.$emit('dialogFormVisible', false)
     }

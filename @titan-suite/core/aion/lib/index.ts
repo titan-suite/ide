@@ -59,7 +59,6 @@ export const unlock = async ({
   mainAccountPass: string;
   web3: Web3;
 }) => {
-  console.info('Unlocking...')
   return new Promise((resolve, reject) => {
     web3.personal
       ? web3.personal.unlockAccount(
@@ -95,7 +94,6 @@ const Web3DeployContract = async ({
   gas: number;
   contractArguments: string | null | undefined;
 }): Promise<{ abi?: ContractAbi; address?: string }> => {
-  console.info('Deploying...')
   return new Promise((resolve, reject) => {
     if (contractArguments && contractArguments.length > 0) {
       web3.eth.contract(abi).new(

@@ -19,7 +19,7 @@
         </el-main>
         <el-footer height="auto" style="padding:0">
           <vue-draggable-resizable :active="true" :draggable="false" :h="100" :handles="['tm']" class="tempColorWhite consoleContainer" axis="y" style="width: 100%; top:0;z-index: 1000;
-                                     display: flex;border: 1px solid #ffab00; position: relative;" @resizestop="onResizstop">
+                                     display: flex;border: 1px solid #ffab00; position: relative;">
             <Console />
           </vue-draggable-resizable>
         </el-footer>
@@ -65,37 +65,24 @@ export default class App extends Vue {
     public tabIndex: number = 2
     @Watch('openFiles', { immediate: true, deep: true })
     public onFileUpdate(newFiles: File[], oldFiles: File[]) {
-        console.log('old', oldFiles)
-        console.log('new', newFiles)
         this.openTabs = this.renderTabs(newFiles)
-        // this.$forceUpdate()
-        console.log(this.openTabs)
         this.openTabValue = this.openTabs[this.openTabs.length - 1].name
     }
 
 
     public mounted(): void {
-        console.log('Console Mounted')
         this.openTabs = this.renderTabs(this.openFiles)
-        console.log(this.openTabs)
         this.openTabValue = this.openTabs[0].name
     }
 
     public renderTabs(files: File[]): any[] { // TODO create Tab interface
         return files.map((file: File) => {
-            console.log(file)
             return {
                 title: file.name,
                 name: file.path,
                 content: file.code
             }
         })
-    }
-
-    public onResizstop(left: number, top: number, width: number, height: number) {
-        // console.log({ top, height })
-        // this.height = 1000-height
-        // console.log({newHeight:this.height})
     }
 
     public handleTabsEdit(targetName: string, action: string) {

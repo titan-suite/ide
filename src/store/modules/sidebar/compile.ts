@@ -88,7 +88,6 @@ const compileActions: ActionTree<CompileState, RootState> = {
           info: { abiDefinition }
         }
       ] of Object.entries(contracts)) {
-        console.log(contractName, abiDefinition)
         commit('saveContract', {
           name: contractName,
           data: parse(abiDefinition, contractName)
@@ -97,7 +96,6 @@ const compileActions: ActionTree<CompileState, RootState> = {
       commit('setNodeStatus', true)
       commit('setSelectedContract', Object.keys(contracts)[0])
     } catch (error) {
-      console.log(error)
       throw error
     }
   }
