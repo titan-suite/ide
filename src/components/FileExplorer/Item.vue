@@ -1,13 +1,13 @@
 <template>
-    <span v-if="data.type === 'folder'">
-        <!-- <el-button icon="el-icon-circle-plus" size="mini" @click="() => append(data, 'folder')" circle></el-button> -->
-        <el-button icon="el-icon-plus" size="mini" @click="handleClick(action='add', data, type='file')" circle></el-button>
-        <el-button icon="el-icon-delete" size="mini" @click="handleClick(action='remove', data, node)" circle></el-button>
-    </span>
-
-    <span v-else-if="data.type === 'file'">
-        <el-button icon="el-icon-delete" size="mini" @click="handleClick(action='remove', data, node)" circle></el-button>
-    </span>
+  <span v-if="data.type === 'folder'">
+    <!-- <el-button icon="el-icon-circle-plus" size="mini" @click="() => append(data, 'folder')" circle></el-button> -->
+    <el-button class="actionButton" type="primary" icon="el-icon-plus" size="mini" circle @click="handleClick(action='add', data, type='file')"/>
+    <el-button class="actionButton" type="info" icon="el-icon-delete" size="mini" circle @click="handleClick(action='remove', data, node)"/>
+  </span>
+    
+  <span v-else-if="data.type === 'file'">
+    <el-button class="actionButton" type="info" icon="el-icon-delete" size="mini" circle @click="handleClick(action='remove', data, node)"/>
+  </span>
 </template>
 
 <script lang="ts">
@@ -18,10 +18,10 @@ export default class Item extends Vue {
     @Prop(Object) public node!: object
     @Prop(Function) public handleClick: any
 
-    private id = 1000
+    public id = 1000
 
     // public mounted(): void {
-        // console.log('Item Mounted ', this.data, this.node)
+    // console.log('Item Mounted ', this.data, this.node)
     // }
 
     // public append(data: any, type: string): void {
@@ -36,7 +36,7 @@ export default class Item extends Vue {
     //   }
     //   data.children.push(newChild)
     // }
-    
+
     // public remove(node: any, data: any): void {
     //   console.dir(node, data)
     //   const parent = node.parent
@@ -46,3 +46,9 @@ export default class Item extends Vue {
     // }
 }
 </script>
+
+<style scoped lang="stylus">
+.actionButton{
+    margin-top:.95rem;
+}
+</style>

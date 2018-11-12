@@ -5,7 +5,7 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-
+    
     <el-row :gutter="11">
       <el-col :span="18" :offset="3">
         <el-select v-model="selectedAccountModel" :loading="accountFetchLoading" class="select" placeholder="Choose an Account" style="display: block">
@@ -16,19 +16,19 @@
         <el-button :loading="accountFetchLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="18" :offset="3">
         <el-input v-model="accountPasswordModel" :value="accountPassword" type="password" placeholder="Account Password" clearable />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="18" :offset="3">
         <el-input v-model="gasLimitModel" :value="gasLimit" type="number" placeholder="Gas Limit" clearable />
       </el-col>
     </el-row>
-
+    
     <el-row :gutter="11">
       <el-col :span="12" :offset="3">
         <el-input v-model="amountModel" :value="value.amount" type="number" placeholder="Value" clearable />
@@ -39,7 +39,7 @@
         </el-select>
       </el-col>
     </el-row>
-
+    
     <el-row :gutter="11">
       <el-col :span="18" :offset="3">
         <ContractNameSelect />
@@ -48,7 +48,7 @@
         <el-button :loading="compileLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="handleCompile" />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="24" :offset="13">
         <el-button :loading="deployLoading" type="primary" class="textColorBlack" @click="handleDeploy">
@@ -91,7 +91,7 @@ export default class Run extends Vue {
     @Mutation('saveSelectAccount', { namespace }) public saveSelectAccount!: (account: string) => void
     @Mutation('saveAccountPassword', { namespace }) public saveAccountPassword!: (password: string) => void
     @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
-    @Action('compile', { namespace:'compile' }) public compile!: () => void
+    @Action('compile', { namespace: 'compile' }) public compile!: () => void
     @Action('deploy', { namespace }) public deploy!: () => void
 
 
@@ -101,22 +101,37 @@ export default class Run extends Vue {
 
     public async getAccounts(): Promise < void > {
         console.log('fetching Accounts')
-        this.accountFetchLoading = true
-        this.setNodeStatus(true) // TODO validate node and then fetch 
-        await this.fetchAccounts()
-        this.accountFetchLoading = false
+        try {
+            this.accountFetchLoading = true
+            this.setNodeStatus(true) // TODO validate node and then fetch 
+            await this.fetchAccounts()
+        } catch (e) {
+            throw e
+        } finally {
+            this.accountFetchLoading = false
+        }
     }
-    public async handleCompile(): Promise <void> {
+    public async handleCompile(): Promise < void > {
         console.log('compiling')
         this.compileLoading = true
-        this.compile()
-        this.compileLoading = false
+        try {
+            await this.compile()
+        } catch (e) {
+            throw e
+        } finally {
+            this.compileLoading = false
+        }
     }
-    public async handleDeploy(): Promise <void> {
+    public async handleDeploy(): Promise < void > {
         console.log('compiling')
         this.deployLoading = true
-        this.deploy()
-        this.deployLoading = false
+        try {
+            await this.deploy()
+        } catch (e) {
+            throw e
+        } finally {
+            this.deployLoading = false
+        }
     }
     public set selectedAccountModel(value: string) {
         this.saveSelectAccount(value)
@@ -153,10 +168,10 @@ export default class Run extends Vue {
 
 <style lang="stylus">
 .el-row {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 
-    &:last-child {
-        margin-bottom: 0;
-    }
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>

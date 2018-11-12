@@ -5,7 +5,7 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="18" :offset="3">
         <el-select v-model="selectedSolVersionModal" class="select" placeholder="Select new compiler version" style="display: block">
@@ -13,7 +13,7 @@
         </el-select>
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="24" :offset="10">
         <el-button :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
@@ -21,13 +21,13 @@
         </el-button>
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="18" :offset="3">
-        <ContractNameSelect />  
+        <ContractNameSelect />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="24" :offset="13">
         <el-button type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
@@ -35,7 +35,7 @@
         </el-button>
       </el-col>
     </el-row>
-
+    
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible">
       {{ contractDetails() }}
     </el-dialog>
@@ -67,7 +67,6 @@ export default class Compile extends Vue {
     @State('selectedContract', { namespace }) public selectedContract!: string
     @State('solVersions', { namespace }) public solVersions!: SolVersions
     @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
-    @State('isConnectedToNode', { namespace }) public isConnectedToNode!: boolean
 
     @Getter('contractAbi', { namespace }) public contractAbi!: ContractAbi
     @Getter('contractDetails', { namespace }) public contractDetails!: ContractDetails
@@ -82,8 +81,13 @@ export default class Compile extends Vue {
 
     public async handleCompile(): Promise < void > {
         this.loading = true
-        this.isConnectedToNode === false ? await Promise.all([this.compile(), this.fetchAccounts()]) : await this.compile()
-        this.loading = false
+        try {
+            await this.compile()
+        } catch (e) {
+            throw e
+        } finally {
+            this.loading = false
+        }
     }
 
     public set selectedSolVersionModal(solVersion: string) {

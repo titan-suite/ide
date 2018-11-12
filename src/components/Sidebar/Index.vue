@@ -6,13 +6,16 @@
     <el-tab-pane label="Run" name="second">
       <Run />
     </el-tab-pane>
-    <el-tab-pane label="Analysis" name="third">
+    <el-tab-pane label="Accounts" name="third">
+      <Accounts />
+    </el-tab-pane>
+    <el-tab-pane label="Analysis" name="fourth">
       <Analysis />
     </el-tab-pane>
-    <el-tab-pane label="Chat" name="fourth">
+    <el-tab-pane label="Chat" name="fifth">
       <Chat />
     </el-tab-pane>
-    <el-tab-pane label="Settings" name="fifth">
+    <el-tab-pane label="Settings" name="sixth">
       <Settings />
     </el-tab-pane>
   </el-tabs>
@@ -25,13 +28,15 @@ import Run from './Run.vue'
 import Analysis from './Analysis.vue'
 import Chat from './Chat.vue'
 import Settings from './Settings.vue'
+import Accounts from './Accounts.vue'
 @Component({
     components: {
         Compile,
         Run,
         Analysis,
         Chat,
-        Settings
+        Settings,
+        Accounts
     }
 })
 export default class Sidebar extends Vue {
@@ -41,6 +46,7 @@ export default class Sidebar extends Vue {
     }
 }
 </script>
+
 <style lang="stylus">
 .enableFocus {
 }

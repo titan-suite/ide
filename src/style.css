@@ -3,8 +3,8 @@
 }
 body {
   background-color: #2b2b2b;
-  font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
-    "source-code-pro", monospace;
+  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
+    'source-code-pro', monospace;
   height: 99vh;
   overflow-y: hidden;
 }
@@ -15,14 +15,15 @@ body {
 /* override codemirror*/
 .CodeMirror {
   border: none;
-  min-height: 30vh;
+  /* min-height: 30vh; */
   height: auto;
   /* max-height: 70vh; */
 }
 
 .cm-s-monokai .CodeMirror-gutters,
 .cm-s-monokai.CodeMirror {
-  background-color: #2b2b2b;
+  background-color: #252525;
+  /* background-color: #2b2b2b; */
 }
 
 /* override elementui*/
@@ -33,11 +34,62 @@ body {
 .el-tabs,
 .el-select-dropdown,
 .tabContainer,
-.el-tree {
+.fileExplorerContainer,
+.el-container,
+.el-tree,
+.el-popover,
+.el-popper,
+.el-table,
+.el-table tr,
+.el-table th,
+.el-table__expanded-cell,
+.el-table--enable-row-hover .el-table__body tr:hover > td,
+.el-tabs--border-card > .el-tabs__header,
+.el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
   color: #ffab00;
   background-color: #252525;
 }
-
+/* tree */
+.el-tree-node__content {
+  padding-bottom: 1rem;
+}
+.el-tree-node {
+  height: 3rem;
+}
+.el-tree-node:focus > .el-tree-node__content {
+  background-color: #2f2f2d;
+}
+.el-tree-node__content:hover {
+  background-color: #3f3f3f;
+}
+.el-tabs__new-tab {
+  background-color: #ffab00;
+  color: #252525;
+  border: none;
+}
+.el-tabs__new-tab:hover {
+  color: white;
+  background-color: #252525;
+  border: 1px solid #ffab00;
+}
+.el-tabs--border-card > .el-tabs__content {
+  padding: 0px;
+}
+/* tabs */
+.el-tabs--border-card {
+  border: 1px solid #5f6268cc;
+}
+.el-tabs--border-card > .el-tabs__header {
+  border-bottom: 1px solid #ffab00;
+}
+.el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
+  border-left: 1px solid #ffab00;
+  border-right: 1px solid #ffab00;
+}
+/*input borders */
+.el-input__inner {
+  border: 1px solid #5f6268cc;
+}
 /* .el-button, */
 .el-button.is-loading {
   color: #ffab00;

@@ -2,6 +2,7 @@ import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { RunState, RootState, Account } from '../../types'
 import Web3, {
   deploy,
+  unlock,
   getAccounts,
   getBalance
 } from '../../../../@titan-suite/core/aion/dist'
@@ -11,8 +12,8 @@ const runState: RunState = {
   // ],
   selectedAccount: '',
   accounts: [],
-  accountPassword:'',
-  gasLimit: 69,
+  accountPassword: '',
+  gasLimit: 200 * 1000,
   value: {
     amount: 0,
     unit: 'wei'
@@ -35,7 +36,7 @@ const runState: RunState = {
       label: 'Ether'
     }
   ],
-  deployedContract:{}
+  deployedContract: {}
 }
 
 const runGetters: GetterTree<RunState, RootState> = {
@@ -57,7 +58,7 @@ const runGetters: GetterTree<RunState, RootState> = {
 }
 
 export interface SaveValue {
-  amount?: number,
+  amount?: number
   unit?: string
 }
 const runMutations: MutationTree<RunState> = {
@@ -73,18 +74,23 @@ const runMutations: MutationTree<RunState> = {
   saveGasLimit(state, payload) {
     state.gasLimit = payload
   },
-  saveValue(state, payload:SaveValue) {
-    state.value = {...state.value , ...payload}
+  saveValue(state, payload: SaveValue) {
+    state.value = { ...state.value, ...payload }
   },
   saveDeployedContract(state, payload) {
     state.deployedContract = payload
+  },
+  updateAccountStatus(state, { address, status }) {
+    const targetAccountIndex = state.accounts.findIndex(
+      account => account.address === address
+    )
+    state.accounts[targetAccountIndex].unlocked = status
   }
 }
 
 const runActions: ActionTree<RunState, RootState> = {
   async deploy({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    const contract =
-    `pragma solidity ^0.4.9;
+    const contract = `pragma solidity ^0.4.9;
     contract Example {
         uint128 public num = 5;
         event NumChanged (uint128);
@@ -109,13 +115,23 @@ const runActions: ActionTree<RunState, RootState> = {
           NumChanged(num);
       }}`
     try {
-      const web3 = new Web3(new Web3.providers.HttpProvider(rootState.compile.nodeAddress))
+      const web3 = new Web3(
+        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+      )
       console.log({ web3 })
       const contractName = rootState.compile.selectedContract
       const mainAccount = state.selectedAccount
       const gas = state.gasLimit
       const mainAccountPass = state.accountPassword
-      const res = await deploy({contract,contractName,mainAccount, mainAccountPass, gas, web3, contractArguments:''})
+      const res = await deploy({
+        contract,
+        contractName,
+        mainAccount,
+        mainAccountPass,
+        gas,
+        web3,
+        contractArguments: ''
+      })
       commit('saveDeployedContract', res)
     } catch (error) {
       console.log(error)
@@ -135,14 +151,15 @@ const runActions: ActionTree<RunState, RootState> = {
         new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
       )
 
-      const addresses = await getAccounts({web3})
+      const addresses = await getAccounts({ web3 })
       if (Array.isArray(addresses)) {
         const accounts: Account[] = await Promise.all(
           addresses.map(async (address: string) => {
-            const etherBalance = await getBalance({address, web3})
+            const etherBalance = await getBalance({ address, web3 })
             return {
               address,
-              etherBalance: Number(etherBalance)
+              etherBalance: Number(etherBalance),
+              unlocked: false
             }
           })
         )
@@ -152,6 +169,22 @@ const runActions: ActionTree<RunState, RootState> = {
       } else {
         throw new Error('Unable to fetch Accounts')
       }
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+  },
+  async unlockAccount(
+    { state, rootState, commit, dispatch, getters, rootGetters },
+    { address, password }
+  ) {
+    try {
+      const web3 = new Web3(
+        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+      )
+      await unlock({ mainAccount: address, mainAccountPass: password, web3 })
+      commit('updateAccountStatus', { address, status: true })
+      return
     } catch (error) {
       console.log(error)
       throw error

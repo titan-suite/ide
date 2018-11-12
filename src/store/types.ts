@@ -55,6 +55,7 @@ export interface Value {
 export interface Account {
   address: string
   etherBalance: number
+  unlocked:boolean
 }
 export interface IdeState {
   activeWorkspaceIndex: number
