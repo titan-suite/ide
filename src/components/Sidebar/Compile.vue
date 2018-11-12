@@ -5,7 +5,7 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="18" :offset="3">
         <el-select v-model="selectedSolVersionModal" class="select" placeholder="Select new compiler version" style="display: block">
@@ -13,7 +13,7 @@
         </el-select>
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="24" :offset="10">
         <el-button :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
@@ -21,13 +21,13 @@
         </el-button>
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="18" :offset="3">
         <ContractNameSelect />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="24" :offset="13">
         <el-button type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
@@ -35,7 +35,25 @@
         </el-button>
       </el-col>
     </el-row>
-    
+
+    <el-row>
+      <el-col :span="24">
+        <h3>Problems ({{ lintDetails.length }})</h3>
+        <el-collapse v-model="activeName" accordion>
+          <el-collapse-item v-for="(report, index) in lintDetails" :key="index" :title="`line ${report.line} column ${report.column} - ${report.ruleId}`" :name="index" class="lint-report">
+            <span v-if="report.severity === 2">
+              <el-button type="warning" circle><i class="el-icon-warning"></i></el-button>
+            </span>
+            <span v-if="report.severity === 3">
+              <el-button type="danger" circle><i class="el-icon-warning"></i></el-button>
+            </span>
+            <!-- <br> -->
+            <span> {{ report.message }}</span>
+          </el-collapse-item>
+        </el-collapse>
+      </el-col>
+    </el-row>
+
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible">
       {{ contractDetails() }}
     </el-dialog>
@@ -49,11 +67,12 @@ import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 import { SolVersions, CompiledCode } from '../../store/types'
 import {
-    ContractByteCode,
+  ContractByteCode,
     ContractAbi,
     ContractDetails,
 } from '../../store/modules/sidebar/compile'
 
+import linter from 'solhint/lib/index'
 
 const namespace = 'compile'
 
@@ -68,6 +87,7 @@ export default class Compile extends Vue {
     @State('solVersions', { namespace }) public solVersions!: SolVersions
     @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
 
+    @Getter('activeFileCode', { namespace: 'workspace' }) public activeFileCode!: string
     @Getter('contractAbi', { namespace }) public contractAbi!: ContractAbi
     @Getter('contractDetails', { namespace }) public contractDetails!: ContractDetails
 
@@ -78,6 +98,7 @@ export default class Compile extends Vue {
 
     public dialogAbiDetailsVisible: boolean = false
     public loading: boolean = false
+    public activeName: string = '1'
 
     public async handleCompile(): Promise < void > {
         this.loading = true
@@ -95,6 +116,24 @@ export default class Compile extends Vue {
     }
     public get selectedSolVersionModal(): string {
         return this.selectedSolVersion
+    }
+    public get lintDetails(): string {
+      const configAsJson = {
+        extends: 'default',
+        rules: {
+            'avoid-throw': false,
+            'compiler-fixed': true,
+            'avoid-suicide': 'error',
+            'avoid-sha3': 'warn',
+            indent: true,
+            'payable-fallback': false
+        }
+      }
+      const code = this.activeFileCode
+      console.log(code)
+      const {reports} = linter.processStr(code, configAsJson)
+      console.log(reports)
+      return reports
     }
 
 }

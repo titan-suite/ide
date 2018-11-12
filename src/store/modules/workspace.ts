@@ -72,6 +72,7 @@ const defaultWorkspace: Workspace = {
   name: 'Project 1',
   projectTree,
   activeFolderIndex: 0,
+  activeFileCode: 'pragma solidity ^0.4.9;',
   openFileIndices: [0],
   editorOptions
 }
@@ -102,9 +103,8 @@ const ideGetters: GetterTree<IdeState, RootState> = {
         .files.find((f: File) => f.index === fileIndex)
     }
   },
-  code(state): string {
-    return state.workspaces[state.activeWorkspaceIndex].projectTree.folders[0]
-      .files[0].code
+  activeFileCode(state, getters): string {
+    return getters.activeWorkspace.activeFileCode
   },
   editorOptions(state): EditorOptions {
     return state.workspaces[state.activeWorkspaceIndex].editorOptions
@@ -148,21 +148,11 @@ const mutations: MutationTree<IdeState> = {
   moveFolder(state, payload: string) {
     // state.code = payload
   },
-  setActiveFileContent(state, payload: ActiveFile) {
-    console.log('in state ' + JSON.stringify(payload))
-    // state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
-    const { folderIndex, fileIndex } = payload
-    state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
-      folderIndex
-    ].files[fileIndex].code =
-      payload.code
+  setActiveFileCode(state, payload: string) {
+    console.log('in state' + JSON.stringify(payload))
+    state.workspaces[state.activeWorkspaceIndex].activeFileCode = payload
   },
-  // setActiveFileIndex(state, payload: number) {
-  //   console.log('in state' + JSON.stringify(payload))
-  //   state.workspaces[state.activeWorkspaceIndex].activeFile.code = payload
-  // },
   showTab(state, payload) {
-    // const { folderIndex, fileIndex } = payload
     const openFiles =
       state.workspaces[state.activeWorkspaceIndex].openFileIndices
     if (openFiles.includes(payload)) {

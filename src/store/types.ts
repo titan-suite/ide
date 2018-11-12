@@ -38,11 +38,11 @@ export interface RunState {
   // environment: any
   selectedAccount: string
   accounts: Account[]
-  accountPassword:string
+  accountPassword: string
   gasLimit: number
   value: Value
-  units: Unit[],
-  deployedContract:any
+  units: Unit[]
+  deployedContract: any
 }
 export interface Unit {
   value: string
@@ -55,7 +55,7 @@ export interface Value {
 export interface Account {
   address: string
   etherBalance: number
-  unlocked:boolean
+  unlocked: boolean
 }
 export interface IdeState {
   activeWorkspaceIndex: number
@@ -66,6 +66,7 @@ export interface Workspace {
   name: string
   projectTree: Tree
   activeFolderIndex: number
+  activeFileCode: string
   openFileIndices: number[]
   editorOptions: EditorOptions
 }

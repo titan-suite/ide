@@ -3,13 +3,17 @@
 }
 body {
   background-color: #2b2b2b;
-  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
-    'source-code-pro', monospace;
+  font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
+    "source-code-pro", monospace;
   height: 99vh;
   overflow-y: hidden;
 }
 .textColorBlack {
   color: #252525;
+}
+.el-collapse-item__content {
+  color: #ffab00;
+  background-color: #252525;
 }
 
 /* override codemirror*/
@@ -28,6 +32,7 @@ body {
 
 /* override elementui*/
 
+.el-collapse-item__header,
 .el-input,
 .el-select,
 .el-input__inner,
@@ -50,7 +55,8 @@ body {
   background-color: #252525;
 }
 /* table */
-.el-table th.is-leaf, .el-table td {
+.el-table th.is-leaf,
+.el-table td {
   border-bottom: 1px solid #505050;
 }
 .el-table::before {

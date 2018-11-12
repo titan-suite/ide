@@ -30,7 +30,8 @@ export default class FileExplorer extends Vue {
     @Getter('code', { namespace }) public code!: any
     @Getter('fileById', { namespace }) public fileById!: any
     @Getter('projectTree', { namespace }) public projectTree!: any
-    @Mutation('setActiveFileContent', { namespace }) public setActiveFileContent: any
+
+    @Mutation('setActiveFileCode', { namespace }) public setActiveFileCode: any
     @Mutation('showTab', { namespace }) public showTab: any
 
     public id = 100
@@ -93,7 +94,7 @@ export default class FileExplorer extends Vue {
             const file: File = this.fileById(0, nodeId)
             console.log(file.code)
             // const payload = {folderIndex: 0, fileIndex: nodeId, code: file.code}
-            // this.setActiveFileContent(payload)
+            this.setActiveFileCode(file.code)
             this.showTab(nodeId)
         }
     }
@@ -137,16 +138,16 @@ export default class FileExplorer extends Vue {
     }
 
     public handleItemClick(action: string, data: any, type? : string, node? : any) {
-        if (action === 'add') {
-            console.log('adding new node')
-            this.dialogFormVisible = true
-            console.log(this.dialogFormVisible)
-        } else {
-            const parent = node.parent
-            const children = parent.data.children || parent.data
-            const index = children.findIndex((d: any) => d.id === data.id)
-            children.splice(index, 1)
-        }
+      if (action === 'add') {
+          console.log('adding new node')
+          this.dialogFormVisible = true
+          console.log(this.dialogFormVisible)
+      } else {
+          const parent = node.parent
+          const children = parent.data.children || parent.data
+          const index = children.findIndex((d: any) => d.id === data.id)
+          children.splice(index, 1)
+      }
     }
 
 }

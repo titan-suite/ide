@@ -21,6 +21,12 @@
     "prettier": true,
     "no-console": false,
     "triple-equals": true,
-    "no-submodule-imports": [true, "codemirror", "@titan-suite", "typechain"]
+    "no-submodule-imports": [
+      true,
+      "codemirror",
+      "@titan-suite",
+      "typechain",
+      "solhint"
+    ]
   }
 }
