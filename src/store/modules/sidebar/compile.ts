@@ -74,40 +74,13 @@ const compileMutations: MutationTree<CompileState> = {
 
 const compileActions: ActionTree<CompileState, RootState> = {
   async compile({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    const code =
-      rootState.workspace.workspaces[rootState.workspace.activeWorkspaceIndex]
-        .projectTree.folders[0].files[0].code
+    const contract = rootGetters['workspace/activeFileCode']
     try {
       const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
-      console.log({ web3 }, state.selectedContract)
       const contracts = await compile({
-        contract: `pragma solidity ^0.4.9;
-                    contract Example {
-                        uint128 public num = 5;
-                        event NumChanged (uint128);
-                        function add(uint128 a) public returns (uint128) {
-                            return num+a;
-                        }
-                        function setA(uint128 a) public {
-                            num = a;
-                            NumChanged(num);
-                        }}
-                      contract WithConstructor {
-                      uint128 public num = 5;
-                      event NumChanged (uint128);
-                      function add(uint128 a) public returns (uint128) {
-                          return num+a;
-                      }
-                      function WithConstructor(uint128 a) public {
-                        num = a;
-                      }
-                      function setA(uint128 a) public {
-                          num = a;
-                          NumChanged(num);
-                      }}`,
+        contract,
         web3
       })
-      console.log({ data: contracts })
       commit('saveCompiledCode', contracts)
       for (const [
         contractName,

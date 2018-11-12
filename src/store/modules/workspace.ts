@@ -45,8 +45,31 @@ const defaultFolder: Folder = {
     },
     {
       index: 2,
-      name: 'Test.sol',
-      code: 'pragma solidity ^0.4.9; contract Test{}',
+      name: 'Example.sol',
+      code: `pragma solidity ^0.4.9;
+      contract Example {
+          uint128 public num = 5;
+          event NumChanged (uint128);
+          function add(uint128 a) public returns (uint128) {
+              return num+a;
+          }
+          function setA(uint128 a) public {
+              num = a;
+              NumChanged(num);
+          }}
+        contract WithConstructor {
+        uint128 public num = 5;
+        event NumChanged (uint128);
+        function add(uint128 a) public returns (uint128) {
+            return num+a;
+        }
+        function WithConstructor(uint128 a) public {
+          num = a;
+        }
+        function setA(uint128 a) public {
+            num = a;
+            NumChanged(num);
+        }}`,
       path: '/test'
     }
   ],
@@ -177,7 +200,7 @@ const actions: ActionTree<IdeState, RootState> = {
     const file: File = {
       index: projectFiles.length,
       name: payload,
-      code: '12rutyvngeritr',
+      code: 'pragma solidity ^0.4.9;',
       path: ''
     }
     commit('updateFolder', file)

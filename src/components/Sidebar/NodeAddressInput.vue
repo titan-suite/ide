@@ -1,5 +1,5 @@
 <template>
-  <el-input v-model="nodeAddressModel" :value="nodeAddress" placeholder="Web3 Provider Url" clearable>
+  <el-input v-model="nodeAddressModel" :value="nodeAddress" clearable>
     <!-- <template slot="prepend">Http://</template>-->
   </el-input>
 </template>

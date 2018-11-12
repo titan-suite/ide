@@ -54,10 +54,23 @@ body {
   color: #ffab00;
   background-color: #252525;
 }
-/* table */
+/* Secondary button */
+.secondaryButton{
+  color: #ffab00 !important;
+  background-color: #252525;
+}
+.secondaryButton:hover{
+  color: #ffab00 !important;
+  background-color: #2f2b24 !important;
+}
+
+/* table & el collapse */
 .el-table th.is-leaf,
-.el-table td {
+.el-table td, .el-collapse-item__header, .el-collapse {
   border-bottom: 1px solid #505050;
+}
+.el-collapse{
+  border-top: 1px solid #505050;
 }
 .el-table::before {
   background-color: #505050;
@@ -99,6 +112,9 @@ body {
 .el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
   border-left: 1px solid #ffab00;
   border-right: 1px solid #ffab00;
+}
+.el-tabs__new-tab{
+  display: none;
 }
 /*input borders */
 .el-input__inner {

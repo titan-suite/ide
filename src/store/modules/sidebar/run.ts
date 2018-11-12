@@ -3,13 +3,16 @@ import { RunState, RootState, Account } from '../../types'
 import Web3, {
   deploy,
   unlock,
+  compile,
   getAccounts,
   getBalance
 } from '@titan-suite/core/aion'
+import { AbiDefinition } from 'ethereum-types'
 const runState: RunState = {
   // environment: [
   //  { name: 'Web3 Provider', endpoint: ''},
   // ],
+  accountsLoading: false,
   selectedAccount: '',
   accounts: [],
   accountPassword: '',
@@ -85,54 +88,58 @@ const runMutations: MutationTree<RunState> = {
       account => account.address === address
     )
     state.accounts[targetAccountIndex].unlocked = status
+  },
+  toggleAccountLoadingStatus(state, address) {
+    const targetAccountIndex = state.accounts.findIndex(
+      account => account.address === address
+    )
+    state.accounts[targetAccountIndex].loading = !state.accounts[
+      targetAccountIndex
+    ].loading
+  },
+  toggleAccountsLoading(state) {
+    state.accountsLoading = !state.accountsLoading
   }
 }
+export type Deploy = (
+  { fromAddress, address }: { fromAddress?: boolean; address?: string }
+) => void
 
 const runActions: ActionTree<RunState, RootState> = {
-  async deploy({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    const contract = `pragma solidity ^0.4.9;
-    contract Example {
-        uint128 public num = 5;
-        event NumChanged (uint128);
-        function add(uint128 a) public returns (uint128) {
-            return num+a;
-        }
-        function setA(uint128 a) public {
-            num = a;
-            NumChanged(num);
-        }}
-      contract WithConstructor {
-      uint128 public num = 5;
-      event NumChanged (uint128);
-      function add(uint128 a) public returns (uint128) {
-          return num+a;
-      }
-      function WithConstructor(uint128 a) public {
-        num = a;
-      }
-      function setA(uint128 a) public {
-          num = a;
-          NumChanged(num);
-      }}`
+  async deploy(
+    { state, rootState, commit, dispatch, getters, rootGetters },
+    { fromAddress = false, address }
+  ) {
     try {
       const web3 = new Web3(
         new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
       )
-      console.log({ web3 })
+      const contract = rootGetters['workspace/activeFileCode']
       const contractName = rootState.compile.selectedContract
-      const mainAccount = state.selectedAccount
-      const gas = state.gasLimit
-      const mainAccountPass = state.accountPassword
-      const res = await deploy({
-        contract,
-        contractName,
-        mainAccount,
-        mainAccountPass,
-        gas,
-        web3,
-        contractArguments: ''
-      })
-      commit('saveDeployedContract', res)
+      if (!fromAddress) {
+        const mainAccount = state.selectedAccount
+        const gas = state.gasLimit
+        const mainAccountPass = state.accountPassword
+        const res = await deploy({
+          contract,
+          contractName,
+          mainAccount,
+          mainAccountPass,
+          gas,
+          web3,
+          contractArguments: ''
+        })
+        commit('saveDeployedContract', res)
+      } else {
+        const compiledCode = await compile({ contract, web3 })
+        if (contractName in compiledCode) {
+          const abi: AbiDefinition[] =
+            compiledCode[contractName].info.abiDefinition
+          commit('saveDeployedContract', web3.eth.contract(abi).at(address))
+        } else {
+          throw new Error('Invalid Abi')
+        }
+      }
     } catch (error) {
       console.log(error)
       throw error
@@ -159,7 +166,8 @@ const runActions: ActionTree<RunState, RootState> = {
             return {
               address,
               etherBalance: Number(etherBalance),
-              unlocked: false
+              unlocked: false,
+              loading: false
             }
           })
         )
@@ -179,6 +187,7 @@ const runActions: ActionTree<RunState, RootState> = {
     { address, password }
   ) {
     try {
+      commit('toggleAccountLoadingStatus', address)
       const web3 = new Web3(
         new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
       )
@@ -188,6 +197,8 @@ const runActions: ActionTree<RunState, RootState> = {
     } catch (error) {
       console.log(error)
       throw error
+    } finally {
+      commit('toggleAccountLoadingStatus', address)
     }
   }
 }

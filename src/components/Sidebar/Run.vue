@@ -1,37 +1,52 @@
 <template>
   <div>
-    <el-row>
-      <el-col :span="18" :offset="3">
+    <el-row :gutter="11">
+      <el-col :span="7" :offset="1">
+        <p>Provider Url</p>
+      </el-col>
+      <el-col :span="13">
         <NodeAddressInput />
       </el-col>
     </el-row>
     
     <el-row :gutter="11">
-      <el-col :span="18" :offset="3">
-        <el-select v-model="selectedAccountModel" :loading="accountFetchLoading" class="select" placeholder="Choose an Account" style="display: block">
+      <el-col :span="7" :offset="1">
+        <p>Account</p>
+      </el-col>
+      <el-col :span="13">
+        <el-select v-model="selectedAccountModel" :loading="accountsLoading" class="select" placeholder="Choose an Account" style="display: block">
           <el-option v-for="account in accounts" :key="account.address" :label="account.label" :value="account.address" />
         </el-select>
       </el-col>
-      <el-col :span="3">
-        <el-button :loading="accountFetchLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
+      <el-col :span="2">
+        <el-button :loading="accountsLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
       </el-col>
     </el-row>
     
     <el-row>
-      <el-col :span="18" :offset="3">
-        <el-input v-model="accountPasswordModel" :value="accountPassword" type="password" placeholder="Account Password" clearable />
+      <el-col :span="7" :offset="1">
+        <p>Password</p>
+      </el-col>
+      <el-col :span="13">
+        <el-input v-model="accountPasswordModel" :value="accountPassword" type="password" clearable />
       </el-col>
     </el-row>
     
     <el-row>
-      <el-col :span="18" :offset="3">
-        <el-input v-model="gasLimitModel" :value="gasLimit" type="number" placeholder="Gas Limit" clearable />
+      <el-col :span="7" :offset="1">
+        <p>Gas Limit</p>
+      </el-col>
+      <el-col :span="13">
+        <el-input v-model="gasLimitModel" :value="gasLimit" type="number" clearable />
       </el-col>
     </el-row>
     
     <el-row :gutter="11">
-      <el-col :span="12" :offset="3">
-        <el-input v-model="amountModel" :value="value.amount" type="number" placeholder="Value" clearable />
+      <el-col :span="7" :offset="1">
+        <p>Value</p>
+      </el-col>
+      <el-col :span="7">
+        <el-input v-model="amountModel" :value="value.amount" type="number" clearable />
       </el-col>
       <el-col :span="6">
         <el-select v-model="unitModel" class="select" placeholder="Unit" style="display: block">
@@ -41,7 +56,7 @@
     </el-row>
     
     <el-row :gutter="11">
-      <el-col :span="18" :offset="3">
+      <el-col :span="20" :offset="1">
         <ContractNameSelect />
       </el-col>
       <el-col :span="3">
@@ -50,10 +65,27 @@
     </el-row>
     
     <el-row>
-      <el-col :span="24" :offset="13">
-        <el-button :loading="deployLoading" type="primary" class="textColorBlack" @click="handleDeploy">
+      <el-col :offset="1" :span="deployLoading ? 8: 7">
+        <el-button :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy">
           Deploy
         </el-button>
+      </el-col>
+    </el-row>
+    
+    <el-row style="margin-top:-20px;margin-bottom:0px">
+      <el-col :offset="3">
+        <p>or</p>
+      </el-col>
+    </el-row>
+    
+    <el-row type="flex">
+      <el-col :offset="1" :span="deployLoading ? 8: 7">
+        <el-button :loading="deployLoading" style="width:100%" class="secondaryButton" type="primary" @click="handleDeploy(true, fromAddressModel)">
+          At Address
+        </el-button>
+      </el-col>
+      <el-col :span="deployLoading ? 12: 13">
+        <el-input v-model="fromAddressModel" placeholder="Load contract from Address" clearable />
       </el-col>
     </el-row>
   </div>
@@ -64,7 +96,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { SolVersions, Account, Value, Unit } from '../../store/types'
 import { ContractNames } from '../../store/modules/sidebar/compile'
-import { SaveValue } from '../../store/modules/sidebar/run'
+import { SaveValue , Deploy} from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 
@@ -78,6 +110,7 @@ const namespace = 'run'
 })
 export default class Run extends Vue {
 
+    @State('accountsLoading', { namespace }) public accountsLoading!: boolean
     @State('selectedAccount', { namespace }) public selectedAccount!: string
     @State('gasLimit', { namespace }) public gasLimit!: number
     @State('value', { namespace }) public value!: Value
@@ -85,6 +118,7 @@ export default class Run extends Vue {
     @State('accountPassword', { namespace }) public accountPassword!: string
     @Getter('contractNames', { namespace: 'compile' }) public contractNames!: ContractNames
     @Getter('accounts', { namespace }) public accounts!: Account[]
+    @Mutation('toggleAccountsLoading', { namespace }) public toggleAccountsLoading!: () => void
     @Mutation('saveValue', { namespace }) public saveValue!: (value: SaveValue) => void
     @Mutation('saveGasLimit', { namespace }) public saveGasLimit!: (gasLimit: number) => void
     @Mutation('setNodeStatus', { namespace: 'compile' }) public setNodeStatus!: (status: boolean) => void
@@ -92,23 +126,23 @@ export default class Run extends Vue {
     @Mutation('saveAccountPassword', { namespace }) public saveAccountPassword!: (password: string) => void
     @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
     @Action('compile', { namespace: 'compile' }) public compile!: () => void
-    @Action('deploy', { namespace }) public deploy!: () => void
+    @Action('deploy', { namespace }) public deploy!: Deploy
 
 
-    public accountFetchLoading: boolean = false
+    public fromAddressModel: string = ''
     public compileLoading: boolean = false
     public deployLoading: boolean = false
 
     public async getAccounts(): Promise < void > {
         console.log('fetching Accounts')
         try {
-            this.accountFetchLoading = true
+            this.toggleAccountsLoading()
             this.setNodeStatus(true) // TODO validate node and then fetch 
             await this.fetchAccounts()
         } catch (e) {
             throw e
         } finally {
-            this.accountFetchLoading = false
+            this.toggleAccountsLoading()
         }
     }
     public async handleCompile(): Promise < void > {
@@ -122,11 +156,11 @@ export default class Run extends Vue {
             this.compileLoading = false
         }
     }
-    public async handleDeploy(): Promise < void > {
-        console.log('compiling')
+    public async handleDeploy(fromAddress: boolean=false, address: string = ''): Promise < void > {
+        console.log('deploying')
         this.deployLoading = true
         try {
-            await this.deploy()
+            await this.deploy({fromAddress, address})
         } catch (e) {
             throw e
         } finally {

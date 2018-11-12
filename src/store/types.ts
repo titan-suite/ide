@@ -36,6 +36,7 @@ export interface ContractInfo {
 }
 export interface RunState {
   // environment: any
+  accountsLoading:boolean
   selectedAccount: string
   accounts: Account[]
   accountPassword: string
@@ -55,7 +56,8 @@ export interface Value {
 export interface Account {
   address: string
   etherBalance: number
-  unlocked: boolean
+  unlocked:boolean
+  loading:boolean
 }
 export interface IdeState {
   activeWorkspaceIndex: number

@@ -1,14 +1,20 @@
 <template>
   <div>
-    <el-row>
-      <el-col :span="18" :offset="3">
+    <el-row :gutter="11">
+      <el-col :span="7" :offset="1">
+        <p>Provider Url</p>
+      </el-col>
+      <el-col :span="13">
         <NodeAddressInput />
       </el-col>
     </el-row>
 
     <el-row>
-      <el-col :span="18" :offset="3">
-        <el-select v-model="selectedSolVersionModal" class="select" placeholder="Select new compiler version" style="display: block">
+      <el-col :span="7" :offset="1">
+        <p>Compiler Version</p>
+      </el-col>
+      <el-col :span="13">
+        <el-select v-model="selectedSolVersionModal" class="select" style="display: block">
           <el-option v-for="version in solVersions" :key="version.value" :label="version.label" :value="version.value" />
         </el-select>
       </el-col>
@@ -37,15 +43,15 @@
     </el-row>
 
     <el-row>
-      <el-col :span="24">
+      <el-col :span="23" :offset="1" style="padding-right:1rem">
         <h3>Problems ({{ lintDetails.length }})</h3>
         <el-collapse v-model="activeName" accordion>
           <el-collapse-item v-for="(report, index) in lintDetails" :key="index" :title="`line ${report.line} column ${report.column} - ${report.ruleId}`" :name="index" class="lint-report">
             <span v-if="report.severity === 2">
-              <el-button type="warning" circle><i class="el-icon-warning"></i></el-button>
+              <i class="el-icon-warning warning" />
             </span>
             <span v-if="report.severity === 3">
-              <el-button type="danger" circle><i class="el-icon-warning"></i></el-button>
+              <i class="el-icon-warning danger" />
             </span>
             <!-- <br> -->
             <span> {{ report.message }}</span>
@@ -67,7 +73,7 @@ import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 import { SolVersions, CompiledCode } from '../../store/types'
 import {
-  ContractByteCode,
+    ContractByteCode,
     ContractAbi,
     ContractDetails,
 } from '../../store/modules/sidebar/compile'
@@ -118,22 +124,22 @@ export default class Compile extends Vue {
         return this.selectedSolVersion
     }
     public get lintDetails(): string {
-      const configAsJson = {
-        extends: 'default',
-        rules: {
-            'avoid-throw': false,
-            'compiler-fixed': true,
-            'avoid-suicide': 'error',
-            'avoid-sha3': 'warn',
-            indent: true,
-            'payable-fallback': false
+        const configAsJson = {
+            extends: 'default',
+            rules: {
+                'avoid-throw': false,
+                'compiler-fixed': true,
+                'avoid-suicide': 'error',
+                'avoid-sha3': 'warn',
+                indent: true,
+                'payable-fallback': false
+            }
         }
-      }
-      const code = this.activeFileCode
-      console.log(code)
-      const {reports} = linter.processStr(code, configAsJson)
-      console.log(reports)
-      return reports
+        const code = this.activeFileCode
+        console.log(code)
+        const { reports } = linter.processStr(code, configAsJson)
+        console.log(reports)
+        return reports
     }
 
 }
@@ -146,5 +152,21 @@ export default class Compile extends Vue {
   &:last-child {
     margin-bottom: 0;
   }
+}
+
+.danger {
+  color: #fff;
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+  border-radius: 50%;
+  padding: 6px;
+}
+
+.warning {
+  color: #fff;
+  background-color: #e6a23c;
+  border-color: #e6a23c;
+  border-radius: 50%;
+  padding: 6px;
 }
 </style>
