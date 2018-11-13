@@ -34,7 +34,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, State, Mutation } from 'vuex-class'
 import { Account } from '../../store/types'
-import Web3, { unlock } from '../../../@titan-suite/core/aion/dist'
 @Component
 export default class Accounts extends Vue {
     @State('accounts', { namespace: 'run' }) public accounts!: Account[]

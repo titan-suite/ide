@@ -8,7 +8,7 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
@@ -19,7 +19,7 @@
         </el-select>
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="24" :offset="10">
         <el-button :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
@@ -27,13 +27,13 @@
         </el-button>
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="18" :offset="3">
         <ContractNameSelect />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="24" :offset="13">
         <el-button type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
@@ -41,7 +41,7 @@
         </el-button>
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="23" :offset="1" style="padding-right:1rem">
         <h3>Problems ({{ lintDetails.length }})</h3>
@@ -49,16 +49,18 @@
           <el-collapse-item v-for="(report, index) in lintDetails" :key="index" :title="`line ${report.line} column ${report.column} - ${report.ruleId}`" :name="index" class="lint-report" style="overflow:hidden">
             <el-row style="margin-top:1rem">
               <el-col :span="23" :offset="1">
-              <i v-if="report.severity === 2" class="el-icon-warning warning" />
-              <i v-if="report.severity === 3" class="el-icon-warning danger" />
-            </el-col>
-             <el-col :span="23" :offset="1"><p>{{ report.message }} </p>  </el-col>
+                <i v-if="report.severity === 2" class="el-icon-warning warning" />
+                <i v-if="report.severity === 3" class="el-icon-warning danger" />
+              </el-col>
+              <el-col :span="23" :offset="1">
+                <p>{{ report.message }} </p>
+              </el-col>
             </el-row>
           </el-collapse-item>
         </el-collapse>
       </el-col>
     </el-row>
-    
+
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible">
       {{ contractDetails() }}
     </el-dialog>

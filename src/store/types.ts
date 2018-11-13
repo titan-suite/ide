@@ -39,7 +39,6 @@ export interface RunState {
   accountsLoading:boolean
   selectedAccount: string
   accounts: Account[]
-  accountPassword: string
   gasLimit: number
   value: Value
   units: Unit[]

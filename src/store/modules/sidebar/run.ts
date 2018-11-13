@@ -15,8 +15,7 @@ const runState: RunState = {
   accountsLoading: false,
   selectedAccount: '',
   accounts: [],
-  accountPassword: '',
-  gasLimit: 200 * 1000,
+  gasLimit: 2000 * 1000,
   value: {
     amount: 0,
     unit: 'wei'
@@ -68,9 +67,6 @@ const runMutations: MutationTree<RunState> = {
   saveAccounts(state, payload) {
     state.accounts = payload
   },
-  saveAccountPassword(state, payload) {
-    state.accountPassword = payload
-  },
   saveSelectAccount(state, payload) {
     state.selectedAccount = payload
   },
@@ -101,14 +97,42 @@ const runMutations: MutationTree<RunState> = {
     state.accountsLoading = !state.accountsLoading
   }
 }
-export type Deploy = (
-  { fromAddress, address }: { fromAddress: boolean; address: string }
-) => void
 
 const runActions: ActionTree<RunState, RootState> = {
-  async deploy(
+  async deploy({ state, rootState, commit, dispatch, getters, rootGetters }) {
+    try {
+      const web3 = new Web3(
+        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+      )
+      const contractName = rootState.compile.selectedContract
+      const compiledCode = rootState.compile.compiledCode
+      const mainAccount = state.selectedAccount
+      const gas = state.gasLimit
+      const abi = compiledCode[contractName].info.abiDefinition
+      const code = compiledCode[contractName].code
+      console.log('deploying with', {
+        abi,
+        code,
+        mainAccount,
+        gas,
+        contractArguments:''
+      })
+      const res = await deploy({
+        abi:compiledCode[contractName].info.abiDefinition,
+        code:compiledCode[contractName].code,
+        mainAccount,
+        gas:4700000,
+        contractArguments:'' // TODO
+      }, web3)
+            console.log(res)
+            commit('saveDeployedContract', res)
+    } catch (error) {
+      throw error
+    }
+  },
+  async retrieveContractFromAddress(
     { state, rootState, commit, dispatch, getters, rootGetters },
-    { fromAddress, address }
+    address
   ) {
     try {
       const web3 = new Web3(
@@ -116,39 +140,13 @@ const runActions: ActionTree<RunState, RootState> = {
       )
       const contract = rootGetters['workspace/activeFileCode']
       const contractName = rootState.compile.selectedContract
-      if (fromAddress===false) {
-        const mainAccount = state.selectedAccount
-        const gas = state.gasLimit
-        const mainAccountPass = state.accountPassword
-        console.log('deploying with',{
-          contract,
-          contractName,
-          mainAccount,
-          mainAccountPass,
-          gas,
-          web3,
-          contractArguments: ''
-        })
-        const res = await deploy({
-          contract,
-          contractName,
-          mainAccount,
-          mainAccountPass,
-          gas,
-          web3,
-          contractArguments: ''
-        })
-        console.log(res)
-        commit('saveDeployedContract', res)
+      const compiledCode = await compile({ contract},web3)
+      if (contractName in compiledCode) {
+        const abi: AbiDefinition[] =
+          compiledCode[contractName].info.abiDefinition
+        commit('saveDeployedContract', web3.eth.contract(abi).at(address))
       } else {
-        const compiledCode = await compile({ contract, web3 })
-        if (contractName in compiledCode) {
-          const abi: AbiDefinition[] =
-            compiledCode[contractName].info.abiDefinition
-          commit('saveDeployedContract', web3.eth.contract(abi).at(address))
-        } else {
-          throw new Error('Invalid Abi')
-        }
+        throw new Error('Invalid Abi')
       }
     } catch (error) {
       throw error
@@ -167,11 +165,11 @@ const runActions: ActionTree<RunState, RootState> = {
         new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
       )
 
-      const addresses = await getAccounts({ web3 })
+      const addresses = await getAccounts(web3)
       if (Array.isArray(addresses)) {
         const accounts: Account[] = await Promise.all(
           addresses.map(async (address: string) => {
-            const etherBalance = await getBalance({ address, web3 })
+            const etherBalance = await getBalance({ address },web3)
             return {
               address,
               etherBalance: Number(etherBalance),
@@ -199,7 +197,7 @@ const runActions: ActionTree<RunState, RootState> = {
       const web3 = new Web3(
         new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
       )
-      await unlock({ mainAccount: address, mainAccountPass: password, web3 })
+      await unlock({ mainAccount: address, mainAccountPass: password},web3)
       commit('updateAccountStatus', { address, status: true })
       return
     } catch (error) {

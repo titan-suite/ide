@@ -8,30 +8,21 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Account</p>
       </el-col>
       <el-col :span="13">
         <el-select v-model="selectedAccountModel" :loading="accountsLoading" class="select" placeholder="Choose an Account" style="display: block">
-          <el-option v-for="account in accounts" :key="account.address" :label="account.label" :value="account.address" />
+          <el-option v-for="account in accounts" :key="account.value" :label="account.label" :value="account.value" />
         </el-select>
       </el-col>
       <el-col :span="2">
         <el-button :loading="accountsLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
       </el-col>
     </el-row>
-    
-    <el-row>
-      <el-col :span="7" :offset="1">
-        <p>Password</p>
-      </el-col>
-      <el-col :span="13">
-        <el-input v-model="accountPasswordModel" :value="accountPassword" type="password" clearable />
-      </el-col>
-    </el-row>
-    
+
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Gas Limit</p>
@@ -40,7 +31,7 @@
         <el-input v-model="gasLimitModel" :value="gasLimit" type="number" clearable />
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Value</p>
@@ -54,7 +45,7 @@
         </el-select>
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="11">
       <el-col :span="20" :offset="1">
         <ContractNameSelect />
@@ -63,28 +54,28 @@
         <el-button :loading="compileLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="handleCompile" />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :offset="1" :span="deployLoading ? 8: 7">
-        <el-button :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy(false,'')">
+        <el-button :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy">
           Deploy
         </el-button>
       </el-col>
     </el-row>
-    
+
     <el-row style="margin-top:-20px;margin-bottom:0px">
       <el-col :offset="3">
         <p>or</p>
       </el-col>
     </el-row>
-    
+
     <el-row type="flex">
-      <el-col :offset="1" :span="deployLoading ? 8: 7">
-        <el-button :loading="deployLoading" style="width:100%" class="secondaryButton" type="primary" @click="handleDeploy(true, fromAddressModel)">
+      <el-col :offset="1" :span="retrieveContractFromAddressLoading ? 8: 7">
+        <el-button :loading="retrieveContractFromAddressLoading" style="width:100%" class="secondaryButton" type="primary" @click="handleRetrieveContractFromAddress">
           At Address
         </el-button>
       </el-col>
-      <el-col :span="deployLoading ? 12: 13">
+      <el-col :span="retrieveContractFromAddressLoading ? 12: 13">
         <el-input v-model="fromAddressModel" placeholder="Load contract from Address" clearable />
       </el-col>
     </el-row>
@@ -96,7 +87,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { SolVersions, Account, Value, Unit } from '../../store/types'
 import { ContractNames } from '../../store/modules/sidebar/compile'
-import { SaveValue, Deploy } from '../../store/modules/sidebar/run'
+import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 
@@ -115,7 +106,6 @@ export default class Run extends Vue {
     @State('gasLimit', { namespace }) public gasLimit!: number
     @State('value', { namespace }) public value!: Value
     @State('units', { namespace }) public units!: Unit[]
-    @State('accountPassword', { namespace }) public accountPassword!: string
     @Getter('contractNames', { namespace: 'compile' }) public contractNames!: ContractNames
     @Getter('accounts', { namespace }) public accounts!: Account[]
     @Mutation('toggleAccountsLoading', { namespace }) public toggleAccountsLoading!: () => void
@@ -123,15 +113,16 @@ export default class Run extends Vue {
     @Mutation('saveGasLimit', { namespace }) public saveGasLimit!: (gasLimit: number) => void
     @Mutation('setNodeStatus', { namespace: 'compile' }) public setNodeStatus!: (status: boolean) => void
     @Mutation('saveSelectAccount', { namespace }) public saveSelectAccount!: (account: string) => void
-    @Mutation('saveAccountPassword', { namespace }) public saveAccountPassword!: (password: string) => void
     @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
     @Action('compile', { namespace: 'compile' }) public compile!: () => void
-    @Action('deploy', { namespace }) public deploy!: Deploy
+    @Action('deploy', { namespace }) public deploy!: () => void
+    @Action('retrieveContractFromAddress', { namespace }) public retrieveContractFromAddress!: (address:string) => void
 
 
     public fromAddressModel: string = ''
     public compileLoading: boolean = false
     public deployLoading: boolean = false
+    public retrieveContractFromAddressLoading: boolean = false
 
     public async getAccounts(): Promise < void > {
         try {
@@ -154,27 +145,32 @@ export default class Run extends Vue {
             this.compileLoading = false
         }
     }
-    public async handleDeploy(fromAddress = false, address = ''): Promise < void > {
+    public async handleDeploy(): Promise < void > {
         this.deployLoading = true
         try {
-            await this.deploy({ fromAddress, address })
+            await this.deploy()
         } catch (e) {
             throw e
         } finally {
             this.deployLoading = false
         }
     }
-    public set selectedAccountModel(value: string) {
-        this.saveSelectAccount(value)
+    public async handleRetrieveContractFromAddress(): Promise < void > {
+        this.retrieveContractFromAddressLoading = true
+        try {
+            await this.retrieveContractFromAddress(this.fromAddressModel)
+        } catch (e) {
+            throw e
+        } finally {
+            this.retrieveContractFromAddressLoading = false
+        }
+    }
+    public set selectedAccountModel(account: string) {
+      console.log('selecting', account)
+        this.saveSelectAccount(account)
     }
     public get selectedAccountModel(): string {
         return this.selectedAccount
-    }
-    public set accountPasswordModel(password: string) {
-        this.saveAccountPassword(password)
-    }
-    public get accountPasswordModel(): string {
-        return this.accountPassword
     }
     public set gasLimitModel(gasLimit: number) {
         this.saveGasLimit(gasLimit)
