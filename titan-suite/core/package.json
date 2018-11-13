@@ -1,9 +1,0 @@
-{
-  "name": "@titan-suite/core",
-  "version": "0.0.0",
-  "description": "Titan Core",
-  "license": "Apache-2.0",
-  "scripts": {
-    "build": "cd aion && npm run build"
-  }
-}
