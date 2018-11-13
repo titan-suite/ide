@@ -18,7 +18,6 @@
     "no-empty-interface": false,
     "no-var-requires": false,
     "no-empty": false,
-    "prettier": true,
     "no-console": false,
     "triple-equals": true,
     "no-submodule-imports": [

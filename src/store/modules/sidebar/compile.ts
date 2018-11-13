@@ -1,6 +1,7 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { CompileState, RootState, CompiledCode } from '../../types'
-import  Web3, { compile } from '@titan-suite/core/aion'
+import { compile } from '@titan-suite/core/aion'
+import Web3 from 'aion-web3'
 import { ContractAbi as TypeContractAbi } from 'ethereum-types'
 import { parse } from 'typechain/dist/parser/abiParser'
 
@@ -77,9 +78,12 @@ const compileActions: ActionTree<CompileState, RootState> = {
     const contract = rootGetters['workspace/activeFileCode']
     try {
       const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
-      const contracts = await compile({
-        contract,
-      },web3)
+      const contracts = await compile(
+        {
+          contract
+        },
+        web3
+      )
       commit('saveCompiledCode', contracts)
       for (const [
         contractName,

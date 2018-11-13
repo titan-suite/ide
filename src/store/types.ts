@@ -36,7 +36,7 @@ export interface ContractInfo {
 }
 export interface RunState {
   // environment: any
-  accountsLoading:boolean
+  accountsLoading: boolean
   selectedAccount: string
   accounts: Account[]
   gasLimit: number
@@ -55,8 +55,8 @@ export interface Value {
 export interface Account {
   address: string
   etherBalance: number
-  unlocked:boolean
-  loading:boolean
+  unlocked: boolean
+  loading: boolean
 }
 export interface IdeState {
   activeWorkspaceIndex: number

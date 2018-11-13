@@ -171,9 +171,7 @@ const mutations: MutationTree<IdeState> = {
       state.workspaces[state.activeWorkspaceIndex].openFileIndices
     if (openFiles.includes(payload)) {
     } else {
-      state.workspaces[state.activeWorkspaceIndex].openFileIndices.push(
-        payload
-      )
+      state.workspaces[state.activeWorkspaceIndex].openFileIndices.push(payload)
     }
   }
 }

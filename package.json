@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core.git",
+    "aion-web3": "^0.0.3",
     "codemirror": "^5.41.0",
     "element-ui": "^2.4.5",
     "ethereum-types": "^1.1.2",
@@ -39,6 +40,7 @@
     "@vue/test-utils": "^1.0.0-beta.25",
     "babel-core": "7.0.0-bridge.0",
     "babel-plugin-transform-decorators": "^6.24.1",
+    "emoji-regex": "^7.0.1",
     "eslint": "^5.9.0",
     "eslint-config-typescript": "^1.1.0",
     "eslint-plugin-typescript": "^0.13.0",
@@ -51,7 +53,7 @@
     "ts-jest": "^23.0.0",
     "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.0",
-    "typescript-eslint-parser": "^20.1.1",
+    "typescript-eslint-parser": "^21.0.0",
     "vue-cli-plugin-element": "^1.0.0",
     "vue-eslint-parser": "^3.2.2",
     "vue-template-compiler": "^2.5.17"

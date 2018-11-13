@@ -7,7 +7,10 @@ import { RootState } from './types'
 Vue.use(Vuex)
 
 const store: StoreOptions<RootState> = {
-  plugins: process.env.NODE_ENV === 'production' ? [createPersistedState()] : undefined,
+  plugins:
+    process.env.NODE_ENV === 'production'
+      ? [createPersistedState()]
+      : undefined,
   modules: {
     workspace,
     compile,
