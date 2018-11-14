@@ -3,8 +3,8 @@
 }
 body {
   background-color: #2b2b2b;
-  font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
-    "source-code-pro", monospace;
+  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
+    'source-code-pro', monospace;
   height: 99vh;
   overflow-y: hidden;
 }
@@ -45,6 +45,7 @@ body {
 .el-popover,
 .el-popper,
 .el-table,
+.el-dialog,
 .el-table tr,
 .el-table th,
 .el-table__expanded-cell,
@@ -55,31 +56,40 @@ body {
   background-color: #252525;
 }
 /* Secondary button */
-.secondaryButton{
+.secondaryButton {
   color: #ffab00 !important;
   background-color: #252525;
 }
-.secondaryButton:hover{
+.secondaryButton:hover {
   color: #ffab00 !important;
   background-color: #2f2b24 !important;
 }
-
+/* dialog */
+.el-dialog__header,
+.el-dialog__body,
+.el-dialog__title,
+.el-form-item__label {
+  color: #ffab00;
+}
 /* table & el collapse */
 .el-table th.is-leaf,
-.el-table td, .el-collapse-item__header, .el-collapse,.el-collapse-item__wrap {
+.el-table td,
+.el-collapse-item__header,
+.el-collapse,
+.el-collapse-item__wrap {
   border-bottom: 1px solid #505050;
 }
-.el-collapse{
+.el-collapse {
   border-top: 1px solid #505050;
 }
 .el-table::before {
   background-color: #505050;
 }
-.el-collapse-item__wrap{
-  background-color: transparent
+.el-collapse-item__wrap {
+  background-color: transparent;
 }
-.el-collapse-item__header{
-  overflow:hidden;
+.el-collapse-item__header {
+  overflow: hidden;
 }
 /* tree */
 .el-tree-node__content {
@@ -118,7 +128,7 @@ body {
   border-left: 1px solid #ffab00;
   border-right: 1px solid #ffab00;
 }
-.el-tabs__new-tab{
+.el-tabs__new-tab {
   display: none;
 }
 /*input borders */

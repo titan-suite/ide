@@ -674,7 +674,7 @@
 
 "@titan-suite/core@git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core.git":
   version "0.0.0"
-  resolved "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core.git#1d20d4838ac322fc5af2645d677660b352b85c16"
+  resolved "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core.git#2a6c09937102fa2e3c4abeafb2c466763aec0da6"
 
 "@types/jest@^23.1.4":
   version "23.3.9"

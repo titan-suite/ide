@@ -3,8 +3,7 @@ import { CompileState, RootState, CompiledCode } from '../../types'
 import { compile } from '@titan-suite/core/aion'
 import Web3 from 'aion-web3'
 import { ContractAbi as TypeContractAbi } from 'ethereum-types'
-import { parse, Constructor } from 'typechain/dist/parser/abiParser'
-
+import { extractConstructor } from '../../../utils'
 let nodeAddress = ''
 if (process.env.NODE_ENV !== 'production') {
   nodeAddress = require('../../titanrc').nodeAddress
@@ -15,10 +14,6 @@ const compileState: CompileState = {
     {
       value: '0.4.9',
       label: '0.4.9'
-    },
-    {
-      value: '0.4.15',
-      label: '0.4.15'
     }
   ],
   contracts: {},
@@ -34,7 +29,7 @@ export type ContractAbi = (contractName?: string) => TypeContractAbi
 export type ContractDetails = (contractName?: string) => CompiledCode
 export type ParsedContractConstructor = (
   contractName?: string
-) => Constructor | undefined
+) => string | undefined
 
 const compileGetters: GetterTree<CompileState, RootState> = {
   contractNames(state): ContractNames {
@@ -56,7 +51,7 @@ const compileGetters: GetterTree<CompileState, RootState> = {
   parsedContractConstructor(state): ParsedContractConstructor {
     return (contractName = state.selectedContract) => {
       return contractName in state.contracts
-        ? state.contracts[contractName].constructor
+        ? state.contracts[contractName]
         : undefined
     }
   }
@@ -66,7 +61,7 @@ const compileMutations: MutationTree<CompileState> = {
   saveCompiledCode(state, payload) {
     state.compiledCode = payload
   },
-  saveContract(state, { name, data }) {
+  saveConstructor(state, { name, data }) {
     state.contracts = { ...state.contracts, [name]: data }
   },
   saveNodeAddress(state, payload) {
@@ -101,9 +96,9 @@ const compileActions: ActionTree<CompileState, RootState> = {
           info: { abiDefinition }
         }
       ] of Object.entries(contracts)) {
-        commit('saveContract', {
+        commit('saveConstructor', {
           name: contractName,
-          data: parse(abiDefinition, contractName)
+          data: extractConstructor(abiDefinition)
         })
       }
       commit('setNodeStatus', true)

@@ -1,5 +1,4 @@
 import { ContractAbi } from 'ethereum-types'
-import { Contract } from 'typechain/dist/parser/abiParser'
 
 export interface RootState {
   compile: CompileState
@@ -12,7 +11,7 @@ export interface CompileState {
   }
   solVersions: SolVersions[]
   contracts: {
-    [key: string]: Contract;
+    [key: string]: string | undefined;
   }
   nodeAddress: string
   selectedContract: string

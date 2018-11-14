@@ -61,8 +61,10 @@
           Deploy
         </el-button>
       </el-col>
-      <el-col v-if="parsedContractConstructor()" :span="deployLoading ? 12: 13">
-        <el-input v-model="contractArgsModel" :placeholder="parseConstructorArgs()" clearable />
+      <el-col v-if="constructorArgs" :span="deployLoading ? 12: 13">
+        <el-popover :content="constructorArgs" :open-delay="200" placement="bottom-start" width="50%" trigger="focus">
+          <el-input slot="reference" v-model="contractArgsModel" :placeholder="constructorArgs" clearable />
+        </el-popover>
       </el-col>
     </el-row>
     
@@ -202,16 +204,8 @@ export default class Run extends Vue {
     public get contractArgsModel(): string {
         return this.contractArgs
     }
-    public parseConstructorArgs(): string {
-        const constructor = this.parsedContractConstructor()
-        if (constructor) {
-            const inputs = constructor.inputs.map(({ name, type }) => {
-                const [unitDetails] = Object.entries(type)
-                return `${unitDetails[0]}${unitDetails[1]} ${name}`
-            })
-            return inputs.join(',')
-        }
-        return ''
+    public get constructorArgs() {
+        return this.parsedContractConstructor()
     }
 }
 </script>

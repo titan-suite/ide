@@ -69,7 +69,16 @@ const defaultFolder: Folder = {
         function setA(uint128 a) public {
             num = a;
             NumChanged(num);
-        }}`,
+        }}
+        contract Types {
+    
+    function Types(address a, bytes32 b, bool c, uint d, string e, int f, address[] aa, bytes32[]bb, bool[] cc, uint[] ee, int[] ff) public {
+        // bytes32, bytes31,...,bytes2, bytes
+        // uint, uint256, uint248, uint240,...uint16, uint8
+        // int, int256, int248, int240,...,int16, int8
+    }
+    
+}`,
       path: '/test'
     }
   ],

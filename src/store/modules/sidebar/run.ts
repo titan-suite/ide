@@ -87,13 +87,13 @@ const runMutations: MutationTree<RunState> = {
   },
   updateAccountStatus(state, { address, status }) {
     const targetAccountIndex = state.accounts.findIndex(
-      account => account.address === address
+      (account) => account.address === address
     )
     state.accounts[targetAccountIndex].unlocked = status
   },
   toggleAccountLoadingStatus(state, address) {
     const targetAccountIndex = state.accounts.findIndex(
-      account => account.address === address
+      (account) => account.address === address
     )
     state.accounts[targetAccountIndex].loading = !state.accounts[
       targetAccountIndex
@@ -119,7 +119,7 @@ const runActions: ActionTree<RunState, RootState> = {
       const gas = state.gasLimit
       const abi = compiledCode[contractName].info.abiDefinition
       const code = compiledCode[contractName].code
-      const contractArgs = rootState.compile.contracts[contractName].constructor // TODO
+      const contractArgs = rootState.compile.contracts[contractName] // TODO
         ? state.contractArgs
         : ''
       console.log('deploying with', {

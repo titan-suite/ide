@@ -2,11 +2,11 @@
   <span v-if="data.type === 'folder'">
     <!-- <el-button icon="el-icon-circle-plus" size="mini" @click="() => append(data, 'folder')" circle></el-button> -->
     <el-button class="actionButton" type="primary" icon="el-icon-plus" size="mini" circle @click="handleClick(action='add', data, type='file')" />
-    <el-button class="actionButton" type="info" icon="el-icon-delete" size="mini" circle @click="handleClick(action='remove', data, node)" />
+    <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleClick(action='remove', data, node)" />
   </span>
 
   <span v-else-if="data.type === 'file'">
-    <el-button class="actionButton" type="info" icon="el-icon-delete" size="mini" circle @click="handleClick(action='remove', data, node)" />
+    <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleClick(action='remove', data, node)" />
   </span>
 </template>
 

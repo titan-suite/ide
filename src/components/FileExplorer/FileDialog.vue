@@ -21,13 +21,13 @@
       <el-form-item :label-width="formLabelWidth" label="Compiler Version">
         <el-select v-model="form.compiler" placeholder="Please select a version">
           <el-option label="v0.4.9" value="sol-v049" />
-          <el-option label="v0.4.15" value="sol-v0415" />
+          <!-- <el-option label="v0.4.15" value="sol-v0415" /> -->
         </el-select>
       </el-form-item>
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button @click="$emit('dialogFormVisible', false)">Cancel</el-button>
+      <el-button class="secondaryButton" type="primary" @click="$emit('dialogFormVisible', false)">Cancel</el-button>
       <el-button type="primary" @click="handleFormSubmit">Confirm</el-button>
     </span>
   </el-dialog>
@@ -51,7 +51,7 @@
         language: '',
         compiler: ''
     }
-    public formLabelWidth: string = '120px'
+    public formLabelWidth: string = '200px'
 
     public handleFormSubmit(d: any): void {
         const { form: theForm } = this.$refs
