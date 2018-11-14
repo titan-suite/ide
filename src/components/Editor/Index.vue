@@ -9,7 +9,7 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/monokai.css'
 import 'codemirror/mode/javascript/javascript.js'
 import { State, Mutation, Getter } from 'vuex-class'
-import { EditorOptions } from '../store/types'
+import { EditorOptions } from '../../store/types'
 const namespace = 'workspace'
 
 @Component({

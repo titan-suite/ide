@@ -1,6 +1,6 @@
 <template>
   <el-container class="main">
-    <el-header height="2rem" class="tempColorWhite">Titan</el-header>
+    <el-header height="2rem" class="tempColorWhite">Titan Suite IDE</el-header>
     <el-container>
       <el-aside width="auto">
         <vue-draggable-resizable :draggable="false" :handles="['mr']" drag-cancel=".enableFocus" class="tempColorWhite fileExplorerContainer" style=" height: 98%;margin-right:16px;position: relative;" axis="x">
@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import Editor from './components/Editor.vue'
+import Editor from './components/Editor/Index.vue'
 import Console from './components/Console.vue'
 import FileExplorer from './components/FileExplorer/Index.vue'
 import Sidebar from './components/Sidebar/Index.vue'
@@ -119,10 +119,10 @@ export default class App extends Vue {
 
 <style lang="stylus">
 .main {
-  height: 100%;
+    height: 100%;
 }
 
 .tempColorWhite {
-  color: white;
+    color: white;
 }
 </style>
