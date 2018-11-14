@@ -2,7 +2,7 @@
   <div>
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
-        <p>Provider Url</p>
+        <p>Provider URL</p>
       </el-col>
       <el-col :span="13">
         <NodeAddressInput />
@@ -61,8 +61,8 @@
       </el-col>
     </el-row>
 
-    <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible">
-      {{ contractDetails() }}
+    <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible" width="80%">
+      <tree-view :data="contractDetails()" :options="{maxDepth: 4}"/>
     </el-dialog>
   </div>
 </template>

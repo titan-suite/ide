@@ -1,10 +1,11 @@
 * {
-  font-size: 12px !important;
+  font-size: 13px !important;
 }
 body {
   background-color: #2b2b2b;
-  font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
-    'source-code-pro', monospace;
+  /* font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
+  'source-code-pro', monospace; */
+  font-family: Arial, Helvetica, sans-serif;
   height: 99vh;
   overflow-y: hidden;
 }

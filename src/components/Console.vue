@@ -1,5 +1,5 @@
 <template>
-  <div style="overflow:scroll">
+  <div style="overflow:scroll; width: 100%;padding: 15px;" >
     <el-row v-for="(receipt, index) in receipts" :key="index">
       <el-col :span="24">
         <el-table :data="parsedReceipt(receipt)" style="width: 100%">
@@ -32,3 +32,13 @@ export default class Console extends Vue {
 
 }
 </script>
+<style lang="stylus" scoped>
+.el-row {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #82848a;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+</style>
