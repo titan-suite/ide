@@ -1,9 +1,13 @@
 <template>
-  <div>
-    <el-table :data="formattedData" style="width: 100%">
-      <el-table-column prop="key" label="Property" width="180" />
-      <el-table-column prop="value" label="Value" width="600" />
-    </el-table>
+  <div style="overflow:scroll">
+    <el-row v-for="(receipt, index) in receipts" :key="index">
+      <el-col :span="24">
+        <el-table :data="parsedReceipt(receipt)" style="width: 100%">
+          <el-table-column prop="key" label="Property" width="180" />
+          <el-table-column prop="value" label="Value" width="600" />
+        </el-table>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -15,23 +19,15 @@ const namespace = 'run'
 @Component
 export default class Console extends Vue {
 
-  @State('deployedContract', { namespace }) public deployedContract!: any
-
-  public tableData: any = []
-
-  get formattedData(): any {
-    return this.convert(this.deployedContract.receipt)
-  }
-
-  public convert(d: any): any {
-    const data = d ? Object.keys(d).map((j: any) => {
-        return {
-          key: j,
-          value: d[j]
-        }
-      }) : []
-    this.tableData.push(data)
-    return data
+  @State('receipts', { namespace }) public receipts!: any
+  
+  public parsedReceipt(receipt: any) {
+    return Object.keys(receipt).map((j: any) => {
+          return {
+            key: j,
+            value: receipt[j]
+          }
+        })
   }
 
 }
