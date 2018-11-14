@@ -3,7 +3,7 @@ import { CompileState, RootState, CompiledCode } from '../../types'
 import { compile } from '@titan-suite/core/aion'
 import Web3 from 'aion-web3'
 import { ContractAbi as TypeContractAbi } from 'ethereum-types'
-import { parse } from 'typechain/dist/parser/abiParser'
+import { parse, Constructor } from 'typechain/dist/parser/abiParser'
 
 let nodeAddress = ''
 if (process.env.NODE_ENV !== 'production') {
@@ -32,6 +32,9 @@ export type ContractNames = string[]
 export type ContractByteCode = (contractName?: string) => string
 export type ContractAbi = (contractName?: string) => TypeContractAbi
 export type ContractDetails = (contractName?: string) => CompiledCode
+export type ParsedContractConstructor = (
+  contractName?: string
+) => Constructor | undefined
 
 const compileGetters: GetterTree<CompileState, RootState> = {
   contractNames(state): ContractNames {
@@ -49,6 +52,13 @@ const compileGetters: GetterTree<CompileState, RootState> = {
   contractDetails(state): ContractDetails {
     return (contractName = state.selectedContract) =>
       state.compiledCode[contractName]
+  },
+  parsedContractConstructor(state): ParsedContractConstructor {
+    return (contractName = state.selectedContract) => {
+      return contractName in state.contracts
+        ? state.contracts[contractName].constructor
+        : undefined
+    }
   }
 }
 

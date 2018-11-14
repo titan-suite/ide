@@ -8,7 +8,7 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-
+    
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Account</p>
@@ -22,7 +22,7 @@
         <el-button :loading="accountsLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Gas Limit</p>
@@ -31,7 +31,7 @@
         <el-input v-model="gasLimitModel" :value="gasLimit" type="number" clearable />
       </el-col>
     </el-row>
-
+    
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Value</p>
@@ -45,7 +45,7 @@
         </el-select>
       </el-col>
     </el-row>
-
+    
     <el-row :gutter="11">
       <el-col :span="20" :offset="1">
         <ContractNameSelect />
@@ -54,21 +54,24 @@
         <el-button :loading="compileLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="handleCompile" />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :offset="1" :span="deployLoading ? 8: 7">
         <el-button :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy">
           Deploy
         </el-button>
       </el-col>
+      <el-col v-if="parsedContractConstructor()" :span="deployLoading ? 12: 13">
+        <el-input v-model="contractArgsModel" :placeholder="parseConstructorArgs()" clearable />
+      </el-col>
     </el-row>
-
+    
     <el-row style="margin-top:-20px;margin-bottom:0px">
       <el-col :offset="3">
         <p>or</p>
       </el-col>
     </el-row>
-
+    
     <el-row type="flex">
       <el-col :offset="1" :span="retrieveContractFromAddressLoading ? 8: 7">
         <el-button :loading="retrieveContractFromAddressLoading" style="width:100%" class="secondaryButton" type="primary" @click="handleRetrieveContractFromAddress">
@@ -86,7 +89,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { SolVersions, Account, Value, Unit } from '../../store/types'
-import { ContractNames } from '../../store/modules/sidebar/compile'
+import { ContractNames, ParsedContractConstructor } from '../../store/modules/sidebar/compile'
 import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
@@ -106,17 +109,20 @@ export default class Run extends Vue {
     @State('gasLimit', { namespace }) public gasLimit!: number
     @State('value', { namespace }) public value!: Value
     @State('units', { namespace }) public units!: Unit[]
+    @State('contractArgs', { namespace }) public contractArgs!: string
     @Getter('contractNames', { namespace: 'compile' }) public contractNames!: ContractNames
+    @Getter('parsedContractConstructor', { namespace: 'compile' }) public parsedContractConstructor!: ParsedContractConstructor
     @Getter('accounts', { namespace }) public accounts!: Account[]
     @Mutation('toggleAccountsLoading', { namespace }) public toggleAccountsLoading!: () => void
     @Mutation('saveValue', { namespace }) public saveValue!: (value: SaveValue) => void
     @Mutation('saveGasLimit', { namespace }) public saveGasLimit!: (gasLimit: number) => void
     @Mutation('setNodeStatus', { namespace: 'compile' }) public setNodeStatus!: (status: boolean) => void
     @Mutation('saveSelectAccount', { namespace }) public saveSelectAccount!: (account: string) => void
+    @Mutation('setContractArgs', { namespace }) public setContractArgs!: (contractArgs: string) => void
     @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
     @Action('compile', { namespace: 'compile' }) public compile!: () => void
     @Action('deploy', { namespace }) public deploy!: () => void
-    @Action('retrieveContractFromAddress', { namespace }) public retrieveContractFromAddress!: (address:string) => void
+    @Action('retrieveContractFromAddress', { namespace }) public retrieveContractFromAddress!: (address: string) => void
 
 
     public fromAddressModel: string = ''
@@ -166,7 +172,7 @@ export default class Run extends Vue {
         }
     }
     public set selectedAccountModel(account: string) {
-      console.log('selecting', account)
+        console.log('selecting', account)
         this.saveSelectAccount(account)
     }
     public get selectedAccountModel(): string {
@@ -189,6 +195,23 @@ export default class Run extends Vue {
     }
     public get unitModel(): string {
         return this.value.unit
+    }
+    public set contractArgsModel(contractArgs: string) {
+        this.setContractArgs(contractArgs)
+    }
+    public get contractArgsModel(): string {
+        return this.contractArgs
+    }
+    public parseConstructorArgs(): string {
+        const constructor = this.parsedContractConstructor()
+        if (constructor) {
+            const inputs = constructor.inputs.map(({ name, type }) => {
+                const [unitDetails] = Object.entries(type)
+                return `${unitDetails[0]}${unitDetails[1]} ${name}`
+            })
+            return inputs.join(',')
+        }
+        return ''
     }
 }
 </script>

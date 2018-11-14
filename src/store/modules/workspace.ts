@@ -63,7 +63,7 @@ const defaultFolder: Folder = {
         function add(uint128 a) public returns (uint128) {
             return num+a;
         }
-        function WithConstructor(uint128 a) public {
+        function WithConstructor(uint128 a, bytes32 br) public {
           num = a;
         }
         function setA(uint128 a) public {

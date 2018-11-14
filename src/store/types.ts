@@ -42,6 +42,8 @@ export interface RunState {
   gasLimit: number
   value: Value
   units: Unit[]
+  contractArgs: string
+  receipts: any[]
   deployedContract: any
 }
 export interface Unit {

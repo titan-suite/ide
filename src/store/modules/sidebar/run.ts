@@ -39,7 +39,9 @@ const runState: RunState = {
       label: 'Ether'
     }
   ],
-  deployedContract: {}
+  contractArgs: '',
+  deployedContract: {},
+  receipts: []
 }
 
 const runGetters: GetterTree<RunState, RootState> = {
@@ -61,8 +63,8 @@ const runGetters: GetterTree<RunState, RootState> = {
 }
 
 export interface SaveValue {
-  amount?: number;
-  unit?: string;
+  amount?: number
+  unit?: string
 }
 const runMutations: MutationTree<RunState> = {
   saveAccounts(state, payload) {
@@ -76,6 +78,9 @@ const runMutations: MutationTree<RunState> = {
   },
   saveValue(state, payload: SaveValue) {
     state.value = { ...state.value, ...payload }
+  },
+  setContractArgs(state, contractArgs: string) {
+    state.contractArgs = contractArgs
   },
   saveDeployedContract(state, payload) {
     state.deployedContract = payload
@@ -96,6 +101,9 @@ const runMutations: MutationTree<RunState> = {
   },
   toggleAccountsLoading(state) {
     state.accountsLoading = !state.accountsLoading
+  },
+  saveReceipt(state, payload) {
+    state.receipts = [...state.receipts, payload]
   }
 }
 
@@ -111,12 +119,15 @@ const runActions: ActionTree<RunState, RootState> = {
       const gas = state.gasLimit
       const abi = compiledCode[contractName].info.abiDefinition
       const code = compiledCode[contractName].code
+      const contractArgs = rootState.compile.contracts[contractName].constructor // TODO
+        ? state.contractArgs
+        : ''
       console.log('deploying with', {
         abi,
         code,
         mainAccount,
         gas,
-        contractArguments: ''
+        contractArguments: contractArgs
       })
       const res = await deploy(
         {
@@ -124,12 +135,13 @@ const runActions: ActionTree<RunState, RootState> = {
           code: compiledCode[contractName].code,
           mainAccount,
           gas: 4700000,
-          contractArguments: '' // TODO
+          contractArguments: contractArgs
         },
         web3
       )
       console.log(res)
       commit('saveDeployedContract', res)
+      commit('saveReceipt', res.receipt)
     } catch (error) {
       throw error
     }
@@ -148,7 +160,9 @@ const runActions: ActionTree<RunState, RootState> = {
       if (contractName in compiledCode) {
         const abi: AbiDefinition[] =
           compiledCode[contractName].info.abiDefinition
-        commit('saveDeployedContract', web3.eth.contract(abi).at(address))
+        const contractInstance = web3.eth.contract(abi).at(address)
+        console.log({ contractInstance })
+        commit('saveDeployedContract', contractInstance)
       } else {
         throw new Error('Invalid Abi')
       }
