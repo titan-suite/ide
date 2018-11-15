@@ -33,6 +33,7 @@ const namespace = 'workspace'
 })
 export default class FileExplorer extends Vue {
     @Action('removeFile', { namespace }) public removeFile!: any
+    
     @Getter('code', { namespace }) public code!: any
     @Getter('fileById', { namespace }) public fileById!: any
     @Getter('projectTree', { namespace }) public projectTree!: any
@@ -49,7 +50,6 @@ export default class FileExplorer extends Vue {
         label: 'label'
     }
 
-    // @Watch('dialogFormVisible', { immediate: true, deep: true })
     @Watch('projectTree', { immediate: true, deep: true })
     public onProjectTreeUpdate(oldTree: Tree, newTree: Tree) {
         this.data = newTree && this.prepareData(newTree.folders)

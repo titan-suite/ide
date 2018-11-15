@@ -28,7 +28,7 @@ contract Example {
         NumChanged(num);
     }
 }`,
-  path: '/example'
+  path: '/Example/Example.sol'
 }
 
 const defaultFolder: Folder = {
@@ -67,10 +67,10 @@ contract Test {
         name = _name;
     }
 }`,
-      path: '/withConstructor'
+      path: '/Example/WithConstructor.sol'
     }
   ],
-  path: '/',
+  path: '/Example',
   activeFileIndex: 0
 }
 
@@ -166,14 +166,20 @@ const mutations: MutationTree<IdeState> = {
 const actions: ActionTree<IdeState, RootState> = {
   addFile(
     { state, rootState, commit, dispatch, getters, rootGetters },
-    payload
+    payload: string
   ) {
     const projectFiles: File[] = getters.projectTree.folders[0].files
+    const contractName = payload.endsWith('.sol')
+      ? payload
+          .split('.')
+          .slice(0, -1)
+          .join('.')
+      : payload
     const file: File = {
       index: projectFiles.length,
       name: payload,
-      code: 'pragma solidity ^0.4.9;',
-      path: ''
+      code: `pragma solidity ^0.4.9;\n\ncontract ${contractName} {\n\n\tfunction ${contractName}() public {}\n}`,
+      path: `/Examlpe/${payload}`
     }
     commit('updateFolder', file)
   }

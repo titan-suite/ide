@@ -47,7 +47,6 @@ export default class Editor extends Vue {
     public handleTabsEdit(targetName: string, action: string) {        
         if (action === 'remove') {
             const tabs = this.openFiles
-            console.log(tabs)
             let activeName = this.openTabValue
             let activeIndex = 0
             if (activeName === targetName) {
