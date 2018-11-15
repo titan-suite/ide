@@ -11,24 +11,24 @@ import {
 
 const defaultFile: File = {
   index: 0,
-  name: 'TestToken.sol',
+  name: 'Example.sol',
   code: `pragma solidity ^0.4.9;
 
-/**
- * @title Hello
- * @dev Simple contract
- */
+contract Example {
+    uint128 public num = 5;
 
-contract Hello {
-  
-  uint data = 100;
+    event NumChanged (uint128);
 
-  function getData() public returns (uint) {
-    return data;
-  }
-}
-`,
-  path: '/testToken'
+    function add(uint128 a) public returns (uint128) {
+        return num + a;
+    }
+
+    function setA(uint128 a) public {
+        num = a;
+        NumChanged(num);
+    }
+}`,
+  path: '/example'
 }
 
 const defaultFolder: Folder = {
@@ -38,47 +38,36 @@ const defaultFolder: Folder = {
     defaultFile,
     {
       index: 1,
-      name: 'Ballot.sol',
-      code: 'pragma solidity ^0.4.9; contract Ballot{}',
-      path: '/ballot'
-    },
-    {
-      index: 2,
-      name: 'Example.sol',
+      name: 'WithConstructor.sol',
       code: `pragma solidity ^0.4.9;
-      contract Example {
-          uint128 public num = 5;
-          event NumChanged (uint128);
-          function add(uint128 a) public returns (uint128) {
-              return num+a;
-          }
-          function setA(uint128 a) public {
-              num = a;
-              NumChanged(num);
-          }}
-        contract WithConstructor {
-        uint128 public num = 5;
-        event NumChanged (uint128);
-        function add(uint128 a) public returns (uint128) {
-            return num+a;
-        }
-        function WithConstructor(uint128 a, bytes32 br) public {
-          num = a;
-        }
-        function setA(uint128 a) public {
-            num = a;
-            NumChanged(num);
-        }}
-        contract Types {
-    
-    function Types(address a, bytes32 b, bool c, uint d, string e, int f, address[] aa, bytes32[]bb, bool[] cc, uint[] ee, int[] ff) public {
-        // bytes32, bytes31,...,bytes2, bytes
-        // uint, uint256, uint248, uint240,...uint16, uint8
-        // int, int256, int248, int240,...,int16, int8
+
+contract WithConstructor {
+    uint128 public num = 5;
+
+    event NumChanged (uint128);
+
+    function add(uint128 a) public returns (uint128) {
+        return num + a;
     }
-    
+
+    function WithConstructor(uint128 a, bytes32 br) public {
+        num = a;
+    }
+
+    function setA(uint128 a) public {
+        num = a;
+        NumChanged(num);
+    }
+}
+
+contract Test {
+    bytes32 public name = 5;
+
+    function Test(bytes32 _name) public {
+        name = _name;
+    }
 }`,
-      path: '/test'
+      path: '/withConstructor'
     }
   ],
   path: '/',
@@ -152,9 +141,7 @@ const mutations: MutationTree<IdeState> = {
     ].files.push(payload)
   },
   setOpenFiles(state, payload: File[]) {
-    console.log(payload)
     state.workspaces[state.activeWorkspaceIndex].openFiles = payload
-    console.log(state.workspaces[state.activeWorkspaceIndex].openFiles)
   },
   setActiveFile(state, payload: File) {
     state.workspaces[state.activeWorkspaceIndex].activeFile = payload
@@ -164,7 +151,6 @@ const mutations: MutationTree<IdeState> = {
   },
   showTab(state, payload: File) {
     const openFiles = state.workspaces[state.activeWorkspaceIndex].openFiles
-    console.log(openFiles, payload)
     let exists = false
     openFiles!.map((f: File) => {
       if (f.path === payload.path) {
@@ -173,7 +159,6 @@ const mutations: MutationTree<IdeState> = {
     })
     if (!exists) {
       openFiles!.push(payload)
-      console.log(openFiles, payload)
     }
   }
 }

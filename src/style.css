@@ -62,8 +62,12 @@ body {
   background-color: #252525;
 }
 .secondaryButton:hover {
-  color: #ffab00 !important;
-  background-color: #2f2b24 !important;
+  color: #bab1a2 !important;
+  background-color: #242426 !important;
+}
+.secondaryButton:focus {
+  color: #bab1a2 !important;
+  background-color: #242426 !important;
 }
 /* dialog */
 .el-dialog__header,
