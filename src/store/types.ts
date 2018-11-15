@@ -68,8 +68,8 @@ export interface Workspace {
   name: string
   projectTree: Tree
   activeFolderIndex: number
-  activeFileCode: string
-  openFileIndices: number[]
+  activeFile?: File
+  openFiles?: File[]
   editorOptions: EditorOptions
 }
 export interface File {
@@ -95,11 +95,6 @@ export interface EditorOptions {
   lineNumbers: boolean
   line: boolean
   gutters: string[]
-}
-export interface ActiveFile {
-  folderIndex: number
-  fileIndex: number
-  code: string
 }
 export interface Node {
   index: number

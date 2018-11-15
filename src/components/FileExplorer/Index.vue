@@ -15,7 +15,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { State, Mutation, Getter } from 'vuex-class'
-import { EditorOptions, ActiveFile, File, Folder, Tree } from '../../store/types'
+import { EditorOptions, File, Folder, Tree } from '../../store/types'
 import Item from './Item.vue'
 import FileDialog from './FileDialog.vue'
 const namespace = 'workspace'
@@ -31,7 +31,7 @@ export default class FileExplorer extends Vue {
     @Getter('fileById', { namespace }) public fileById!: any
     @Getter('projectTree', { namespace }) public projectTree!: any
 
-    @Mutation('setActiveFileCode', { namespace }) public setActiveFileCode: any
+    @Mutation('setActiveFile', { namespace }) public setActiveFile: any
     @Mutation('showTab', { namespace }) public showTab: any
 
     public id = 100
@@ -57,8 +57,8 @@ export default class FileExplorer extends Vue {
         if (data.type === 'file') {
             const nodeId = data.id
             const file: File = this.fileById(0, nodeId)
-            this.setActiveFileCode(file.code)
-            this.showTab(nodeId)
+            this.setActiveFile(file)
+            this.showTab(file)
         }
     }
 
@@ -102,6 +102,7 @@ export default class FileExplorer extends Vue {
           const children = parent.data.children || parent.data
           const index = children.findIndex((d: any) => d.id === data.id)
           children.splice(index, 1)
+          // TODO remove from projectTree
       }
     }
 

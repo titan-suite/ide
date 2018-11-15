@@ -38,7 +38,7 @@
 <script lang="ts">
   import { Component, Prop, Vue } from 'vue-property-decorator'
   import { State, Mutation, Getter, Action } from 'vuex-class'
-  import { EditorOptions, ActiveFile, File, Folder } from '../../store/types'
+  import { EditorOptions, File, Folder } from '../../store/types'
   const namespace = 'workspace'
 
   @Component

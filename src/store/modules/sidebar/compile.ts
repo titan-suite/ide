@@ -80,7 +80,7 @@ const compileMutations: MutationTree<CompileState> = {
 
 const compileActions: ActionTree<CompileState, RootState> = {
   async compile({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    const contract = rootGetters['workspace/activeFileCode']
+    const contract = rootGetters['workspace/activeFile'].code
     try {
       const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
       const contracts = await compile(

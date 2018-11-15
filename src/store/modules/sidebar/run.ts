@@ -154,7 +154,7 @@ const runActions: ActionTree<RunState, RootState> = {
       const web3 = new Web3(
         new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
       )
-      const contract = rootGetters['workspace/activeFileCode']
+      const contract = rootGetters['workspace/activeFile'].code
       const contractName = rootState.compile.selectedContract
       const compiledCode = await compile({ contract }, web3)
       if (contractName in compiledCode) {

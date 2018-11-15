@@ -1,4 +1,4 @@
-import { MutationTree, GetterTree, Getter, ActionTree } from 'vuex'
+import { MutationTree, GetterTree, ActionTree } from 'vuex'
 import {
   IdeState,
   File,
@@ -6,8 +6,7 @@ import {
   Tree,
   Workspace,
   RootState,
-  EditorOptions,
-  ActiveFile
+  EditorOptions
 } from '../types'
 
 const defaultFile: File = {
@@ -104,8 +103,8 @@ const defaultWorkspace: Workspace = {
   name: 'Project 1',
   projectTree,
   activeFolderIndex: 0,
-  activeFileCode: 'pragma solidity ^0.4.9;',
-  openFileIndices: [0],
+  activeFile: defaultFile,
+  openFiles: [defaultFile],
   editorOptions
 }
 
@@ -135,19 +134,14 @@ const ideGetters: GetterTree<IdeState, RootState> = {
         .files.find((f: File) => f.index === fileIndex)
     }
   },
-  activeFileCode(state, getters): string {
-    return getters.activeWorkspace.activeFileCode
+  activeFile(state, getters): File {
+    return getters.activeWorkspace.activeFile
   },
   editorOptions(state): EditorOptions {
     return state.workspaces[state.activeWorkspaceIndex].editorOptions
   },
-  openFileIndices(state, getters): any[] {
-    return getters.activeWorkspace.openFileIndices
-  },
-  openFiles(state, getters): File[] {
-    return getters.openFileIndices.map((i: number) => {
-      return getters.fileById(0, i)
-    })
+  openFiles(state, getters): any[] {
+    return getters.activeWorkspace.openFiles
   }
 }
 
@@ -157,30 +151,29 @@ const mutations: MutationTree<IdeState> = {
       state.workspaces[state.activeWorkspaceIndex].activeFolderIndex
     ].files.push(payload)
   },
-  addFolder(state, payload: string) {
-    // state.code = payload
+  setOpenFiles(state, payload: File[]) {
+    console.log(payload)
+    state.workspaces[state.activeWorkspaceIndex].openFiles = payload
+    console.log(state.workspaces[state.activeWorkspaceIndex].openFiles)
   },
-  removeFile(state, payload: string) {
-    // state.code = payload
-  },
-  removeFolder(state, payload: string) {
-    // state.code = payload
-  },
-  moveFile(state, payload: string) {
-    // state.code = payload
-  },
-  moveFolder(state, payload: string) {
-    // state.code = payload
+  setActiveFile(state, payload: File) {
+    state.workspaces[state.activeWorkspaceIndex].activeFile = payload
   },
   setActiveFileCode(state, payload: string) {
-    state.workspaces[state.activeWorkspaceIndex].activeFileCode = payload
+    state.workspaces[state.activeWorkspaceIndex].activeFile!.code = payload
   },
-  showTab(state, payload) {
-    const openFiles =
-      state.workspaces[state.activeWorkspaceIndex].openFileIndices
-    if (openFiles.includes(payload)) {
-    } else {
-      state.workspaces[state.activeWorkspaceIndex].openFileIndices.push(payload)
+  showTab(state, payload: File) {
+    const openFiles = state.workspaces[state.activeWorkspaceIndex].openFiles
+    console.log(openFiles, payload)
+    let exists = false
+    openFiles!.map((f: File) => {
+      if (f.path === payload.path) {
+        exists = true
+      }
+    })
+    if (!exists) {
+      openFiles!.push(payload)
+      console.log(openFiles, payload)
     }
   }
 }
@@ -191,7 +184,6 @@ const actions: ActionTree<IdeState, RootState> = {
     payload
   ) {
     const projectFiles: File[] = getters.projectTree.folders[0].files
-    const lastFileIndex = projectFiles.length
     const file: File = {
       index: projectFiles.length,
       name: payload,

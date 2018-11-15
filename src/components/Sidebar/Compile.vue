@@ -72,7 +72,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
-import { SolVersions, CompiledCode } from '../../store/types'
+import { SolVersions, CompiledCode, File } from '../../store/types'
 import {
     ContractByteCode,
     ContractAbi,
@@ -94,7 +94,7 @@ export default class Compile extends Vue {
     @State('solVersions', { namespace }) public solVersions!: SolVersions
     @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
 
-    @Getter('activeFileCode', { namespace: 'workspace' }) public activeFileCode!: string
+    @Getter('activeFile', { namespace: 'workspace' }) public activeFile!: File
     @Getter('contractAbi', { namespace }) public contractAbi!: ContractAbi
     @Getter('contractDetails', { namespace }) public contractDetails!: ContractDetails
 
@@ -136,7 +136,7 @@ export default class Compile extends Vue {
                 'payable-fallback': false
             }
         }
-        const code = this.activeFileCode
+        const code = this.activeFile.code
         const { reports } = linter.processStr(code, configAsJson)
         return reports
     }
