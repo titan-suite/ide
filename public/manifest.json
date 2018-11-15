@@ -1,6 +1,6 @@
 {
-  "name": "titan-ide",
-  "short_name": "titan-ide",
+  "name": "Titan IDE",
+  "short_name": "Titan IDE",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
@@ -16,5 +16,5 @@
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffab00",
-  "theme_color": "#2b2b2b"
+  "theme_color": "#252525"
 }
