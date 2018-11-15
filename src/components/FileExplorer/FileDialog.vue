@@ -40,6 +40,7 @@
   export default class FileDialog extends Vue {
     @Prop(Boolean) public dialogFormVisible!: boolean
     @Action('addFile', { namespace }) public addFile: any    
+    @Getter('projectTree', { namespace }) public projectTree!: any
     public get isVisible(){
       return this.dialogFormVisible
     }
@@ -54,9 +55,25 @@
     public formLabelWidth: string = '200px'
 
     public handleFormSubmit(d: any): void {
-        const { form: theForm } = this.$refs
+      let formValid = true
+      this.projectTree.folders[0].files.map((file: File) => {
+        if(file.name === this.form.name) {
+          formValid = false
+        }
+      })
+      
+      if(formValid) {
         this.addFile(this.form.name)
+        this.form.name = ''
         this.$emit('closeDialog')
+      } else {
+        this.$notify.error({
+          title: 'Error',
+          message: 'A file with that name already exists'
+        })
+        this.form.name = ''
+        formValid = true
+      }
     }
   }
 </script>
