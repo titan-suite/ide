@@ -1,15 +1,15 @@
 <template>
-  <div class="enableFocus">
-    <el-tree :data="data" :allow-drag="allowDrag" :allow-drop="allowDrop" node-key="id" default-expand-all draggable @node-click="handleNodeClick">
-      <span slot-scope="{ node, data }" class="custom-tree-node">
-        <span>{{ node.label }}</span>
-        <Item :data="data" :node="node" :handle-click="handleItemClick" />
-      </span>
-    </el-tree>
-    <span class="dialog">
-      <FileDialog :dialog-form-visible="dialogFormVisible" @dialogFormVisible="dialogFormVisible=false" />
-    </span>
-  </div>
+    <div class="enableFocus">
+        <el-tree :data="data" :allow-drop="allowDrop" node-key="id" default-expand-all draggable @node-click="handleNodeClick">
+            <span slot-scope="{ node, data }" class="custom-tree-node">
+                <span>{{ node.label }}</span>
+                <Item :data="data" :node="node" :handle-click="handleItemClick" />
+            </span>
+        </el-tree>
+        <span class="dialog">
+            <FileDialog :dialog-form-visible="dialogFormVisible" @dialogFormVisible="dialogFormVisible=false" />
+        </span>
+    </div>
 </template>
 
 <script lang="ts">
@@ -43,7 +43,7 @@ export default class FileExplorer extends Vue {
         label: 'label'
     }
 
-    @Watch('dialogFormVisible', { immediate: true, deep: true })
+    // @Watch('dialogFormVisible', { immediate: true, deep: true })
     @Watch('projectTree', { immediate: true, deep: true })
     public onProjectTreeUpdate(oldTree: Tree, newTree: Tree) {
         this.data = newTree && this.prepareData(newTree.folders)
@@ -63,15 +63,7 @@ export default class FileExplorer extends Vue {
     }
 
     public allowDrop(draggingNode: any, dropNode: any, type: any) {
-        if (dropNode.data.label === 'Level two 3-1') {
-            return type !== 'inner'
-        } else {
-            return true
-        }
-    }
-
-    public allowDrag(draggingNode: any) {
-        return draggingNode.data.label.indexOf('Level three 3-1-1') === -1
+        return draggingNode.data.type !== dropNode.data.type
     }
 
     public prepareData(folders: Folder[]): any {

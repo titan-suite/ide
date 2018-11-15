@@ -1,7 +1,4 @@
 <template>
-
-  <!-- <el-button type="text" @click="dialogFormVisible = true">open a Form nested Dialog</el-button> -->
-
   <el-dialog :visible.sync="dialogFormVisible" :close-on-click-modal="false" :close-on-press-escape="false" title="New Smart Contract">
 
     <el-form ref="form" :model="form">
@@ -31,7 +28,6 @@
       <el-button type="primary" @click="handleFormSubmit">Confirm</el-button>
     </span>
   </el-dialog>
-
 </template>
 
 
