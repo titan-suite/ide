@@ -62,7 +62,7 @@
     </el-row>
 
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible" width="80%">
-      <tree-view :data="contractDetails()" :options="{maxDepth: 4}"/>
+      <tree-view :data="contractDetails()" :options="{maxDepth: 4}" />
     </el-dialog>
   </div>
 </template>

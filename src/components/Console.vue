@@ -1,8 +1,8 @@
 <template>
-  <div style="overflow:scroll; width: 100%;padding: 15px;" >
-    <el-row v-for="(receipt, index) in receipts" :key="index">
+  <div style="overflow:scroll; width: 100%;padding: 15px;">
+    <el-row v-for="(receipt, index) in parsedReceipts" :key="index">
       <el-col :span="24">
-        <el-table :data="parsedReceipt(receipt)" style="width: 100%">
+        <el-table :data="receipt" style="width: 100%">
           <el-table-column prop="key" label="Property" width="180" />
           <el-table-column prop="value" label="Value" width="600" />
         </el-table>
@@ -19,19 +19,20 @@ const namespace = 'run'
 @Component
 export default class Console extends Vue {
 
-  @State('receipts', { namespace }) public receipts!: any
-  
-  public parsedReceipt(receipt: any) {
-    return Object.keys(receipt).map((j: any) => {
-          return {
-            key: j,
-            value: receipt[j]
-          }
-        })
-  }
+    @State('receipts', { namespace }) public receipts!: any
+
+    public get parsedReceipts() {
+        return this.receipts.map((receipt: any) => Object.keys(receipt).map((j: any) => {
+            return {
+                key: j,
+                value: receipt[j]
+            }
+        }))
+    }
 
 }
 </script>
+
 <style lang="stylus" scoped>
 .el-row {
   margin-bottom: 20px;
