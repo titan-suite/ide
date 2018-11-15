@@ -1,6 +1,5 @@
 <template>
-  <el-dialog :visible.sync="dialogFormVisible" :close-on-click-modal="false" :close-on-press-escape="false" title="New Smart Contract">
-
+  <el-dialog :visible.sync="isVisible" title="New Smart Contract">
     <el-form ref="form" :model="form">
       <el-form-item :label-width="formLabelWidth" label="Name">
         <el-input v-model="form.name" />
@@ -24,7 +23,7 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button class="secondaryButton" type="primary" @click="$emit('dialogFormVisible', false)">Cancel</el-button>
+      <el-button class="secondaryButton" type="primary" @click="$emit('closeDialog')">Cancel</el-button>
       <el-button type="primary" @click="handleFormSubmit">Confirm</el-button>
     </span>
   </el-dialog>
@@ -41,7 +40,12 @@
   export default class FileDialog extends Vue {
     @Prop(Boolean) public dialogFormVisible!: boolean
     @Action('addFile', { namespace }) public addFile: any    
-
+    public get isVisible(){
+      return this.dialogFormVisible
+    }
+    public set isVisible(val){
+     this.$emit('closeDialog')
+    }
     public form: any = {
         name: '',
         language: '',
@@ -52,8 +56,7 @@
     public handleFormSubmit(d: any): void {
         const { form: theForm } = this.$refs
         this.addFile(this.form.name)
-        this.$emit('dialogFormVisible', false)
+        this.$emit('closeDialog')
     }
-    
   }
 </script>

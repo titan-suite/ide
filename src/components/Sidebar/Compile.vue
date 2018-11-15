@@ -74,7 +74,6 @@ import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 import { SolVersions, CompiledCode, File } from '../../store/types'
 import {
-    ContractByteCode,
     ContractAbi,
     ContractDetails,
 } from '../../store/modules/sidebar/compile'

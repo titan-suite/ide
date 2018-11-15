@@ -36,10 +36,6 @@ const compileGetters: GetterTree<CompileState, RootState> = {
     const contractNames = Object.keys(state.compiledCode)
     return contractNames
   },
-  contractByteCode(state): ContractByteCode {
-    return (contractName = state.selectedContract) =>
-      state.compiledCode[contractName].code
-  },
   contractAbi(state): ContractAbi {
     return (contractName = state.selectedContract) =>
       state.compiledCode[contractName].info.abiDefinition

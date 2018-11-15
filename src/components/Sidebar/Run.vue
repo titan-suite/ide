@@ -174,7 +174,6 @@ export default class Run extends Vue {
         }
     }
     public set selectedAccountModel(account: string) {
-        console.log('selecting', account)
         this.saveSelectAccount(account)
     }
     public get selectedAccountModel(): string {

@@ -52,7 +52,7 @@ const runGetters: GetterTree<RunState, RootState> = {
           const label = `${address.slice(0, 5)}...${address.slice(
             len - 5,
             len
-          )}${etherBalance ? ' (' + etherBalance.toString() + ' ether)' : ''}`
+          )}${etherBalance ? ' (' + etherBalance.toString() + ' aion)' : ''}`
           return {
             label,
             value: address
@@ -87,13 +87,13 @@ const runMutations: MutationTree<RunState> = {
   },
   updateAccountStatus(state, { address, status }) {
     const targetAccountIndex = state.accounts.findIndex(
-      (account) => account.address === address
+      account => account.address === address
     )
     state.accounts[targetAccountIndex].unlocked = status
   },
   toggleAccountLoadingStatus(state, address) {
     const targetAccountIndex = state.accounts.findIndex(
-      (account) => account.address === address
+      account => account.address === address
     )
     state.accounts[targetAccountIndex].loading = !state.accounts[
       targetAccountIndex
@@ -119,16 +119,18 @@ const runActions: ActionTree<RunState, RootState> = {
       const gas = state.gasLimit
       const abi = compiledCode[contractName].info.abiDefinition
       const code = compiledCode[contractName].code
-      const contractArgs = rootState.compile.contracts[contractName] // TODO
+      const contractArgs = rootState.compile.contracts[contractName] // TODO compile on demand
         ? state.contractArgs
         : ''
-      console.log('deploying with', {
-        abi,
-        code,
-        mainAccount,
-        gas,
-        contractArguments: contractArgs
-      })
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('deploying with', {
+          abi,
+          code,
+          mainAccount,
+          gas,
+          contractArguments: contractArgs
+        })
+      }
       const res = await deploy(
         {
           abi: compiledCode[contractName].info.abiDefinition,
@@ -139,7 +141,9 @@ const runActions: ActionTree<RunState, RootState> = {
         },
         web3
       )
-      console.log(res)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(res)
+      }
       commit('saveDeployedContract', res)
       commit('saveReceipt', res.receipt)
     } catch (error) {
@@ -161,7 +165,6 @@ const runActions: ActionTree<RunState, RootState> = {
         const abi: AbiDefinition[] =
           compiledCode[contractName].info.abiDefinition
         const contractInstance = web3.eth.contract(abi).at(address)
-        console.log({ contractInstance })
         commit('saveDeployedContract', contractInstance)
       } else {
         throw new Error('Invalid Abi')
