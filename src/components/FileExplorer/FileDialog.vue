@@ -33,6 +33,7 @@
 <script lang="ts">
   import { Component, Prop, Vue } from 'vue-property-decorator'
   import { State, Mutation, Getter, Action } from 'vuex-class'
+  import { Notification } from 'element-ui'
   import { EditorOptions, File, Folder } from '../../store/types'
   const namespace = 'workspace'
 
@@ -67,13 +68,11 @@
         this.form.name = ''
         this.$emit('closeDialog')
       } else {
-        this.$notify.error({
-          title: 'Error',
-          message: 'A file with that name already exists'
-        })
+        Notification.error('A file with that name already exists')
         this.form.name = ''
         formValid = true
       }
     }
+
   }
 </script>
