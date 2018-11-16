@@ -2,12 +2,13 @@
   font-size: 13px !important;
 }
 body {
-  background-color: #2b2b2b;
+  background-color: #252525;
   /* font: 12px / normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas',
   'source-code-pro', monospace; */
   font-family: Arial, Helvetica, sans-serif;
   height: 99vh;
   overflow-y: hidden;
+  margin: 0;
 }
 .textColorBlack {
   color: #252525;
@@ -166,6 +167,9 @@ body {
 .iconButton:hover {
   cursor: pointer;
 }
+.el-button--mini.is-circle {
+  padding: 5px;
+}
 .el-button--primary:hover,
 .el-button--primary:focus {
   background: #daa639;
@@ -222,10 +226,10 @@ body {
 /* console dragger */
 .consoleContainer > div.handle.handle-tm {
   background-color: transparent;
-  width: 103%;
+  width: 100%;
   height: 2.5px;
   top: -6px;
-  left: -5px;
+  left: 5px;
   display: block !important;
 }
 .consoleContainer > div.handle.handle-tm:hover {
@@ -263,4 +267,24 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #ad7b16;
+}
+@-webkit-keyframes titan-mine {
+  0% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -webkit-transform: rotate(55deg);
+    transform: rotate(55deg);
+  }
+}
+@keyframes titan-mine {
+  0% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -webkit-transform: rotate(55deg);
+    transform: rotate(55deg);
+  }
 }

@@ -1,7 +1,30 @@
 <template>
   <el-container style="height:100%">
-    <el-header height="3.7rem">
-      <img src="./assets/logo.png" height="45px" width="45px" >
+    <el-header
+      height="4rem"
+      style="height: 5rem;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
+        color: white;
+        background-color: #2b2b2b00;
+        z-index: 1100;
+        box-sizing: border-box;
+        margin-bottom: 1.2rem;
+        width: 100%;"
+    >
+      <el-row type="flex">
+        <div
+          class="titan-mine"
+          style="-webkit-animation: titan-mine infinite 5s linear alternate;animation:titan-mine infinite 5s linear alternate;margin:7px"
+        >
+          <img alt="logo" src="./assets/logo.png" height="50px" width="50px" >
+        </div>
+
+        <h2
+          style="flex-grow: 1;margin-left: 15px;margin-top: 25px;font-size: 1.569em !important;font-weight: 500;line-height: 1.16667em;"
+        >
+          TITAN IDE
+        </h2>
+      </el-row>
     </el-header>
     <el-container>
       <el-aside width="auto">
@@ -70,7 +93,7 @@
           icon="el-icon-d-arrow-left"
           size="mini"
           circle
-          style="padding: 3px;"
+          style="right: 1rem;position: absolute;float: right;"
           @click="sidebarCollapse = false"
         />
       </el-aside>

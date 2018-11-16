@@ -1,19 +1,19 @@
 <template>
-  <div class="enableFocus">
+  <div class="enableFocus" style="margin-top: 1rem;">
     <el-row>
       <el-col :span="24">
         <el-tree :data="data" :allow-drop="allowDrop" :expand-on-click-node="false" node-key="id" default-expand-all draggable @node-click="handleNodeClick">
-          <span slot-scope="{ node, data }" class="custom-tree-node">
-            <span>{{ node.label }}</span>
-            <span v-if="data.type === 'folder'">
-              <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-d-arrow-left" size="mini" circle @click="$emit('collapse')" />
-              <el-button class="actionButton" type="primary" icon="el-icon-plus" size="mini" circle @click="handleItemClick(action='add', data, type='file')" />
+          <div slot-scope="{ node, data }" class="custom-tree-node">
+            <p>{{ node.label }}</p>
+            <p v-if="data.type === 'folder'">
+              <el-button class="secondaryButton" type="primary" icon="el-icon-d-arrow-left" size="mini" circle @click="$emit('collapse')" />
+              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click="handleItemClick(action='add', data, type='file')" />
               <!-- <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" /> -->
-            </span>
-            <!-- <span v-else-if="data.type === 'file'">
+            </p>
+            <!-- <p v-else-if="data.type === 'file'">
               <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" />
-            </span> -->
-          </span>
+            </p> -->
+          </div>
         </el-tree>
       </el-col>
     </el-row>
@@ -121,13 +121,5 @@ export default class FileExplorer extends Vue {
     justify-content: space-between;
     font-size: 14px;
     padding-right: 8px;
-}
-
-.enableFocus {
-    margin-top: 1rem;
-}
-
-.actionButton {
-    margin-top: 0.95rem;
 }
 </style>
