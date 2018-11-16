@@ -90,13 +90,12 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
+import { Notification } from 'element-ui'
 import { SolVersions, Account, Value, Unit } from '../../store/types'
 import { ContractNames, ParsedContractConstructor } from '../../store/modules/sidebar/compile'
 import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
-
-
 const namespace = 'run'
 @Component({
     components: {
@@ -115,6 +114,7 @@ export default class Run extends Vue {
     @Getter('contractNames', { namespace: 'compile' }) public contractNames!: ContractNames
     @Getter('parsedContractConstructor', { namespace: 'compile' }) public parsedContractConstructor!: ParsedContractConstructor
     @Getter('accounts', { namespace }) public accounts!: Account[]
+    @Getter('getLatestContractAddress', { namespace }) public getLatestContractAddress!: string
     @Mutation('toggleAccountsLoading', { namespace }) public toggleAccountsLoading!: () => void
     @Mutation('saveValue', { namespace }) public saveValue!: (value: SaveValue) => void
     @Mutation('saveGasLimit', { namespace }) public saveGasLimit!: (gasLimit: number) => void
@@ -138,7 +138,11 @@ export default class Run extends Vue {
             this.setNodeStatus(true) // TODO validate node and then fetch 
             await this.fetchAccounts()
         } catch (e) {
-            throw e
+            await Notification.error({
+                title: 'Error',
+                message: e
+            })
+            console.error(e)
         } finally {
             this.toggleAccountsLoading()
         }
@@ -148,7 +152,11 @@ export default class Run extends Vue {
         try {
             await this.compile()
         } catch (e) {
-            throw e
+            await Notification.error({
+                title: 'Error',
+                message: e
+            })
+            console.error(e)
         } finally {
             this.compileLoading = false
         }
@@ -157,8 +165,17 @@ export default class Run extends Vue {
         this.deployLoading = true
         try {
             await this.deploy()
+            await Notification.success({
+                title: 'Success',
+                message: `Contract deployed at ${this.getLatestContractAddress}`,
+
+            })
         } catch (e) {
-            throw e
+            await Notification.error({
+                title: 'Error',
+                message: e
+            })
+            console.error(e)
         } finally {
             this.deployLoading = false
         }
@@ -168,7 +185,11 @@ export default class Run extends Vue {
         try {
             await this.retrieveContractFromAddress(this.fromAddressModel)
         } catch (e) {
-            throw e
+            await Notification.error({
+                title: 'Error',
+                message: e
+            })
+            console.error(e)
         } finally {
             this.retrieveContractFromAddressLoading = false
         }

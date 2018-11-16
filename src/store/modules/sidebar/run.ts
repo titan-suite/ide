@@ -59,6 +59,12 @@ const runGetters: GetterTree<RunState, RootState> = {
           }
         })
       : [{ label: 'No Accounts Available', value: '' }]
+  },
+  getLatestContractAddress(state) {
+    return (
+      state.receipts.length > 0 &&
+      state.receipts[state.receipts.length - 1].contractAddress
+    )
   }
 }
 
@@ -109,113 +115,95 @@ const runMutations: MutationTree<RunState> = {
 
 const runActions: ActionTree<RunState, RootState> = {
   async deploy({ state, rootState, commit }) {
-    try {
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-      )
-      const contractName = rootState.compile.selectedContract
-      const compiledCode = rootState.compile.compiledCode
-      const mainAccount = state.selectedAccount
-      const gas = state.gasLimit
-      const abi = compiledCode[contractName].info.abiDefinition
-      const code = compiledCode[contractName].code
-      const contractArgs = rootState.compile.contracts[contractName] // TODO compile on demand
-        ? state.contractArgs
-        : ''
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('deploying with', {
-          abi,
-          code,
-          mainAccount,
-          gas,
-          contractArguments: contractArgs
-        })
-      }
-      const res = await deploy(
-        {
-          abi: compiledCode[contractName].info.abiDefinition,
-          code: compiledCode[contractName].code,
-          mainAccount,
-          gas: 4700000,
-          contractArguments: contractArgs
-        },
-        web3
-      )
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(res)
-      }
-      commit('saveDeployedContract', res)
-      commit('saveReceipt', res.receipt)
-    } catch (error) {
-      throw error
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+    )
+    const contractName = rootState.compile.selectedContract
+    const compiledCode = rootState.compile.compiledCode
+    const mainAccount = state.selectedAccount
+    const gas = state.gasLimit
+    const abi = compiledCode[contractName].info.abiDefinition
+    const code = compiledCode[contractName].code
+    const contractArgs = rootState.compile.contracts[contractName] // TODO compile on demand
+      ? state.contractArgs
+      : ''
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('deploying with', {
+        abi,
+        code,
+        mainAccount,
+        gas,
+        contractArguments: contractArgs
+      })
     }
+    const res = await deploy(
+      {
+        abi: compiledCode[contractName].info.abiDefinition,
+        code: compiledCode[contractName].code,
+        mainAccount,
+        gas: 4700000,
+        contractArguments: contractArgs
+      },
+      web3
+    )
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(res)
+    }
+    commit('saveDeployedContract', res)
+    commit('saveReceipt', res.receipt)
   },
   async retrieveContractFromAddress(
     { rootState, commit, rootGetters },
     address
   ) {
-    try {
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-      )
-      const contract = rootGetters['workspace/activeFile'].code
-      const contractName = rootState.compile.selectedContract
-      const compiledCode = await compile({ contract }, web3)
-      if (contractName in compiledCode) {
-        const abi: AbiDefinition[] =
-          compiledCode[contractName].info.abiDefinition
-        const contractInstance = web3.eth.contract(abi).at(address)
-        commit('saveDeployedContract', contractInstance)
-      } else {
-        throw new Error('Invalid Abi')
-      }
-    } catch (error) {
-      throw error
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+    )
+    const contract = rootGetters['workspace/activeFile'].code
+    const contractName = rootState.compile.selectedContract
+    const compiledCode = await compile({ contract }, web3)
+    if (contractName in compiledCode) {
+      const abi: AbiDefinition[] =
+        compiledCode[contractName].info.abiDefinition
+      const contractInstance = web3.eth.contract(abi).at(address)
+      commit('saveDeployedContract', contractInstance)
+    } else {
+      throw new Error('Invalid Abi')
     }
   },
   async fetchAccounts({ rootState, commit }) {
-    try {
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-      )
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+    )
 
-      const addresses = await getAccounts(web3)
-      if (Array.isArray(addresses)) {
-        const accounts: Account[] = await Promise.all(
-          addresses.map(async (address: string) => {
-            const etherBalance = await getBalance({ address }, web3)
-            return {
-              address,
-              etherBalance: Number(etherBalance),
-              unlocked: false,
-              loading: false
-            }
-          })
-        )
-        commit('saveAccounts', accounts)
-        commit('saveSelectAccount', accounts[0].address)
-        return
-      } else {
-        throw new Error('Unable to fetch Accounts')
-      }
-    } catch (error) {
-      throw error
+    const addresses = await getAccounts(web3)
+    if (Array.isArray(addresses)) {
+      const accounts: Account[] = await Promise.all(
+        addresses.map(async (address: string) => {
+          const etherBalance = await getBalance({ address }, web3)
+          return {
+            address,
+            etherBalance: Number(etherBalance),
+            unlocked: false,
+            loading: false
+          }
+        })
+      )
+      commit('saveAccounts', accounts)
+      commit('saveSelectAccount', accounts[0].address)
+      return
+    } else {
+      throw new Error('Unable to fetch Accounts')
     }
   },
   async unlockAccount({ rootState, commit }, { address, password }) {
-    try {
-      commit('toggleAccountLoadingStatus', address)
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-      )
-      await unlock({ mainAccount: address, mainAccountPass: password }, web3)
-      commit('updateAccountStatus', { address, status: true })
-      return
-    } catch (error) {
-      throw error
-    } finally {
-      commit('toggleAccountLoadingStatus', address)
-    }
+    commit('toggleAccountLoadingStatus', address)
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+    )
+    await unlock({ mainAccount: address, mainAccountPass: password }, web3)
+    commit('updateAccountStatus', { address, status: true })
+    commit('toggleAccountLoadingStatus', address)
   }
 }
 

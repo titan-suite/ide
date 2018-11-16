@@ -47,7 +47,7 @@
           icon="el-icon-d-arrow-right"
           size="mini"
           circle
-          style="margin-right: 1rem; margin-top: 0.5rem;"
+          style="margin-right: 1rem;margin-left: 1rem; margin-top: 0.5rem;"
           @click="fileExplorerCollapse = false"
         />
       </el-aside>

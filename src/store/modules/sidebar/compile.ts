@@ -77,31 +77,27 @@ const compileMutations: MutationTree<CompileState> = {
 const compileActions: ActionTree<CompileState, RootState> = {
   async compile({ state, rootState, commit, dispatch, getters, rootGetters }) {
     const contract = rootGetters['workspace/activeFile'].code
-    try {
-      const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
-      const contracts = await compile(
-        {
-          contract
-        },
-        web3
-      )
-      commit('saveCompiledCode', contracts)
-      for (const [
-        contractName,
-        {
-          info: { abiDefinition }
-        }
-      ] of Object.entries(contracts)) {
-        commit('saveConstructor', {
-          name: contractName,
-          data: extractConstructor(abiDefinition)
-        })
+    const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
+    const contracts = await compile(
+      {
+        contract
+      },
+      web3
+    )
+    commit('saveCompiledCode', contracts)
+    for (const [
+      contractName,
+      {
+        info: { abiDefinition }
       }
-      commit('setNodeStatus', true)
-      commit('setSelectedContract', Object.keys(contracts)[0])
-    } catch (error) {
-      throw error
+    ] of Object.entries(contracts)) {
+      commit('saveConstructor', {
+        name: contractName,
+        data: extractConstructor(abiDefinition)
+      })
     }
+    commit('setNodeStatus', true)
+    commit('setSelectedContract', Object.keys(contracts)[0])
   }
 }
 
