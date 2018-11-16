@@ -1,5 +1,5 @@
 <template>
-  <div style="overflow:scroll; width: 100%;padding: 15px;">
+  <div class="enableFocus" style="overflow:auto; width: 100%;padding: 15px;">
     <el-row v-for="(receipt, index) in parsedReceipts" :key="index">
       <el-col :span="24">
         <el-table :data="receipt" style="width: 100%">

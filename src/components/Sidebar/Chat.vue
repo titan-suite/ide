@@ -1,5 +1,5 @@
 <template>
-  <p> Chat</p>
+  <p>  Coming Soon</p>
 </template>
 
 <script lang="ts">

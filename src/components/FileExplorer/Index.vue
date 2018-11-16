@@ -1,18 +1,22 @@
 <template>
   <div class="enableFocus">
-    <el-tree :data="data" :allow-drop="allowDrop" :expand-on-click-node="false" node-key="id" default-expand-all draggable @node-click="handleNodeClick">
-      <span slot-scope="{ node, data }" class="custom-tree-node">
-        <span>{{ node.label }}</span>
-        <span v-if="data.type === 'folder'">
-          <el-button class="actionButton" type="primary" icon="el-icon-plus" size="mini" circle @click="handleItemClick(action='add', data, type='file')" />
-          <!-- <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" /> -->
-        </span>
-
-        <!-- <span v-else-if="data.type === 'file'">
-          <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" />
-        </span> -->
-      </span>
-    </el-tree>
+    <el-row>
+      <el-col :span="24">
+        <el-tree :data="data" :allow-drop="allowDrop" :expand-on-click-node="false" node-key="id" default-expand-all draggable @node-click="handleNodeClick">
+          <span slot-scope="{ node, data }" class="custom-tree-node">
+            <span>{{ node.label }}</span>
+            <span v-if="data.type === 'folder'">
+              <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-d-arrow-left" size="mini" circle @click="$emit('collapse')" />
+              <el-button class="actionButton" type="primary" icon="el-icon-plus" size="mini" circle @click="handleItemClick(action='add', data, type='file')" />
+              <!-- <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" /> -->
+            </span>
+            <!-- <span v-else-if="data.type === 'file'">
+              <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" />
+            </span> -->
+          </span>
+        </el-tree>
+      </el-col>
+    </el-row>
     <span class="dialog">
       <FileDialog :dialog-form-visible="dialogFormVisible" @closeDialog="dialogFormVisible = false" />
     </span>
@@ -33,7 +37,7 @@ const namespace = 'workspace'
 })
 export default class FileExplorer extends Vue {
     @Action('removeFile', { namespace }) public removeFile!: any
-    
+
     @Getter('code', { namespace }) public code!: any
     @Getter('fileById', { namespace }) public fileById!: any
     @Getter('projectTree', { namespace }) public projectTree!: any
@@ -93,7 +97,7 @@ export default class FileExplorer extends Vue {
     }
 
     public handleItemClick(action: string, data: any, type? : string, node? : any) {
-        console.log(action, data, type, node)
+        // console.log(action, data, type, node)
         if (action === 'add') {
             this.dialogFormVisible = true
         } else {

@@ -1,5 +1,5 @@
 <template>
-  <p> Analysis</p>
+  <p> Coming Soon</p>
 </template>
 
 <script lang="ts">

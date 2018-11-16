@@ -1,7 +1,5 @@
 <template>
-  <div style="overflow:scroll">
-    <codemirror ref="myCm" :value="code" :options="editorOptions" :style="{ height: height >0 && height + 'px' }" class="codemirror" @input="onCmCodeChange" @gutterClick="onGutterClick" />
-  </div>
+  <codemirror ref="myCm" :value="code" :options="editorOptions" :style="{ height: height >0 && height + 'px' }" class="codemirror" @input="onCmCodeChange" @gutterClick="onGutterClick" />
 </template>
 
 <script lang='ts'>

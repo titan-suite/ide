@@ -1,11 +1,11 @@
 <template>
-  <el-tabs v-model="openTabValue" type="border-card" style="border:none;box-shadow:none;" editable @edit="handleTabsEdit">
-    <el-tab-pane v-for="(item) in openFiles" :key="item.path" :label="item.name" :name="item.name">
-      <el-main class="editor">
-        <Tab :code="item.code" />
-      </el-main>
-    </el-tab-pane>
-  </el-tabs>
+    <el-tabs v-model="openTabValue" type="border-card" style="border:none;box-shadow:none;" editable @edit="handleTabsEdit">
+        <el-tab-pane v-for="(item) in openFiles" :key="item.path" :label="item.name" :name="item.name" lazy>
+            <el-main class="editor">
+                <Tab :code="item.code" />
+            </el-main>
+        </el-tab-pane>
+    </el-tabs>
 </template>
 
 <script lang="ts">
@@ -23,7 +23,6 @@ const namespace = 'workspace'
 })
 
 export default class Editor extends Vue {
-    @Prop(Number) public height!: number
     @Getter('activeFile', { namespace }) public activeFile!: File
     @Getter('fileById', { namespace }) public fileById!: any
     @Getter('openFiles', { namespace }) public openFiles!: any

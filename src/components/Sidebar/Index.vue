@@ -2,7 +2,7 @@
   <el-tabs
     v-model="activeName"
     class="enableFocus"
-    style="border: none;box-shadow:none;padding: 10px;"
+    style="border: none;box-shadow:none;padding: 10px;padding-top:1rem"
   >
     <el-tab-pane label="Compile" name="first"> <Compile /> </el-tab-pane>
     <el-tab-pane label="Run" name="second"> <Run /> </el-tab-pane>
