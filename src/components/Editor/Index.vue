@@ -1,11 +1,11 @@
 <template>
-    <el-tabs v-model="openTabValue" type="border-card" style="border:none;box-shadow:none;" editable @edit="handleTabsEdit">
-        <el-tab-pane v-for="(item) in openFiles" :key="item.path" :label="item.name" :name="item.name" lazy>
-            <el-main class="editor">
-                <Tab :code="item.code" />
-            </el-main>
-        </el-tab-pane>
-    </el-tabs>
+  <el-tabs v-model="openTabValue" type="border-card" style="border:none;box-shadow:none;" editable @edit="handleTabsEdit">
+    <el-tab-pane v-for="(item) in openFiles" :key="item.path" :label="item.name" :name="item.name" lazy>
+      <el-main class="editor">
+        <Tab :code="item.code" />
+      </el-main>
+    </el-tab-pane>
+  </el-tabs>
 </template>
 
 <script lang="ts">
@@ -47,14 +47,12 @@ export default class Editor extends Vue {
         if (action === 'remove') {
             const tabs = this.openFiles
             let activeName = this.openTabValue
-            let activeIndex = 0
             if (activeName === targetName) {
                 tabs.forEach((tab: File, index: number) => {
                     if (tab.name === targetName) {
                         const nextTab = tabs[index + 1] || tabs[index - 1]
                         if (nextTab) {
                             activeName = nextTab.name
-                            activeIndex = nextTab.index
                         }
                     }
                 })

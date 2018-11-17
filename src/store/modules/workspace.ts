@@ -126,8 +126,8 @@ const ideGetters: GetterTree<IdeState, RootState> = {
   activeFile(state, getters): File {
     return getters.activeWorkspace.activeFile
   },
-  editorOptions(state): EditorOptions {
-    return state.workspaces[state.activeWorkspaceIndex].editorOptions
+  editorOptions(state, getters): EditorOptions {
+    return getters.activeWorkspace.editorOptions
   },
   openFiles(state, getters): any[] {
     return getters.activeWorkspace.openFiles
@@ -135,10 +135,10 @@ const ideGetters: GetterTree<IdeState, RootState> = {
 }
 
 const mutations: MutationTree<IdeState> = {
-  updateFolder(state, payload: File) {
-    state.workspaces[state.activeWorkspaceIndex].projectTree.folders[
-      state.workspaces[state.activeWorkspaceIndex].activeFolderIndex
-    ].files.push(payload)
+  updateFolder(state, payload: File[]) {
+    state.workspaces[
+      state.activeWorkspaceIndex
+    ].projectTree.folders[0].files = payload
   },
   setOpenFiles(state, payload: File[]) {
     state.workspaces[state.activeWorkspaceIndex].openFiles = payload
@@ -160,6 +160,11 @@ const mutations: MutationTree<IdeState> = {
     if (!exists) {
       openFiles!.push(payload)
     }
+  },
+  hideTab(state, payload: File) {
+    state.workspaces[state.activeWorkspaceIndex].openFiles = state.workspaces[
+      state.activeWorkspaceIndex
+    ].openFiles!.filter((f: File) => f.path !== payload.path)
   }
 }
 
@@ -179,9 +184,39 @@ const actions: ActionTree<IdeState, RootState> = {
       index: projectFiles.length,
       name: payload,
       code: `pragma solidity ^0.4.9;\n\ncontract ${contractName} {\n\n\tfunction ${contractName}() public {}\n}`,
-      path: `/Examlpe/${payload}`
+      path: `/Example/${payload}`
     }
-    commit('updateFolder', file)
+    projectFiles.push(file)
+    commit('updateFolder', projectFiles)
+  },
+  removeFile(
+    { state, rootState, commit, dispatch, getters, rootGetters },
+    payload: string
+  ) {
+    const projectFiles: File[] = getters.projectTree.folders[0].files
+    const tabs: File[] = getters.openFiles!
+    const activeFile = getters.activeWorkspace.activeFile
+    const targetFile: File | undefined = projectFiles.find(
+      (file: File) => file.name === payload
+    )
+
+    if (targetFile) {
+      if (targetFile.name === activeFile.name) {
+        tabs.forEach((tab: File, index: number) => {
+          if (tab.name === payload) {
+            const nextTab = tabs[index + 1] || tabs[index - 1]
+            if (nextTab) {
+              commit('setActiveFile', nextTab)
+            }
+          }
+        })
+      }
+      commit('hideTab', targetFile)
+      const updatedFolder = projectFiles.filter(
+        (file: File) => file.name !== payload
+      )
+      commit('updateFolder', updatedFolder)
+    }
   }
 }
 

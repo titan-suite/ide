@@ -6,7 +6,10 @@
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Language">
-        <el-select v-model="form.language" placeholder="Please select a language">
+        <el-select
+          v-model="form.language"
+          placeholder="Please select a language"
+        >
           <el-option label="Solidity" value="solidity" />
           <el-option label="SolidityX" value="solidityx" />
           <el-option label="Vyper" value="vyper" />
@@ -15,7 +18,10 @@
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Compiler Version">
-        <el-select v-model="form.compiler" placeholder="Please select a version">
+        <el-select
+          v-model="form.compiler"
+          placeholder="Please select a version"
+        >
           <el-option label="v0.4.9" value="sol-v049" />
           <!-- <el-option label="v0.4.15" value="sol-v0415" /> -->
         </el-select>
@@ -23,56 +29,61 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button class="secondaryButton" type="primary" @click="$emit('closeDialog')">Cancel</el-button>
+      <el-button
+        class="secondaryButton"
+        type="primary"
+        @click="$emit('closeDialog')"
+      >Cancel
+      </el-button>
       <el-button type="primary" @click="handleFormSubmit">Confirm</el-button>
     </span>
   </el-dialog>
 </template>
 
-
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator'
-  import { State, Mutation, Getter, Action } from 'vuex-class'
-  import { Notification } from 'element-ui'
-  import { EditorOptions, File, Folder } from '../../store/types'
-  const namespace = 'workspace'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import { State, Mutation, Getter, Action } from 'vuex-class'
+import { EditorOptions, File, Folder } from '../../store/types'
+const namespace = 'workspace'
 
-  @Component
-  export default class FileDialog extends Vue {
-    @Prop(Boolean) public dialogFormVisible!: boolean
-    @Action('addFile', { namespace }) public addFile: any    
-    @Getter('projectTree', { namespace }) public projectTree!: any
-    public get isVisible(){
-      return this.dialogFormVisible
-    }
-    public set isVisible(val){
-     this.$emit('closeDialog')
-    }
-    public form: any = {
-        name: '',
-        language: '',
-        compiler: ''
-    }
-    public formLabelWidth: string = '200px'
-
-    public handleFormSubmit(d: any): void {
-      let formValid = true
-      this.projectTree.folders[0].files.map((file: File) => {
-        if(file.name === this.form.name) {
-          formValid = false
-        }
-      })
-      
-      if(formValid) {
-        this.addFile(this.form.name)
-        this.form.name = ''
-        this.$emit('closeDialog')
-      } else {
-        Notification.error('A file with that name already exists')
-        this.form.name = ''
-        formValid = true
-      }
-    }
-
+@Component
+export default class FileDialog extends Vue {
+  @Prop(Boolean) public dialogFormVisible!: boolean
+  @Action('addFile', { namespace }) public addFile: any
+  @Getter('projectTree', { namespace }) public projectTree!: any
+  public get isVisible() {
+    return this.dialogFormVisible
   }
+  public set isVisible(val) {
+    this.$emit('closeDialog')
+  }
+  public form: any = {
+    name: '',
+    language: '',
+    compiler: ''
+  }
+  public formLabelWidth: string = '200px'
+
+  public handleFormSubmit(d: any): void {
+    let formValid = true
+    this.projectTree.folders[0].files.map((file: File) => {
+      if (file.name === this.form.name) {
+        formValid = false
+      }
+    })
+
+    if (formValid) {
+      this.addFile(this.form.name)
+      this.form.name = ''
+      this.$emit('closeDialog')
+    } else {
+      this.$notify.error({
+        title: 'Error',
+        message: 'A file with that name already exists'
+      })
+      this.form.name = ''
+      formValid = true
+    }
+  }
+}
 </script>

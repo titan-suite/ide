@@ -51,10 +51,7 @@
                 type="primary"
                 size="mini"
                 @click="
-                  unlockAccount({
-                    address: scope.row.address,
-                    password: scope.row.password
-                  })
+                  handleUnlock(scope.row.address, scope.row.password)
                   scope.row.popoverOpen = false
                 "
               >Confirm</el-button
@@ -80,6 +77,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, State, Mutation } from 'vuex-class'
+import { Notification } from 'element-ui'
 import { Account } from '../../store/types'
 @Component
 export default class Accounts extends Vue {
@@ -105,9 +103,27 @@ export default class Accounts extends Vue {
       this.setNodeStatus(true) // TODO validate node and then fetch
       await this.fetchAccounts()
     } catch (e) {
-      throw e
+      await Notification.error({
+        title: 'Error',
+        message: e
+      })
+      console.error(e)
     } finally {
       this.toggleAccountsLoading()
+    }
+  }
+  public async handleUnlock(address: string, password: string): Promise<void> {
+    try {
+      await this.unlockAccount({
+        address,
+        password
+      })
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: 'Unlock failed'
+      })
+      console.error(e)
     }
   }
 

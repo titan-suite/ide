@@ -8,7 +8,7 @@
         <NodeAddressInput />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
@@ -19,7 +19,7 @@
         </el-select>
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="24" :offset="10">
         <el-button :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
@@ -27,13 +27,13 @@
         </el-button>
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="18" :offset="3">
         <ContractNameSelect />
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="24" :offset="13">
         <el-button type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
@@ -41,7 +41,7 @@
         </el-button>
       </el-col>
     </el-row>
-
+    
     <el-row>
       <el-col :span="23" :offset="1" style="padding-right:1rem">
         <h3>Problems ({{ lintDetails.length }})</h3>
@@ -60,7 +60,7 @@
         </el-collapse>
       </el-col>
     </el-row>
-
+    
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible" width="80%">
       <tree-view :data="contractDetails()" :options="{maxDepth: 4}" />
     </el-dialog>
@@ -70,6 +70,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
+import { Notification } from 'element-ui'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 import { SolVersions, CompiledCode, File } from '../../store/types'
@@ -111,7 +112,11 @@ export default class Compile extends Vue {
         try {
             await this.compile()
         } catch (e) {
-            throw e
+            await Notification.error({
+                title: 'Error',
+                message: e
+            })
+            console.error(e)
         } finally {
             this.loading = false
         }
