@@ -7,12 +7,12 @@
             <p>{{ node.label }}</p>
             <p v-if="data.type === 'folder'">
               <el-button class="secondaryButton" type="primary" icon="el-icon-d-arrow-left" size="mini" circle @click="$emit('collapse')" />
-              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click="handleItemClick(action='add', data, type='file')" />
-              <!-- <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" /> -->
+              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click="handleItemClick({action:'add', data, type:'file'})" />
+              <!-- <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, type='file', node)" /> -->
             </p>
-            <!-- <p v-else-if="data.type === 'file'">
-              <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, node)" />
-            </p> -->
+            <p v-else-if="data.type === 'file'">
+              <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick({action:'remove', data, node})" />
+            </p>
           </div>
         </el-tree>
       </el-col>
@@ -64,6 +64,7 @@ export default class FileExplorer extends Vue {
     }
 
     public handleNodeClick(data: any) {
+      console.log(data)
         if (data.type === 'file') {
             const nodeId = data.id
             const file: File = this.fileById(0, nodeId)
@@ -96,18 +97,21 @@ export default class FileExplorer extends Vue {
         return data
     }
 
-    public handleItemClick(action: string, data: any, type? : string, node? : any) {
-        // console.log(action, data, type, node)
-        if (action === 'add') {
-            this.dialogFormVisible = true
-        } else {
-            this.removeFile(data.label)
-            // const parent = node.parent
-            // const children = parent.data.children || parent.data
-            // const index = children.findIndex((d: any) => d.id === data.id)
-            // children.splice(index, 1)
-            // TODO remove from projectTree
-        }
+    public handleItemClick(payload: any) {
+      const { action, data, type, node } = payload
+      console.log(action)
+      console.log(data)
+      console.log(type)
+      console.log(node)
+      if (action === 'add') {
+          this.dialogFormVisible = true
+      } else {
+          const parent = node.parent
+          const children = parent.data.children || parent.data
+          const index = children.findIndex((d: any) => d.id === data.id)
+          children.splice(index, 1)
+          this.removeFile(data.label)
+      }
     }
 
 }
@@ -115,11 +119,11 @@ export default class FileExplorer extends Vue {
 
 <style scoped lang="stylus">
 .custom-tree-node {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding-right: 8px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
 }
 </style>
