@@ -1,13 +1,8 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { CompileState, RootState, CompiledCode } from '../../types'
-import { compile } from '@titan-suite/core/aion'
-import Web3 from 'aion-web3'
 import { ContractAbi as TypeContractAbi } from 'ethereum-types'
 import { extractConstructor } from '../../../utils'
-let nodeAddress = ''
-if (process.env.NODE_ENV !== 'production') {
-  nodeAddress = require('../../titanrc').nodeAddress
-}
+
 const compileState: CompileState = {
   compiledCode: {},
   solVersions: [
@@ -17,10 +12,8 @@ const compileState: CompileState = {
     }
   ],
   contracts: {},
-  nodeAddress,
   selectedContract: '',
   selectedSolVersion: '0.4.9',
-  isConnectedToNode: false
 }
 
 export type ContractNames = string[]
@@ -60,12 +53,6 @@ const compileMutations: MutationTree<CompileState> = {
   saveConstructor(state, { name, data }) {
     state.contracts = { ...state.contracts, [name]: data }
   },
-  saveNodeAddress(state, payload) {
-    state.nodeAddress = payload
-  },
-  setNodeStatus(state, status: boolean) {
-    state.isConnectedToNode = status
-  },
   setSolVersion(state, payload) {
     state.selectedSolVersion = payload
   },
@@ -76,28 +63,26 @@ const compileMutations: MutationTree<CompileState> = {
 
 const compileActions: ActionTree<CompileState, RootState> = {
   async compile({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    const contract = rootGetters['workspace/activeFile'].code
-    const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
-    const contracts = await compile(
-      {
-        contract
-      },
-      web3
-    )
-    commit('saveCompiledCode', contracts)
-    for (const [
-      contractName,
-      {
-        info: { abiDefinition }
-      }
-    ] of Object.entries(contracts)) {
-      commit('saveConstructor', {
-        name: contractName,
-        data: extractConstructor(abiDefinition)
-      })
-    }
-    commit('setNodeStatus', true)
-    commit('setSelectedContract', Object.keys(contracts)[0])
+    // const contract = rootGetters['workspace/activeFile'].code
+    // const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
+    // const contracts = await compile(
+    //   {
+    //     contract
+    //   },
+    //   web3
+    // )
+    // commit('saveCompiledCode', contracts)
+    // for (const [
+    //   contractName,
+    //   {
+    //     info: { abiDefinition }
+    //   }
+    // ] of Object.entries(contracts)) {
+    //   commit('saveConstructor', {
+    //     name: contractName,
+    //     data: extractConstructor(abiDefinition)
+    //   })
+    // }
   }
 }
 

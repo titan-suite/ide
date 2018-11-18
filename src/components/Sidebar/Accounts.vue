@@ -79,6 +79,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, State, Mutation } from 'vuex-class'
 import { Notification } from 'element-ui'
 import { Account } from '../../store/types'
+import { shortenAddress } from '../../utils'
 @Component
 export default class Accounts extends Vue {
   @State('accounts', { namespace: 'run' }) public accounts!: Account[]
@@ -93,19 +94,15 @@ export default class Accounts extends Vue {
 
   @Mutation('toggleAccountsLoading', { namespace: 'run' })
   public toggleAccountsLoading!: () => void
-  @Mutation('setNodeStatus', { namespace: 'compile' }) public setNodeStatus!: (
-    status: boolean
-  ) => void
 
   public async getAccounts(): Promise<void> {
     try {
       this.toggleAccountsLoading()
-      this.setNodeStatus(true) // TODO validate node and then fetch
       await this.fetchAccounts()
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: e
+        message: e.message
       })
       console.error(e)
     } finally {
@@ -121,7 +118,7 @@ export default class Accounts extends Vue {
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: 'Unlock failed'
+        message: e.message
       })
       console.error(e)
     }
@@ -133,15 +130,9 @@ export default class Accounts extends Vue {
           ...account,
           popoverOpen: false,
           password: '',
-          shortenAddress: this.shortenAddress(account.address)
+          shortenAddress: shortenAddress(account.address)
         }))
       : [{ address: '', etherBalance: '', shortenAddress: '' }]
-  }
-
-  public shortenAddress(address: string): string {
-    const len = address.length
-    const label = `${address.slice(0, 5)}...${address.slice(len - 5, len)}`
-    return label
   }
 }
 </script>

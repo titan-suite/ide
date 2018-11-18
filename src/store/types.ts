@@ -1,4 +1,5 @@
 import { ContractAbi } from 'ethereum-types'
+import { Aion } from '@titan-suite/core'
 
 export interface RootState {
   compile: CompileState
@@ -13,10 +14,8 @@ export interface CompileState {
   contracts: {
     [key: string]: string | undefined;
   }
-  nodeAddress: string
   selectedContract: string
   selectedSolVersion: string
-  isConnectedToNode: boolean
 }
 export interface CompiledCode {
   code: string
@@ -34,20 +33,22 @@ export interface ContractInfo {
   source: string
 }
 export interface RunState {
-  // environment: any
+  blockchains: {}
+  providers: {}
+  selectedBlockchain: string
+  selectedProvider: string
+  providerAddress: string
   accountsLoading: boolean
   selectedAccount: string
   accounts: Account[]
   gasLimit: number
+  gasPrice: number
   value: Value
-  units: Unit[]
   contractArgs: string
   receipts: any[]
   deployedContract: any
-}
-export interface Unit {
-  value: string
-  label: string
+  providerInstance: undefined | Aion
+  isProviderSet: boolean
 }
 export interface Value {
   amount: number

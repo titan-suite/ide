@@ -1,58 +1,47 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { RunState, RootState, Account } from '../../types'
 import {
-  deploy,
-  unlock,
-  compile,
-  getAccounts,
-  getBalance
-} from '@titan-suite/core'
-import Web3 from 'aion-web3'
-import { AbiDefinition } from 'ethereum-types'
+  shortenAddress,
+  BLOCKCHAINS,
+  PROVIDERS,
+  getUnits
+} from '../../../utils'
+import { Aion } from '@titan-suite/core'
+
+let nodeAddress = ''
+if (process.env.NODE_ENV !== 'production') {
+  nodeAddress = require('../../titanrc').nodeAddress
+}
+
 const runState: RunState = {
-  // environment: [
-  //  { name: 'Web3 Provider', endpoint: ''},
-  // ],
+  blockchains: BLOCKCHAINS,
+  providers: PROVIDERS,
+  selectedBlockchain: BLOCKCHAINS.AION,
+  selectedProvider: PROVIDERS.Web3Provider,
+  providerAddress: nodeAddress,
   accountsLoading: false,
   selectedAccount: '',
   accounts: [],
   gasLimit: 2000 * 1000,
+  gasPrice: 10000000000000,
   value: {
     amount: 0,
-    unit: 'wei'
+    unit: ''
   },
-  units: [
-    {
-      value: 'wei',
-      label: 'Wei'
-    },
-    {
-      value: 'gwei',
-      label: 'Gwei'
-    },
-    {
-      value: 'finney',
-      label: 'Finney'
-    },
-    {
-      value: 'ether',
-      label: 'Ether'
-    }
-  ],
   contractArgs: '',
   deployedContract: {},
-  receipts: []
+  receipts: [],
+  providerInstance: undefined,
+  isProviderSet: false
 }
 
 const runGetters: GetterTree<RunState, RootState> = {
   accounts(state): any {
     return state.accounts.length > 0
       ? state.accounts.map(({ address, etherBalance }) => {
-          const len = address.length
-          const label = `${address.slice(0, 5)}...${address.slice(
-            len - 5,
-            len
-          )}${etherBalance ? ' (' + etherBalance.toString() + ' aion)' : ''}`
+          const label = `${shortenAddress(address)}${
+            etherBalance ? ' (' + etherBalance.toString() + ' aion)' : ''
+          }`
           return {
             label,
             value: address
@@ -65,6 +54,9 @@ const runGetters: GetterTree<RunState, RootState> = {
       state.receipts.length > 0 &&
       state.receipts[state.receipts.length - 1].contractAddress
     )
+  },
+  getUnits(state) {
+    return getUnits(state.selectedBlockchain)
   }
 }
 
@@ -73,6 +65,29 @@ export interface SaveValue {
   unit?: string
 }
 const runMutations: MutationTree<RunState> = {
+  setBlockchain(state, payload) {
+    state.selectedBlockchain = payload
+    state.value.unit = ''
+    if (state.isProviderSet) {
+      state.isProviderSet = false
+    }
+  },
+  setProvider(state, payload) {
+    state.selectedProvider = payload
+    if (state.isProviderSet) {
+      state.isProviderSet = false
+    }
+  },
+  setProviderAddress(state, payload) {
+    state.providerAddress = payload
+    if (state.isProviderSet) {
+      state.isProviderSet = false
+    }
+  },
+  setProviderInstance(state, payload) {
+    state.providerInstance = payload
+    state.isProviderSet = true
+  },
   saveAccounts(state, payload) {
     state.accounts = payload
   },
@@ -81,6 +96,9 @@ const runMutations: MutationTree<RunState> = {
   },
   saveGasLimit(state, payload) {
     state.gasLimit = payload
+  },
+  saveGasPrice(state, payload) {
+    state.gasPrice = payload
   },
   saveValue(state, payload: SaveValue) {
     state.value = { ...state.value, ...payload }
@@ -114,96 +132,112 @@ const runMutations: MutationTree<RunState> = {
 }
 
 const runActions: ActionTree<RunState, RootState> = {
-  async deploy({ state, rootState, commit }) {
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-    )
-    const contractName = rootState.compile.selectedContract
-    const compiledCode = rootState.compile.compiledCode
-    const mainAccount = state.selectedAccount
-    const gas = state.gasLimit
-    const abi = compiledCode[contractName].info.abiDefinition
-    const code = compiledCode[contractName].code
-    const contractArgs = rootState.compile.contracts[contractName] // TODO compile on demand
-      ? state.contractArgs
-      : ''
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('deploying with', {
-        abi,
-        code,
-        mainAccount,
-        gas,
-        contractArguments: contractArgs
-      })
+  async instantiateProvider({ state, commit }) {
+    switch (state.selectedBlockchain) {
+      case BLOCKCHAINS.AION:
+        switch (state.selectedProvider) {
+          case PROVIDERS.Web3Provider:
+            commit('setProviderInstance', new Aion(state.providerAddress))
+            break
+          default:
+            break
+        }
+        break
+      default:
+        break
     }
-    const res = await deploy(
-      {
-        abi: compiledCode[contractName].info.abiDefinition,
+  },
+  async deploy({ state, rootState, commit }) {
+    const providerInstance = state.providerInstance
+    if (providerInstance) {
+      const contractName = rootState.compile.selectedContract
+      const compiledCode = rootState.compile.compiledCode
+      const mainAccount = state.selectedAccount
+      const gas = state.gasLimit
+      const gasPrice = state.gasPrice
+      const code = compiledCode[contractName].code
+      const contractArguments = rootState.compile.contracts[contractName] // TODO compile on demand
+        ? state.contractArgs
+        : ''
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('deploying with', {
+          code,
+          mainAccount,
+          gas,
+          contractArguments
+        })
+      }
+      const res = await providerInstance.deploy({
         code: compiledCode[contractName].code,
         mainAccount,
-        gas: 4700000,
-        contractArguments: contractArgs
-      },
-      web3
-    )
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(res)
-    }
-    commit('saveDeployedContract', res)
-    commit('saveReceipt', res.receipt)
-  },
-  async retrieveContractFromAddress(
-    { rootState, commit, rootGetters },
-    address
-  ) {
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-    )
-    const contract = rootGetters['workspace/activeFile'].code
-    const contractName = rootState.compile.selectedContract
-    const compiledCode = await compile({ contract }, web3)
-    if (contractName in compiledCode) {
-      const abi: AbiDefinition[] =
-        compiledCode[contractName].info.abiDefinition
-      const contractInstance = web3.eth.contract(abi).at(address)
-      commit('saveDeployedContract', contractInstance)
+        gas,
+        gasPrice,
+        contractArguments
+      })
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(res)
+      }
+      // commit('saveDeployedContract', res)
+      commit('saveReceipt', res.txReceipt)
     } else {
-      throw new Error('Invalid Abi')
+      throw new Error('Provider not set')
     }
   },
-  async fetchAccounts({ rootState, commit }) {
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-    )
-
-    const addresses = await getAccounts(web3)
-    if (Array.isArray(addresses)) {
-      const accounts: Account[] = await Promise.all(
-        addresses.map(async (address: string) => {
-          const etherBalance = await getBalance({ address }, web3)
-          return {
+  // async retrieveContractFromAddress(
+  //   { rootState, commit, rootGetters },
+  //   address
+  // ) {
+  //   const web3 = new Web3(
+  //     new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+  //   )
+  //   const contract = rootGetters['workspace/activeFile'].code
+  //   const contractName = rootState.compile.selectedContract
+  //   const compiledCode = await compile({ contract }, web3)
+  //   if (contractName in compiledCode) {
+  //     const abi: AbiDefinition[] =
+  //       compiledCode[contractName].info.abiDefinition
+  //     const contractInstance = web3.eth.contract(abi).at(address)
+  //     commit('saveDeployedContract', contractInstance)
+  //   } else {
+  //     throw new Error('Invalid Abi')
+  //   }
+  // },
+  async fetchAccounts({ rootState, commit, state }) {
+    const providerInstance = state.providerInstance
+    if (providerInstance) {
+      const addresses = await providerInstance.getAccounts()
+      if (Array.isArray(addresses)) {
+        const accounts: any[] = []
+        for (const address of addresses) {
+          const etherBalance = await providerInstance.getBalance(address)
+          accounts.push({
             address,
             etherBalance: Number(etherBalance),
             unlocked: false,
             loading: false
-          }
-        })
-      )
-      commit('saveAccounts', accounts)
-      commit('saveSelectAccount', accounts[0].address)
-      return
+          })
+        }
+        commit('saveAccounts', accounts)
+      } else {
+        throw new Error('Unable to fetch Accounts')
+      }
     } else {
-      throw new Error('Unable to fetch Accounts')
+      throw new Error('Provider not set')
     }
   },
-  async unlockAccount({ rootState, commit }, { address, password }) {
+  async unlockAccount({ state, commit }, { address, password }) {
     commit('toggleAccountLoadingStatus', address)
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-    )
-    await unlock({ mainAccount: address, mainAccountPass: password }, web3)
-    commit('updateAccountStatus', { address, status: true })
-    commit('toggleAccountLoadingStatus', address)
+    const providerInstance = state.providerInstance
+    if (providerInstance) {
+      const status = await providerInstance.unlock(address, password)
+      commit('updateAccountStatus', { address, status })
+      commit('toggleAccountLoadingStatus', address)
+      if (!status) {
+        throw new Error('Unlock failed')
+      }
+    } else {
+      throw new Error('Provider not set')
+    }
   }
 }
 

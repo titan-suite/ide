@@ -1,14 +1,5 @@
 <template>
   <div>
-    <el-row :gutter="11">
-      <el-col :span="7" :offset="1">
-        <p>Provider URL</p>
-      </el-col>
-      <el-col :span="13">
-        <NodeAddressInput />
-      </el-col>
-    </el-row>
-    
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
@@ -71,7 +62,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { Notification } from 'element-ui'
-import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
 import { SolVersions, CompiledCode, File } from '../../store/types'
 import {
@@ -85,7 +75,6 @@ const namespace = 'compile'
 
 @Component({
     components: {
-        NodeAddressInput,
         ContractNameSelect
     }
 })

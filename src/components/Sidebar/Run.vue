@@ -1,13 +1,6 @@
 <template>
   <div>
-    <el-row :gutter="11">
-      <el-col :span="7" :offset="1">
-        <p>Provider Url</p>
-      </el-col>
-      <el-col :span="13">
-        <NodeAddressInput />
-      </el-col>
-    </el-row>
+    <NodeAddressInput />
     
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
@@ -31,6 +24,15 @@
         <el-input v-model="gasLimitModel" :value="gasLimit" type="number" clearable />
       </el-col>
     </el-row>
+
+    <el-row>
+      <el-col :span="7" :offset="1">
+        <p>Gas Price</p>
+      </el-col>
+      <el-col :span="13">
+        <el-input v-model="gasPriceModel" :value="gasPrice" type="number" clearable />
+      </el-col>
+    </el-row>
     
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
@@ -41,7 +43,7 @@
       </el-col>
       <el-col :span="6">
         <el-select v-model="unitModel" class="select" placeholder="Unit" style="display: block">
-          <el-option v-for="unit in units" :key="unit.value" :label="unit.label" :value="unit.value" />
+          <el-option v-for="unit in getUnits" :key="unit.value" :label="unit.label" :value="unit.value" />
         </el-select>
       </el-col>
     </el-row>
@@ -91,7 +93,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { Notification } from 'element-ui'
-import { SolVersions, Account, Value, Unit } from '../../store/types'
+import { SolVersions, Account, Value } from '../../store/types'
 import { ContractNames, ParsedContractConstructor } from '../../store/modules/sidebar/compile'
 import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
@@ -108,9 +110,10 @@ export default class Run extends Vue {
     @State('accountsLoading', { namespace }) public accountsLoading!: boolean
     @State('selectedAccount', { namespace }) public selectedAccount!: string
     @State('gasLimit', { namespace }) public gasLimit!: number
+    @State('gasPrice', { namespace }) public gasPrice!: number
     @State('value', { namespace }) public value!: Value
-    @State('units', { namespace }) public units!: Unit[]
     @State('contractArgs', { namespace }) public contractArgs!: string
+    @Getter('getUnits', { namespace }) public getUnits!: object[]
     @Getter('contractNames', { namespace: 'compile' }) public contractNames!: ContractNames
     @Getter('parsedContractConstructor', { namespace: 'compile' }) public parsedContractConstructor!: ParsedContractConstructor
     @Getter('accounts', { namespace }) public accounts!: Account[]
@@ -118,7 +121,7 @@ export default class Run extends Vue {
     @Mutation('toggleAccountsLoading', { namespace }) public toggleAccountsLoading!: () => void
     @Mutation('saveValue', { namespace }) public saveValue!: (value: SaveValue) => void
     @Mutation('saveGasLimit', { namespace }) public saveGasLimit!: (gasLimit: number) => void
-    @Mutation('setNodeStatus', { namespace: 'compile' }) public setNodeStatus!: (status: boolean) => void
+    @Mutation('saveGasPrice', { namespace }) public saveGasPrice!: (gasPrice: number) => void
     @Mutation('saveSelectAccount', { namespace }) public saveSelectAccount!: (account: string) => void
     @Mutation('setContractArgs', { namespace }) public setContractArgs!: (contractArgs: string) => void
     @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
@@ -135,12 +138,11 @@ export default class Run extends Vue {
     public async getAccounts(): Promise < void > {
         try {
             this.toggleAccountsLoading()
-            this.setNodeStatus(true) // TODO validate node and then fetch 
             await this.fetchAccounts()
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e
+                message: e.message
             })
             console.error(e)
         } finally {
@@ -206,6 +208,12 @@ export default class Run extends Vue {
     public get gasLimitModel(): number {
         return this.gasLimit
     }
+    public set gasPriceModel(gasPrice: number) {
+        this.saveGasPrice(gasPrice)
+    }
+    public get gasPriceModel(): number {
+        return this.gasPrice
+    }
     public set amountModel(amount: number) {
         this.saveValue({ amount })
     }
@@ -232,10 +240,10 @@ export default class Run extends Vue {
 
 <style lang="stylus" scoped>
 .el-row {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+    &:last-child {
+        margin-bottom: 0;
+    }
 }
 </style>

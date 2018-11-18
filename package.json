@@ -11,8 +11,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core.git",
-    "aion-web3": "^0.0.3",
+    "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core\\#jsonrpc",
     "codemirror": "^5.41.0",
     "element-ui": "^2.4.5",
     "ethereum-types": "^1.1.2",
