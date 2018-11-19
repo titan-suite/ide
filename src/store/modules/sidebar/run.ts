@@ -1,4 +1,5 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
+import { AbiDefinition } from 'ethereum-types'
 import { RunState, RootState, Account } from '../../types'
 import {
   shortenAddress,
@@ -29,7 +30,7 @@ const runState: RunState = {
     unit: ''
   },
   contractArgs: '',
-  deployedContract: {},
+  deployedContracts: [],
   receipts: [],
   providerInstance: undefined,
   isProviderSet: false
@@ -110,7 +111,7 @@ const runMutations: MutationTree<RunState> = {
     state.contractArgs = contractArgs
   },
   saveDeployedContract(state, payload) {
-    state.deployedContract = payload
+    state.deployedContracts.push(payload)
   },
   updateAccountStatus(state, { address, status }) {
     const targetAccountIndex = state.accounts.findIndex(
@@ -161,6 +162,8 @@ const runActions: ActionTree<RunState, RootState> = {
       const gas = state.gasLimit
       const gasPrice = state.gasPrice
       const bytecode = compiledCode[contractName].code
+      const abi: AbiDefinition[] =
+        compiledCode[contractName].info.abiDefinition
       const contractArguments = rootState.compile.contracts[contractName] // TODO check constructor
         ? state.contractArgs
         : ''
@@ -182,30 +185,37 @@ const runActions: ActionTree<RunState, RootState> = {
       if (process.env.NODE_ENV !== 'production') {
         console.log(res)
       }
-      // commit('saveDeployedContract', res)
+      commit('saveDeployedContract', {
+        contractAddress: res.txReceipt.contractAddress,
+        abi: abi.filter(i => i.type !== 'constructor' && i.type !== 'event')
+      })
       commit('saveReceipt', res.txReceipt)
     } else {
       throw new Error('Provider not set')
     }
   },
   async retrieveContractFromAddress(
-    { rootState, commit, rootGetters },
+    { state, rootState, commit, rootGetters },
     address
   ) {
-    //   const web3 = new Web3(
-    //     new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-    //   )
-    //   const contract = rootGetters['workspace/activeFile'].code
-    //   const contractName = rootState.compile.selectedContract
-    //   const compiledCode = await compile({ contract }, web3)
-    //   if (contractName in compiledCode) {
-    //     const abi: AbiDefinition[] =
-    //       compiledCode[contractName].info.abiDefinition
-    //     const contractInstance = web3.eth.contract(abi).at(address)
-    //     commit('saveDeployedContract', contractInstance)
-    //   } else {
-    //     throw new Error('Invalid Abi')
-    //   }
+    const providerInstance = state.providerInstance
+    if (providerInstance) {
+      const contract = rootGetters['workspace/activeFile'].code
+      const contractName = rootState.compile.selectedContract
+      const compiledCode = await providerInstance.compile(contract)
+      if (contractName in compiledCode) {
+        const abi: AbiDefinition[] =
+          compiledCode[contractName].info.abiDefinition
+        commit('saveDeployedContract', {
+          contractAddress: address,
+          abi: abi.filter(i => i.type !== 'constructor' && i.type !== 'event')
+        })
+      } else {
+        throw new Error('Invalid Abi')
+      }
+    } else {
+      throw new Error('Provider not set')
+    }
   },
   async fetchAccounts({ rootState, commit, state }) {
     const providerInstance = state.providerInstance
@@ -233,7 +243,7 @@ const runActions: ActionTree<RunState, RootState> = {
   async unlockAccount({ state, commit }, { address, password }) {
     commit('toggleAccountLoadingStatus', address)
     const providerInstance = state.providerInstance
-    if (providerInstance) {
+    if (providerInstance && 'unlock' in providerInstance) {
       const status = await providerInstance.unlock(address, password)
       commit('updateAccountStatus', { address, status })
       commit('toggleAccountLoadingStatus', address)

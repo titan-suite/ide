@@ -1,14 +1,14 @@
 <template>
-    <div class="enableFocus" style="overflow:auto; width: 100%;padding: 15px;">
-        <el-collapse>
-            <el-collapse-item v-for="(receipt, index) in parsedReceipts" :key="index" :title="receipt.title" :name="receipt.title">
-                <el-table :data="receipt.data" style="width: 100%">
-                    <el-table-column prop="key" label="Property" width="180" />
-                    <el-table-column prop="value" label="Value" width="600" />
-                </el-table>
-            </el-collapse-item>
-        </el-collapse>
-    </div>
+  <div class="enableFocus" style="overflow:auto; width: 100%;padding: 15px;">
+    <el-collapse>
+      <el-collapse-item v-for="(receipt, index) in parsedReceipts" :key="index" :title="receipt.title" :name="receipt.title">
+        <el-table :data="receipt.data" style="width: 100%">
+          <el-table-column prop="key" label="Property" width="180" />
+          <el-table-column prop="value" label="Value" width="600" />
+        </el-table>
+      </el-collapse-item>
+    </el-collapse>
+  </div>
 </template>
 
 <script lang='ts'>

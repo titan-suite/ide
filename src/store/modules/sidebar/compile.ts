@@ -57,7 +57,9 @@ const compileActions: ActionTree<CompileState, RootState> = {
     const contract = rootGetters['workspace/activeFile'].code
     const providerInstance = rootState.run.providerInstance
     if (providerInstance) {
-      const contracts = await providerInstance.compile(contract)
+      const contracts: { [key: string]: any } = await providerInstance.compile(
+        contract
+      )
       commit('saveCompiledCode', contracts)
       for (const [
         contractName,

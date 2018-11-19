@@ -86,6 +86,7 @@
         <el-input v-model="fromAddressModel" placeholder="Load contract from Address" clearable />
       </el-col>
     </el-row>
+    <ContractInteraction/>
   </div>
 </template>
 
@@ -98,11 +99,13 @@ import { ParsedContractConstructor } from '../../store/modules/sidebar/compile'
 import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
+import ContractInteraction from './ContractInteraction.vue'
 const namespace = 'run'
 @Component({
     components: {
         NodeAddressInput,
-        ContractNameSelect
+        ContractNameSelect,
+        ContractInteraction
     }
 })
 export default class Run extends Vue {
@@ -142,7 +145,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e.message + e
+                message: `${e.message}${JSON.stringify(e)}`
             })
             console.error(e)
         } finally {
@@ -156,7 +159,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e.message + e
+                message: `${e.message}${JSON.stringify(e)}`
             })
             console.error(e)
         } finally {
@@ -175,7 +178,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e.message + e
+                message: `${e.message}${JSON.stringify(e)}`
             })
             console.error(e)
         } finally {
@@ -189,7 +192,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e.message + e
+                message: `${e.message}${JSON.stringify(e)}`
             })
             console.error(e)
         } finally {

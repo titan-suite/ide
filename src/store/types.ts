@@ -1,4 +1,4 @@
-import { Aion } from '@titan-suite/core'
+import { Aion, Ethereum } from '@titan-suite/core'
 
 export interface RootState {
   compile: CompileState
@@ -35,8 +35,8 @@ export interface RunState {
   value: Value
   contractArgs: string
   receipts: any[]
-  deployedContract: any
-  providerInstance: undefined | Aion
+  deployedContracts: any[]
+  providerInstance: undefined | Aion | Ethereum
   isProviderSet: boolean
 }
 export interface Value {

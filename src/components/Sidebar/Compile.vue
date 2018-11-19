@@ -100,7 +100,7 @@ export default class Compile extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e.message + e
+                message: `${e.message}${JSON.stringify(e)}`
             })
             console.error(e)
         } finally {
