@@ -102,7 +102,7 @@ export default class Accounts extends Vue {
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: e.message
+        message: e.message + e
       })
       console.error(e)
     } finally {
@@ -118,7 +118,7 @@ export default class Accounts extends Vue {
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: e.message
+        message: e.message + e
       })
       console.error(e)
     }

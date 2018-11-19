@@ -7,13 +7,12 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Mutation, State, Getter } from 'vuex-class'
-import {  ContractNames } from '../../store/modules/sidebar/compile'
 const namespace = 'compile'
 @Component
 export default class ContractNameSelect extends Vue {
 
     @State('selectedContract', { namespace }) public selectedContract!: string
-    @Getter('contractNames', { namespace }) public contractNames!: ContractNames
+    @Getter('contractNames', { namespace }) public contractNames!: string[]
     @Mutation('setSelectedContract', { namespace }) public setSelectedContract!: (contractName: string) => void
 
     public set selectedContractModel(contractName: string) {

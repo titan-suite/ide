@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div>    
+    <NodeAddressInput/>
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
@@ -10,7 +11,6 @@
         </el-select>
       </el-col>
     </el-row>
-    
     <el-row>
       <el-col :span="24" :offset="10">
         <el-button :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
@@ -20,7 +20,7 @@
     </el-row>
     
     <el-row>
-      <el-col v-show="selectedContract !== ''" :span="18" :offset="3">
+      <el-col :span="18" :offset="3">
         <ContractNameSelect />
       </el-col>
     </el-row>
@@ -63,11 +63,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { Notification } from 'element-ui'
 import ContractNameSelect from './ContractNameSelect.vue'
-import { SolVersions, CompiledCode, File } from '../../store/types'
-import {
-    ContractAbi,
-    ContractDetails,
-} from '../../store/modules/sidebar/compile'
+import NodeAddressInput from './NodeAddressInput.vue'
+import { SolVersions, File } from '../../store/types'
 
 import linter from 'solhint/lib/index'
 
@@ -75,7 +72,8 @@ const namespace = 'compile'
 
 @Component({
     components: {
-        ContractNameSelect
+        ContractNameSelect,
+        NodeAddressInput
     }
 })
 export default class Compile extends Vue {
@@ -84,8 +82,7 @@ export default class Compile extends Vue {
     @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
 
     @Getter('activeFile', { namespace: 'workspace' }) public activeFile!: File
-    @Getter('contractAbi', { namespace }) public contractAbi!: ContractAbi
-    @Getter('contractDetails', { namespace }) public contractDetails!: ContractDetails
+    @Getter('contractDetails', { namespace }) public contractDetails!: (contractName: string) => any
 
     @Mutation('setSolVersion', { namespace }) public setSolVersion!: (version: string) => void
 
@@ -103,7 +100,7 @@ export default class Compile extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e
+                message: e.message + e
             })
             console.error(e)
         } finally {

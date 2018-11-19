@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Vuex, { StoreOptions } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import workspace from './modules/workspace'
-import { compile, run } from './modules/sidebar/index'
+import compile from './modules/sidebar/compile'
+import run from './modules/sidebar/run'
 import { RootState } from './types'
 Vue.use(Vuex)
 

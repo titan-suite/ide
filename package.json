@@ -46,7 +46,6 @@
     "eslint-plugin-typescript": "^0.13.0",
     "eslint-plugin-vue": "^4.7.1",
     "node-sass": "^4.10.0",
-    "prettier": "^1.15.2",
     "sass-loader": "^7.1.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",

@@ -1,3 +1,5 @@
 declare module 'vue-codemirror'
 declare module 'vue-draggable-resizable'
 declare module 'solhint/lib/index'
+declare module 'web3-utils'
+declare module 'solc'

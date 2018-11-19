@@ -1,4 +1,3 @@
-import { ContractAbi } from 'ethereum-types'
 import { Aion } from '@titan-suite/core'
 
 export interface RootState {
@@ -8,7 +7,7 @@ export interface RootState {
 }
 export interface CompileState {
   compiledCode: {
-    [key: string]: CompiledCode;
+    [key: string]: any;
   }
   solVersions: SolVersions[]
   contracts: {
@@ -17,21 +16,11 @@ export interface CompileState {
   selectedContract: string
   selectedSolVersion: string
 }
-export interface CompiledCode {
-  code: string
-  info: ContractInfo
-}
 export interface SolVersions {
   value: string
   label: string
 }
-export interface ContractInfo {
-  abiDefinition: ContractAbi
-  compilerVersion: string
-  language: string
-  languageVersion: string
-  source: string
-}
+
 export interface RunState {
   blockchains: {}
   providers: {}

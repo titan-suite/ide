@@ -94,7 +94,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { Notification } from 'element-ui'
 import { SolVersions, Account, Value } from '../../store/types'
-import { ContractNames, ParsedContractConstructor } from '../../store/modules/sidebar/compile'
+import { ParsedContractConstructor } from '../../store/modules/sidebar/compile'
 import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
 import ContractNameSelect from './ContractNameSelect.vue'
@@ -114,7 +114,7 @@ export default class Run extends Vue {
     @State('value', { namespace }) public value!: Value
     @State('contractArgs', { namespace }) public contractArgs!: string
     @Getter('getUnits', { namespace }) public getUnits!: object[]
-    @Getter('contractNames', { namespace: 'compile' }) public contractNames!: ContractNames
+    @Getter('contractNames', { namespace: 'compile' }) public contractNames!: string[]
     @Getter('parsedContractConstructor', { namespace: 'compile' }) public parsedContractConstructor!: ParsedContractConstructor
     @Getter('accounts', { namespace }) public accounts!: Account[]
     @Getter('getLatestContractAddress', { namespace }) public getLatestContractAddress!: string
@@ -142,7 +142,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e.message
+                message: e.message + e
             })
             console.error(e)
         } finally {
@@ -156,7 +156,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e
+                message: e.message + e
             })
             console.error(e)
         } finally {
@@ -175,7 +175,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e
+                message: e.message + e
             })
             console.error(e)
         } finally {
@@ -189,7 +189,7 @@ export default class Run extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: e
+                message: e.message + e
             })
             console.error(e)
         } finally {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin-bottom:20px">
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Blockchain</p>

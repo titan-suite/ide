@@ -1,6 +1,5 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
-import { CompileState, RootState, CompiledCode } from '../../types'
-import { ContractAbi as TypeContractAbi } from 'ethereum-types'
+import { CompileState, RootState } from '../../types'
 import { extractConstructor } from '../../../utils'
 
 const compileState: CompileState = {
@@ -13,25 +12,17 @@ const compileState: CompileState = {
   ],
   contracts: {},
   selectedContract: '',
-  selectedSolVersion: '0.4.9',
+  selectedSolVersion: '0.4.9'
 }
-
-export type ContractNames = string[]
-export type ContractByteCode = (contractName?: string) => string
-export type ContractAbi = (contractName?: string) => TypeContractAbi
-export type ContractDetails = (contractName?: string) => CompiledCode
+export type ContractDetails = (contractName?: string) => any // TODO waiting for Solc pr
 export type ParsedContractConstructor = (
   contractName?: string
 ) => string | undefined
 
 const compileGetters: GetterTree<CompileState, RootState> = {
-  contractNames(state): ContractNames {
+  contractNames(state): string[] {
     const contractNames = Object.keys(state.compiledCode)
     return contractNames
-  },
-  contractAbi(state): ContractAbi {
-    return (contractName = state.selectedContract) =>
-      state.compiledCode[contractName].info.abiDefinition
   },
   contractDetails(state): ContractDetails {
     return (contractName = state.selectedContract) =>
@@ -63,26 +54,25 @@ const compileMutations: MutationTree<CompileState> = {
 
 const compileActions: ActionTree<CompileState, RootState> = {
   async compile({ state, rootState, commit, dispatch, getters, rootGetters }) {
-    // const contract = rootGetters['workspace/activeFile'].code
-    // const web3 = new Web3(new Web3.providers.HttpProvider(state.nodeAddress))
-    // const contracts = await compile(
-    //   {
-    //     contract
-    //   },
-    //   web3
-    // )
-    // commit('saveCompiledCode', contracts)
-    // for (const [
-    //   contractName,
-    //   {
-    //     info: { abiDefinition }
-    //   }
-    // ] of Object.entries(contracts)) {
-    //   commit('saveConstructor', {
-    //     name: contractName,
-    //     data: extractConstructor(abiDefinition)
-    //   })
-    // }
+    const contract = rootGetters['workspace/activeFile'].code
+    const providerInstance = rootState.run.providerInstance
+    if (providerInstance) {
+      const contracts = await providerInstance.compile(contract)
+      commit('saveCompiledCode', contracts)
+      for (const [
+        contractName,
+        {
+          info: { abiDefinition }
+        }
+      ] of Object.entries(contracts)) {
+        commit('saveConstructor', {
+          name: contractName,
+          data: extractConstructor(abiDefinition)
+        })
+      }
+    } else {
+      throw new Error('Provider not set')
+    }
   }
 }
 

@@ -70,23 +70,26 @@ const runMutations: MutationTree<RunState> = {
     state.value.unit = ''
     if (state.isProviderSet) {
       state.isProviderSet = false
+      state.providerInstance = undefined
     }
   },
   setProvider(state, payload) {
     state.selectedProvider = payload
     if (state.isProviderSet) {
       state.isProviderSet = false
+      state.providerInstance = undefined
     }
   },
   setProviderAddress(state, payload) {
     state.providerAddress = payload
     if (state.isProviderSet) {
       state.isProviderSet = false
+      state.providerInstance = undefined
     }
   },
   setProviderInstance(state, payload) {
     state.providerInstance = payload
-    state.isProviderSet = true
+    state.isProviderSet = payload ? true : false
   },
   saveAccounts(state, payload) {
     state.accounts = payload
@@ -140,10 +143,12 @@ const runActions: ActionTree<RunState, RootState> = {
             commit('setProviderInstance', new Aion(state.providerAddress))
             break
           default:
+            commit('setProviderInstance', undefined)
             break
         }
         break
       default:
+        commit('setProviderInstance', undefined)
         break
     }
   },
@@ -152,24 +157,24 @@ const runActions: ActionTree<RunState, RootState> = {
     if (providerInstance) {
       const contractName = rootState.compile.selectedContract
       const compiledCode = rootState.compile.compiledCode
-      const mainAccount = state.selectedAccount
+      const from = state.selectedAccount
       const gas = state.gasLimit
       const gasPrice = state.gasPrice
-      const code = compiledCode[contractName].code
-      const contractArguments = rootState.compile.contracts[contractName] // TODO compile on demand
+      const bytecode = compiledCode[contractName].code
+      const contractArguments = rootState.compile.contracts[contractName] // TODO check constructor
         ? state.contractArgs
         : ''
       if (process.env.NODE_ENV !== 'production') {
         console.log('deploying with', {
-          code,
-          mainAccount,
+          bytecode,
+          from,
           gas,
           contractArguments
         })
       }
       const res = await providerInstance.deploy({
-        code: compiledCode[contractName].code,
-        mainAccount,
+        bytecode,
+        from,
         gas,
         gasPrice,
         contractArguments
@@ -183,25 +188,25 @@ const runActions: ActionTree<RunState, RootState> = {
       throw new Error('Provider not set')
     }
   },
-  // async retrieveContractFromAddress(
-  //   { rootState, commit, rootGetters },
-  //   address
-  // ) {
-  //   const web3 = new Web3(
-  //     new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
-  //   )
-  //   const contract = rootGetters['workspace/activeFile'].code
-  //   const contractName = rootState.compile.selectedContract
-  //   const compiledCode = await compile({ contract }, web3)
-  //   if (contractName in compiledCode) {
-  //     const abi: AbiDefinition[] =
-  //       compiledCode[contractName].info.abiDefinition
-  //     const contractInstance = web3.eth.contract(abi).at(address)
-  //     commit('saveDeployedContract', contractInstance)
-  //   } else {
-  //     throw new Error('Invalid Abi')
-  //   }
-  // },
+  async retrieveContractFromAddress(
+    { rootState, commit, rootGetters },
+    address
+  ) {
+    //   const web3 = new Web3(
+    //     new Web3.providers.HttpProvider(rootState.compile.nodeAddress)
+    //   )
+    //   const contract = rootGetters['workspace/activeFile'].code
+    //   const contractName = rootState.compile.selectedContract
+    //   const compiledCode = await compile({ contract }, web3)
+    //   if (contractName in compiledCode) {
+    //     const abi: AbiDefinition[] =
+    //       compiledCode[contractName].info.abiDefinition
+    //     const contractInstance = web3.eth.contract(abi).at(address)
+    //     commit('saveDeployedContract', contractInstance)
+    //   } else {
+    //     throw new Error('Invalid Abi')
+    //   }
+  },
   async fetchAccounts({ rootState, commit, state }) {
     const providerInstance = state.providerInstance
     if (providerInstance) {
