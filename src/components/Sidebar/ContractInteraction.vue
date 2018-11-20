@@ -5,12 +5,13 @@
         v-for="(contract, index) in parsedContracts"
         :key="index"
         :title="contract.title"
-        :name="contract.title"
+        :name="contract.contractAddress"
       >
-        <el-table :data="contract.abi" style="width: 100%">
+        <el-table :data="contract.abi" :show-header="false" style="width: 100%">
           <el-table-column>
             <template slot-scope="scope">
               {{ JSON.stringify(scope.row) }}
+
               <el-row type="flex">
                 <el-col :offset="1" :span="scope.row.loading ? 8 : 7">
                   <el-button
@@ -20,11 +21,13 @@
                     type="primary"
                     @click="
                       scope.row.loading = true
-                      scope.row.res = handleFunctionCall(
+                      handleFunctionCall(
                         scope.row,
-                        contract.title
-                      )
-                      scope.row.loading = false
+                        contract.contractAddress
+                      ).then((res) => {
+                        scope.row.res = res
+                        scope.row.loading = false
+                      })
                     "
                   >
                     {{ scope.row.name }}
@@ -34,9 +37,8 @@
                   v-if="scope.row.inputs.length > 0"
                   :span="scope.row.loading ? 12 : 13"
                 >
-                  <!-- //TODO template variables -->
                   <el-popover
-                    :content="handleCombineInput(scope.row.inputs)"
+                    :content="scope.row.combinedInputs"
                     :open-delay="200"
                     placement="bottom-start"
                     width="50%"
@@ -45,12 +47,22 @@
                     <el-input
                       slot="reference"
                       v-model="scope.row.argsModel"
-                      :placeholder="handleCombineInput(scope.row.inputs)"
+                      :placeholder="scope.row.combinedInputs"
                       clearable
                     />
                   </el-popover>
                 </el-col>
-                {{ scope.row.res }}
+              </el-row>
+              <el-row>
+                <p
+                  v-for="(output, index) in scope.row.outputs"
+                  v-show="scope.row.res"
+                  :key="index"
+                  type="flex"
+                >
+                  {{ index }} : {{ output.type }}:
+                  {{ scope.row.res && scope.row.res[index] }}
+                </p>
               </el-row>
             </template>
           </el-table-column>
@@ -62,73 +74,129 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Action, Mutation, Getter, State } from 'vuex-class'
-import { combineInputs, parseSignature } from '../../utils'
+import { Mutation, State } from 'vuex-class'
+import { parseSignature, hashArgs } from '../../utils'
 import * as web3Utils from 'web3-utils'
+import { MethodAbi } from 'ethereum-types'
+import { Notification } from 'element-ui'
+
 const namespace = 'run'
 @Component
 export default class Console extends Vue {
-  @State('deployedContracts', { namespace }) public deployedContracts!: any[]
+  @State('deployedContracts', { namespace }) public deployedContracts!: Array<{
+    abi: MethodAbi[];
+    contractAddress: string;
+    title: string;
+  }>
   @State('providerInstance', { namespace }) public providerInstance!: any
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
-  @State('gasPrice', { namespace }) public gasPrice!: number
+  @Mutation('saveReceipt', { namespace }) public saveReceipt!: (
+    receipt: any
+  ) => void
 
   public get parsedContracts() {
-    return this.deployedContracts.map((contract: any) => {
-      console.log(contract.abi)
-      return {
-        title: contract.contractAddress,
-        abi: contract.abi.map((piece: any) => {
-          return { ...piece, loading: false, argsModel: '', res: '' }
-        })
-      }
-    })
-  }
-
-  public handleCombineInput(inputs: any[]) {
-    return combineInputs(inputs)
+    console.log(this.deployedContracts)
+    return this.deployedContracts
   }
 
   public async handleFunctionCall(scope: any, to: string) {
-    const parsedSignature = parseSignature(scope.name, scope.inputs)
-    const hashedSignature = web3Utils
-      .soliditySha3(parsedSignature)
-      .substring(0, 10)
-    const argsModel = web3Utils.padLeft(
-      scope.argsModel
-        .split(',')
-        .map((arg: string) => web3Utils.toHex(arg).substring(2))
-        .join(''),
-      32
-    )
-    console.log({
-      to,
-      from: this.selectedAccount,
-      scope,
-      parsedSignature,
-      hashedSignature,
-      argsModel
-    })
-    let res
-    if (scope.outputs.length < 1) {
-      res = await this.providerInstance.sendTransaction({
-        from: this.selectedAccount,
-        to,
-        data: hashedSignature + argsModel,
-        gas: this.gasLimit
+    try {
+      if (this.providerInstance) {
+        const parsedSignature = scope.parsedSignature
+        const hashedSignature = scope.hashedSignature
+        const hashedArgs = hashArgs(scope.argsModel)
+        const data = hashedSignature + hashedArgs
+        console.log({
+          to,
+          from: this.selectedAccount,
+          scope,
+          parsedSignature,
+          hashedSignature,
+          hashedArgs,
+          data,
+          gas: this.gasLimit
+        })
+        let res: any
+        if (scope.outputs.length < 1) {
+          const txhash = await this.providerInstance.sendTransaction({
+            from: this.selectedAccount,
+            to,
+            data,
+            gas: this.gasLimit
+          })
+          if (!txhash) {
+            throw new Error('Transaction Failed')
+          }
+          const receipt = await this.providerInstance.getReceiptWhenMined(
+            txhash
+          )
+          this.saveReceipt(receipt)
+          res = true
+        } else {
+          res = await this.providerInstance.call({
+            from: this.selectedAccount,
+            to,
+            data
+          })
+          res = res.substring(2)
+          console.dir(res)
+          const NUMBER = 'number'
+          const STRING = 'string'
+          const cutFromHex = (targetType: string) => {
+            let targetString
+            if (targetType === NUMBER) {
+              targetString = res.substring(0, 32)
+            } else if (targetType === STRING) {
+              targetString = res.substring(0, 64)
+            }
+            res = res.substring(targetString.length)
+            return targetString
+          }
+          res = scope.outputs.map(({ type }: any) => {
+            if (type.includes('int')) {
+              if (type.includes('[]')) {
+                cutFromHex(NUMBER)
+                const parsedLengthOfArray = Number(
+                  web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
+                )
+                return [...Array(parsedLengthOfArray).keys()].map(() =>
+                  web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
+                )
+              }
+              return web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
+            } else if (type.includes('byte')) {
+              if (type.includes('[]')) {
+                console.log({ res })
+                // cutFromHex(NUMBER)
+                // const parsedLengthOfArray = Number(
+                //   web3Utils.hexToNumber(`0x${cutFromHex(STRING)}`)
+                // )
+                // return [...Array(parsedLengthOfArray).keys()].map(() =>
+                //   web3Utils.hexToNumber(`0x${cutFromHex(STRING)}`)
+                // )
+                return []
+              }
+              return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
+            } else if (type.includes('address')) {
+              console.log({ address: res })
+              return `0x${res}`
+            }
+          })
+        }
+        console.log(res)
+        return res
+      } else {
+        throw new Error('Provider not set')
+      }
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: `${e.message}${JSON.stringify(e)}`
       })
-      return res
-    } else {
-      res = await this.providerInstance.call({
-        from: this.selectedAccount,
-        to,
-        data: hashedSignature + argsModel
-      })
-      res = web3Utils.hexToNumber(res)
+      console.error(e)
     }
-    console.log(res)
-    return res
+    return null
   }
 }
 </script>

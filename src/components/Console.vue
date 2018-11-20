@@ -2,7 +2,7 @@
   <div class="enableFocus" style="overflow:auto; width: 100%;padding: 15px;">
     <el-collapse>
       <el-collapse-item v-for="(receipt, index) in parsedReceipts" :key="index" :title="receipt.title" :name="receipt.title">
-        <el-table :data="receipt.data" style="width: 100%">
+        <el-table :data="receipt.data" :show-header="false" style="width: 100%">
           <el-table-column prop="key" label="Property" width="180" />
           <el-table-column prop="value" label="Value" width="600" />
         </el-table>
@@ -21,17 +21,7 @@ export default class Console extends Vue {
     @State('receipts', { namespace }) public receipts!: any
 
     public get parsedReceipts() {
-        return this.receipts.map((receipt: any) => {
-            return {
-                title: receipt.contractAddress,
-                data: Object.keys(receipt).map((j: any) => {
-                    return {
-                        key: j,
-                        value: receipt[j],
-                    }
-                })
-            }
-        })
+        return this.receipts
     }
 }
 </script>

@@ -60,6 +60,9 @@ const compileActions: ActionTree<CompileState, RootState> = {
       const contracts: { [key: string]: any } = await providerInstance.compile(
         contract
       )
+      if ('compile-error' in contracts) {
+        throw new Error(contracts['compile-error'].error)
+      }
       commit('saveCompiledCode', contracts)
       for (const [
         contractName,

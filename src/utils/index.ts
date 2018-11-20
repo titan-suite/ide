@@ -1,5 +1,41 @@
-import { RawAbiDefinition } from 'typechain/dist/parser/abiParser'
+import { MethodAbi } from 'ethereum-types'
+import * as web3Utils from 'web3-utils'
 
+export const parseDeployedContract = (
+  contractName: string,
+  contractAddress: string,
+  abi: MethodAbi[]
+) => {
+  return {
+    contractAddress,
+    title: `${contractName} at ${shortenAddress(contractAddress)}`,
+    abi: abi
+      .filter(i => i.type !== 'constructor' && i.type !== 'event')
+      .map(piece => {
+        const parsedSignature = parseSignature(piece.name, piece.inputs) // TODO temporary
+        return {
+          ...piece,
+          combinedInputs: combineInputs(piece.inputs),
+          loading: false,
+          argsModel: '',
+          res: undefined,
+          parsedSignature,
+          hashedSignature: web3Utils
+            .soliditySha3(parsedSignature)
+            .substring(0, 10)
+        }
+      })
+  }
+}
+export const hashArgs = (args: string) => {
+  return web3Utils.padLeft(
+    args
+      .split(',')
+      .map((arg: string) => web3Utils.toHex(arg).substring(2))
+      .join(''),
+    32
+  )
+}
 export const combineInputs = (
   inputs: Array<{ name: string; type: string }>
 ) => {
@@ -21,7 +57,7 @@ export const parseSignature = (
     .join(',')})`
 }
 
-export const extractConstructor = (abiDefinition: RawAbiDefinition[]) => {
+export const extractConstructor = (abiDefinition: MethodAbi[]) => {
   for (const item of abiDefinition) {
     if (item.type === 'constructor') {
       return combineInputs(item.inputs)

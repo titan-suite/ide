@@ -1,17 +1,22 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
-import { AbiDefinition } from 'ethereum-types'
 import { RunState, RootState, Account } from '../../types'
 import {
   shortenAddress,
   BLOCKCHAINS,
   PROVIDERS,
-  getUnits
+  getUnits,
+  parseDeployedContract
 } from '../../../utils'
 import { Aion, Ethereum } from '@titan-suite/core'
 
 let nodeAddress = ''
+let devProviderInstance
+let isProviderSet = false
+
 if (process.env.NODE_ENV !== 'production') {
   nodeAddress = require('../../titanrc').nodeAddress
+  devProviderInstance = new Aion(nodeAddress)
+  isProviderSet = true
 }
 
 const runState: RunState = {
@@ -32,8 +37,8 @@ const runState: RunState = {
   contractArgs: '',
   deployedContracts: [],
   receipts: [],
-  providerInstance: undefined,
-  isProviderSet: false
+  providerInstance: devProviderInstance,
+  isProviderSet
 }
 
 const runGetters: GetterTree<RunState, RootState> = {
@@ -58,7 +63,7 @@ const runGetters: GetterTree<RunState, RootState> = {
   getLatestContractAddress(state) {
     return (
       state.receipts.length > 0 &&
-      state.receipts[state.receipts.length - 1].contractAddress
+      state.receipts[state.receipts.length - 1].address
     )
   },
   getUnits(state) {
@@ -139,7 +144,20 @@ const runMutations: MutationTree<RunState> = {
     state.accountsLoading = !state.accountsLoading
   },
   saveReceipt(state, payload) {
-    state.receipts = [...state.receipts, payload]
+    const address = payload.contractAddress || payload.transactionHash
+    const receipt = {
+      title: `${
+        payload.contractAddress ? 'Contract: ' : 'Tx Hash: '
+      } ${shortenAddress(address)}`,
+      address,
+      data: Object.keys(payload).map((j: any) => {
+        return {
+          key: j,
+          value: payload[j]
+        }
+      })
+    }
+    state.receipts.push(receipt)
   }
 }
 
@@ -180,8 +198,7 @@ const runActions: ActionTree<RunState, RootState> = {
       const gas = state.gasLimit
       const gasPrice = state.gasPrice
       const bytecode = compiledCode[contractName].code
-      const abi: AbiDefinition[] =
-        compiledCode[contractName].info.abiDefinition
+      const abi = compiledCode[contractName].info.abiDefinition
       const contractArguments = rootState.compile.contracts[contractName] // TODO check constructor
         ? state.contractArgs
         : ''
@@ -193,7 +210,7 @@ const runActions: ActionTree<RunState, RootState> = {
           contractArguments
         })
       }
-      const res = await providerInstance.deploy({
+      const { txReceipt, txHash } = await providerInstance.deploy({
         bytecode,
         from,
         gas,
@@ -201,13 +218,17 @@ const runActions: ActionTree<RunState, RootState> = {
         contractArguments
       })
       if (process.env.NODE_ENV !== 'production') {
-        console.log(res)
+        console.log({ txReceipt, txHash })
       }
-      commit('saveDeployedContract', {
-        contractAddress: res.txReceipt.contractAddress,
-        abi: abi.filter(i => i.type !== 'constructor' && i.type !== 'event')
-      })
-      commit('saveReceipt', res.txReceipt)
+      if (txReceipt && txReceipt.contractAddress) {
+        commit(
+          'saveDeployedContract',
+          parseDeployedContract(contractName, txReceipt.contractAddress, abi)
+        )
+        commit('saveReceipt', txReceipt)
+      } else {
+        throw new Error('Failed to fetch receipt.')
+      }
     } else {
       throw new Error('Provider not set')
     }
@@ -222,12 +243,11 @@ const runActions: ActionTree<RunState, RootState> = {
       const contractName = rootState.compile.selectedContract
       const compiledCode = await providerInstance.compile(contract)
       if (contractName in compiledCode) {
-        const abi: AbiDefinition[] =
-          compiledCode[contractName].info.abiDefinition
-        commit('saveDeployedContract', {
-          contractAddress: address,
-          abi: abi.filter(i => i.type !== 'constructor' && i.type !== 'event')
-        })
+        const abi = compiledCode[contractName].info.abiDefinition
+        commit(
+          'saveDeployedContract',
+          parseDeployedContract(contractName, address, abi)
+        )
       } else {
         throw new Error('Invalid Abi')
       }
@@ -238,13 +258,11 @@ const runActions: ActionTree<RunState, RootState> = {
   async fetchAccounts({ commit, state }) {
     const providerInstance = state.providerInstance
     if (providerInstance) {
-      const accounts = await providerInstance.getBalancesWithAccounts()
-      commit(
-        'saveAccounts',
-        accounts.map(acc => {
-          return { ...acc, unlocked: false, loading: false }
-        })
-      )
+      const res = await providerInstance.getBalancesWithAccounts()
+      const accounts: Account[] = res.map(acc => {
+        return { ...acc, unlocked: false, loading: false }
+      })
+      commit('saveAccounts', accounts)
     } else {
       throw new Error('Provider not set')
     }
@@ -259,6 +277,15 @@ const runActions: ActionTree<RunState, RootState> = {
       if (!status) {
         throw new Error('Unlock failed')
       }
+    } else {
+      throw new Error('Provider not set')
+    }
+  },
+  async saveTxReceipt({ state, commit }, txHash) {
+    const providerInstance = state.providerInstance
+    if (providerInstance) {
+      const receipt = await providerInstance.getReceiptWhenMined(txHash)
+      commit('saveReceipt', receipt)
     } else {
       throw new Error('Provider not set')
     }

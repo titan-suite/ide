@@ -1,5 +1,5 @@
 <template>
-  <div>    
+  <div>
     <NodeAddressInput/>
     <el-row>
       <el-col :span="7" :offset="1">
@@ -100,7 +100,8 @@ export default class Compile extends Vue {
         } catch (e) {
             await Notification.error({
                 title: 'Error',
-                message: `${e.message}${JSON.stringify(e)}`
+                message: `${e.message}${JSON.stringify(e)}`,
+                duration: 10000
             })
             console.error(e)
         } finally {

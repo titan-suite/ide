@@ -12,12 +12,11 @@
   },
   "dependencies": {
     "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core\\#jsonrpc",
-    "codemirror": "^5.41.0",
+    "codemirror": "^5.42.0",
     "element-ui": "^2.4.5",
     "ethereum-types": "^1.1.2",
     "register-service-worker": "^1.0.0",
     "solhint": "^1.4.0",
-    "typechain": "^0.3.9",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-codemirror": "^4.0.5",
