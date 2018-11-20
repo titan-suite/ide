@@ -27,7 +27,7 @@
             >
         </template>
 
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="showUnlockButtons">
           <el-popover
             v-model="scope.row.popoverOpen"
             trigger="hover"
@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Action, State, Mutation } from 'vuex-class'
+import { Action, State, Mutation, Getter } from 'vuex-class'
 import { Notification } from 'element-ui'
 import { Account } from '../../store/types'
 import { shortenAddress } from '../../utils'
@@ -85,6 +85,8 @@ export default class Accounts extends Vue {
   @State('accounts', { namespace: 'run' }) public accounts!: Account[]
   @State('accountsLoading', { namespace: 'run' })
   public accountsLoading!: boolean
+  @Getter('showUnlockButtons', { namespace: 'run' })
+  public showUnlockButtons!: boolean
 
   @Action('fetchAccounts', { namespace: 'run' })
   public fetchAccounts!: () => void

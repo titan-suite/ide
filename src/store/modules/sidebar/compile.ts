@@ -72,6 +72,7 @@ const compileActions: ActionTree<CompileState, RootState> = {
           data: extractConstructor(abiDefinition)
         })
       }
+      commit('setSelectedContract', Object.keys(contracts)[0])
     } else {
       throw new Error('Provider not set')
     }

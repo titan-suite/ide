@@ -7,7 +7,7 @@ import {
   PROVIDERS,
   getUnits
 } from '../../../utils'
-import { Aion } from '@titan-suite/core'
+import { Aion, Ethereum } from '@titan-suite/core'
 
 let nodeAddress = ''
 if (process.env.NODE_ENV !== 'production') {
@@ -38,10 +38,15 @@ const runState: RunState = {
 
 const runGetters: GetterTree<RunState, RootState> = {
   accounts(state): any {
+    const units = getUnits(state.selectedBlockchain)
     return state.accounts.length > 0
       ? state.accounts.map(({ address, etherBalance }) => {
           const label = `${shortenAddress(address)}${
-            etherBalance ? ' (' + etherBalance.toString() + ' aion)' : ''
+            etherBalance
+              ? ' (' +
+                etherBalance.toString() +
+                ` ${units[units.length - 1].value})`
+              : ''
           }`
           return {
             label,
@@ -58,6 +63,9 @@ const runGetters: GetterTree<RunState, RootState> = {
   },
   getUnits(state) {
     return getUnits(state.selectedBlockchain)
+  },
+  showUnlockButtons(state) {
+    return state.selectedBlockchain === BLOCKCHAINS.AION
   }
 }
 
@@ -148,6 +156,16 @@ const runActions: ActionTree<RunState, RootState> = {
             break
         }
         break
+      case BLOCKCHAINS.ETHEREUM:
+        switch (state.selectedProvider) {
+          case PROVIDERS.Web3Provider:
+            commit('setProviderInstance', new Ethereum(state.providerAddress))
+            break
+          default:
+            commit('setProviderInstance', undefined)
+            break
+        }
+        break
       default:
         commit('setProviderInstance', undefined)
         break
@@ -217,25 +235,16 @@ const runActions: ActionTree<RunState, RootState> = {
       throw new Error('Provider not set')
     }
   },
-  async fetchAccounts({ rootState, commit, state }) {
+  async fetchAccounts({ commit, state }) {
     const providerInstance = state.providerInstance
     if (providerInstance) {
-      const addresses = await providerInstance.getAccounts()
-      if (Array.isArray(addresses)) {
-        const accounts: any[] = []
-        for (const address of addresses) {
-          const etherBalance = await providerInstance.getBalance(address)
-          accounts.push({
-            address,
-            etherBalance: Number(etherBalance),
-            unlocked: false,
-            loading: false
-          })
-        }
-        commit('saveAccounts', accounts)
-      } else {
-        throw new Error('Unable to fetch Accounts')
-      }
+      const accounts = await providerInstance.getBalancesWithAccounts()
+      commit(
+        'saveAccounts',
+        accounts.map(acc => {
+          return { ...acc, unlocked: false, loading: false }
+        })
+      )
     } else {
       throw new Error('Provider not set')
     }
