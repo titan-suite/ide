@@ -6,10 +6,7 @@
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Language">
-        <el-select
-          v-model="form.language"
-          placeholder="Please select a language"
-        >
+        <el-select v-model="form.language" placeholder="Please select a language">
           <el-option label="Solidity" value="solidity" />
           <el-option label="SolidityX" value="solidityx" />
           <el-option label="Vyper" value="vyper" />
@@ -18,10 +15,7 @@
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Compiler Version">
-        <el-select
-          v-model="form.compiler"
-          placeholder="Please select a version"
-        >
+        <el-select v-model="form.compiler" placeholder="Please select a version">
           <el-option label="v0.4.9" value="sol-v049" />
           <!-- <el-option label="v0.4.15" value="sol-v0415" /> -->
         </el-select>
@@ -29,11 +23,7 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button
-        class="secondaryButton"
-        type="primary"
-        @click="$emit('closeDialog')"
-      >Cancel
+      <el-button class="secondaryButton" type="primary" @click="$emit('closeDialog')">Cancel
       </el-button>
       <el-button type="primary" @click="handleFormSubmit">Confirm</el-button>
     </span>
@@ -66,11 +56,18 @@ export default class FileDialog extends Vue {
 
   public handleFormSubmit(d: any): void {
     let formValid = true
+    let errorMessage = ''
     this.projectTree.folders[0].files.map((file: File) => {
       if (file.name === this.form.name) {
         formValid = false
+        errorMessage = 'A file with that name already exists'
       }
     })
+
+    if (this.form.name === '') {
+      formValid = false
+      errorMessage = 'Please enter a file name'
+    }
 
     if (formValid) {
       this.addFile(this.form.name)
@@ -79,7 +76,7 @@ export default class FileDialog extends Vue {
     } else {
       this.$notify.error({
         title: 'Error',
-        message: 'A file with that name already exists'
+        message: errorMessage
       })
       this.form.name = ''
       formValid = true
