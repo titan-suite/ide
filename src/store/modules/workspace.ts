@@ -43,14 +43,19 @@ const defaultFolder: Folder = {
 
 contract WithConstructor {
     uint128 public num = 5;
-    bytes32 public str = "hello";
+    bytes32 public byts = "hello";
     address public addr;
+  	bool public bol = false;
     uint[] public arr = [1,2,4];
-    function WithConstructor(uint128 a){
+    bytes32[] public bytesArr;
+    mapping(address => address) public mapA;
+     
+    function WithConstructor(uint128 a, bytes32 b){
         num=a;
+      	bytesArr.push(b);
     }
     function add(uint128 a) public returns (uint128, bytes32, uint[]) {
-        return (num + a, str, arr);
+        return (num + a, byts, arr);
     }
     function setAddr(address _addr) public {
         addr = _addr;
@@ -58,8 +63,14 @@ contract WithConstructor {
   	function setNum(uint128 _num) public {
         num = _num;
     }
-  	function setStr(bytes32 _str) public {
-        str = _str;
+  	function setStr(bytes32 _byts) public {
+        byts = _byts;
+    }
+  	function setBol(bool _bol) public {
+        bol = _bol;
+    }
+  	function setMapA(address key, address value) public {
+        mapA[key] = value;
     }
 }`,
       path: '/Example/WithConstructor.sol'

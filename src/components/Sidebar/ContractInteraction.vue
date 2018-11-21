@@ -180,7 +180,6 @@ export default class Console extends Vue {
           res = scope.outputs.map(({ type }: any) => {
             if (type.includes('int')) {
               if (type.includes('[]')) {
-                cutFromHex(NUMBER)
                 const parsedLengthOfArray = Number(
                   web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
                 )
@@ -191,19 +190,26 @@ export default class Console extends Vue {
               return web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
             } else if (type.includes('byte')) {
               if (type.includes('[]')) {
-                console.log({ res })
-                // cutFromHex(NUMBER)
-                // const parsedLengthOfArray = Number(
-                //   web3Utils.hexToNumber(`0x${cutFromHex(STRING)}`)
-                // )
-                // return [...Array(parsedLengthOfArray).keys()].map(() =>
-                //   web3Utils.hexToNumber(`0x${cutFromHex(STRING)}`)
-                // )
-                return []
+                cutFromHex(NUMBER)
+                if (res.length > 64) {
+                  cutFromHex(NUMBER)
+                  cutFromHex(NUMBER)
+                }
+                return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
               }
-              return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
+              const resp = web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
+              cutFromHex(NUMBER)
+              cutFromHex(NUMBER)
+              return resp
             } else if (type.includes('address')) {
               return `0x${res}`
+            } else if (type.includes('bool')) {
+              const resp = Number(`${res}`.substring(-1)) === 1 ? true : false
+              cutFromHex(NUMBER)
+              return resp
+            } else if (type.includes('string')) {
+              cutFromHex(STRING)
+              return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
             }
           })
         }
@@ -221,4 +227,35 @@ export default class Console extends Vue {
     return null
   }
 }
+// uint, bytes32[], uint128[]
+// 0000000000000000000000000000000c //12
+// 00000000000000000000000000000030 //
+// 00000000000000000000000000000060 //
+// 00000000000000000000000000000001 //
+// 000000000000005b2234222c2235225d00000000000000000000000000000000 //["4","5"]
+// 00000000000000000000000000000003 //length
+// 00000000000000000000000000000001 [1,2,4]
+// 00000000000000000000000000000002
+// 00000000000000000000000000000004
+
+// uint, bytes32, uint128[], bytes32[]
+// 0000000000000000000000000000000c //12
+// 68656c6c6f000000000000000000000000000000000000000000000000000000 //"hello"
+// 00000000000000000000000000000050 //
+// 00000000000000000000000000000090 //
+// 00000000000000000000000000000003 // length
+// 00000000000000000000000000000001 // [1,2,4]
+// 00000000000000000000000000000002
+// 00000000000000000000000000000004
+// 00000000000000000000000000000001 //
+// 000000000000005b2234222c2235225d00000000000000000000000000000000  //["4","5"]
+
+// uint, bytes32, uint128[]
+// 0000000000000000000000000000000c // 12
+// 68656c6c6f000000000000000000000000000000000000000000000000000000 // "hello"
+// 00000000000000000000000000000040 //
+// 00000000000000000000000000000003 // length
+// 00000000000000000000000000000001 //[1,2,4]
+// 00000000000000000000000000000002
+// 00000000000000000000000000000004
 </script>
