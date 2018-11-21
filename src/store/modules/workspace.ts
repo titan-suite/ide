@@ -43,46 +43,23 @@ const defaultFolder: Folder = {
 
 contract WithConstructor {
     uint128 public num = 5;
-
-    event NumChanged (uint128);
-
-    function add(uint128 a) public returns (uint128) {
-        return num + a;
-    }
-
-    function WithConstructor(uint128 a, bytes32 br) public {
-        num = a;
-    }
-
-    function setA(uint128 a) public {
-        num = a;
-        NumChanged(num);
-    }
-}
-
-contract Titan {
-    uint128 public num = 5;
-    bytes32[] public br;
+    bytes32 public str = "hello";
     address public addr;
-    uint[] public ir = [1,2,4];
-    mapping(address => string) public map;
-    function Example(uint128 a, bytes32 b){
+    uint[] public arr = [1,2,4];
+    function WithConstructor(uint128 a){
         num=a;
-        br.push(b);
     }
-    function add(uint128 a) public returns (uint128, bytes32[], uint[]) {
-        return (num + a, br, ir);
+    function add(uint128 a) public returns (uint128, bytes32, uint[]) {
+        return (num + a, str, arr);
     }
-
-    function setCR(bytes32[] _br) public {
-        br = _br;
-    }
-    function setTR(uint[] _ir) public {
-        ir = _ir;
-    }
-    function setAddr(address _addr, string _str) public {
+    function setAddr(address _addr) public {
         addr = _addr;
-        map[_addr] = _str;
+    }
+  	function setNum(uint128 _num) public {
+        num = _num;
+    }
+  	function setStr(bytes32 _str) public {
+        str = _str;
     }
 }`,
       path: '/Example/WithConstructor.sol'

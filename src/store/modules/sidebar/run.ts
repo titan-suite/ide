@@ -5,7 +5,8 @@ import {
   BLOCKCHAINS,
   PROVIDERS,
   getUnits,
-  parseDeployedContract
+  parseDeployedContract,
+  getPadLength
 } from '../../../utils'
 import { Aion, Ethereum } from '@titan-suite/core'
 
@@ -191,46 +192,51 @@ const runActions: ActionTree<RunState, RootState> = {
   },
   async deploy({ state, rootState, commit }) {
     const providerInstance = state.providerInstance
-    if (providerInstance) {
-      const contractName = rootState.compile.selectedContract
-      const compiledCode = rootState.compile.compiledCode
-      const from = state.selectedAccount
-      const gas = state.gasLimit
-      const gasPrice = state.gasPrice
-      const bytecode = compiledCode[contractName].code
-      const abi = compiledCode[contractName].info.abiDefinition
-      const contractArguments = rootState.compile.contracts[contractName] // TODO check constructor
-        ? state.contractArgs
-        : ''
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('deploying with', {
-          bytecode,
-          from,
-          gas,
-          contractArguments
-        })
-      }
-      const { txReceipt, txHash } = await providerInstance.deploy({
+    if (!providerInstance) {
+      throw new Error('Provider not set')
+    }
+    const blockchain = state.selectedBlockchain
+    const contractName = rootState.compile.selectedContract
+    const compiledCode = rootState.compile.compiledCode
+    const from = state.selectedAccount
+    const gas = state.gasLimit
+    const gasPrice = state.gasPrice
+    const bytecode = compiledCode[contractName].code
+    const abi = compiledCode[contractName].info.abiDefinition
+    const contractArgs = rootState.compile.contracts[contractName] // TODO check constructor
+      ? state.contractArgs
+      : ''
+    const parameters: any[] = [...JSON.parse(`[${contractArgs}]`)]
+    const padLength = getPadLength(blockchain)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('deploying with', {
         bytecode,
         from,
         gas,
         gasPrice,
-        contractArguments
+        parameters,
+        padLength
       })
-      if (process.env.NODE_ENV !== 'production') {
-        console.log({ txReceipt, txHash })
-      }
-      if (txReceipt && txReceipt.contractAddress) {
-        commit(
-          'saveDeployedContract',
-          parseDeployedContract(contractName, txReceipt.contractAddress, abi)
-        )
-        commit('saveReceipt', txReceipt)
-      } else {
-        throw new Error('Failed to fetch receipt.')
-      }
+    }
+    const { txReceipt, txHash } = await providerInstance.deploy({
+      bytecode,
+      from,
+      gas,
+      gasPrice,
+      parameters,
+      padLength
+    })
+    if (process.env.NODE_ENV !== 'production') {
+      console.log({ txReceipt, txHash })
+    }
+    if (txReceipt && txReceipt.contractAddress) {
+      commit(
+        'saveDeployedContract',
+        parseDeployedContract(contractName, txReceipt.contractAddress, abi)
+      )
+      commit('saveReceipt', txReceipt)
     } else {
-      throw new Error('Provider not set')
+      throw new Error('Failed to fetch receipt.')
     }
   },
   async retrieveContractFromAddress(
@@ -238,34 +244,32 @@ const runActions: ActionTree<RunState, RootState> = {
     address
   ) {
     const providerInstance = state.providerInstance
-    if (providerInstance) {
-      const contract = rootGetters['workspace/activeFile'].code
-      const contractName = rootState.compile.selectedContract
-      const compiledCode = await providerInstance.compile(contract)
-      if (contractName in compiledCode) {
-        const abi = compiledCode[contractName].info.abiDefinition
-        commit(
-          'saveDeployedContract',
-          parseDeployedContract(contractName, address, abi)
-        )
-      } else {
-        throw new Error('Invalid Abi')
-      }
-    } else {
+    if (!providerInstance) {
       throw new Error('Provider not set')
+    }
+    const contract = rootGetters['workspace/activeFile'].code
+    const contractName = rootState.compile.selectedContract
+    const compiledCode = await providerInstance.compile(contract)
+    if (contractName in compiledCode) {
+      const abi = compiledCode[contractName].info.abiDefinition
+      commit(
+        'saveDeployedContract',
+        parseDeployedContract(contractName, address, abi)
+      )
+    } else {
+      throw new Error('Invalid Abi')
     }
   },
   async fetchAccounts({ commit, state }) {
     const providerInstance = state.providerInstance
-    if (providerInstance) {
-      const res = await providerInstance.getBalancesWithAccounts()
-      const accounts: Account[] = res.map(acc => {
-        return { ...acc, unlocked: false, loading: false }
-      })
-      commit('saveAccounts', accounts)
-    } else {
+    if (!providerInstance) {
       throw new Error('Provider not set')
     }
+    const res = await providerInstance.getBalancesWithAccounts()
+    const accounts: Account[] = res.map(acc => {
+      return { ...acc, unlocked: false, loading: false }
+    })
+    commit('saveAccounts', accounts)
   },
   async unlockAccount({ state, commit }, { address, password }) {
     commit('toggleAccountLoadingStatus', address)
@@ -283,12 +287,11 @@ const runActions: ActionTree<RunState, RootState> = {
   },
   async saveTxReceipt({ state, commit }, txHash) {
     const providerInstance = state.providerInstance
-    if (providerInstance) {
-      const receipt = await providerInstance.getReceiptWhenMined(txHash)
-      commit('saveReceipt', receipt)
-    } else {
+    if (!providerInstance) {
       throw new Error('Provider not set')
     }
+    const receipt = await providerInstance.getReceiptWhenMined(txHash)
+    commit('saveReceipt', receipt)
   }
 }
 

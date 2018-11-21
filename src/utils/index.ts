@@ -29,8 +29,7 @@ export const parseDeployedContract = (
 }
 export const hashArgs = (args: string) => {
   return web3Utils.padLeft(
-    args
-      .split(',')
+    [...JSON.parse(`[${args}]`)]
       .map((arg: string) => web3Utils.toHex(arg).substring(2))
       .join(''),
     32

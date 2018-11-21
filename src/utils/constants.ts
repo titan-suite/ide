@@ -3,6 +3,16 @@ const InjectedWeb3 = 'Injected Web3'
 const AION = 'Aion'
 const ETHEREUM = 'Ethereum'
 
+export const getPadLength = (blockchain: string) => {
+  switch (blockchain) {
+    case AION:
+      return 32
+    case ETHEREUM:
+      return 64
+    default:
+      throw new Error('Invalid blockchain')
+  }
+}
 export const getUnits = (blockchain: string) => {
   switch (blockchain) {
     case AION:
@@ -65,7 +75,7 @@ export const getUnits = (blockchain: string) => {
       ]
 
     default:
-      return []
+      throw new Error('Invalid blockchain')
   }
 }
 export const BLOCKCHAINS = { AION, ETHEREUM }

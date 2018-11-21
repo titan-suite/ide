@@ -10,7 +10,7 @@
         <el-table :data="contract.abi" :show-header="false" style="width: 100%">
           <el-table-column>
             <template slot-scope="scope">
-              {{ JSON.stringify(scope.row) }}
+              <!-- {{ JSON.stringify(scope.row) }} -->
 
               <el-row type="flex">
                 <el-col :offset="1" :span="scope.row.loading ? 8 : 7">
@@ -96,7 +96,6 @@ export default class Console extends Vue {
   ) => void
 
   public get parsedContracts() {
-    console.log(this.deployedContracts)
     return this.deployedContracts
   }
 
@@ -106,17 +105,42 @@ export default class Console extends Vue {
         const parsedSignature = scope.parsedSignature
         const hashedSignature = scope.hashedSignature
         const hashedArgs = hashArgs(scope.argsModel)
+        // const parsedArgs = [...JSON.parse(`[${scope.argsModel}]`)]
+        // if (scope.inputs.length !== parsedArgs.length) {
+        //   throw new Error('Invalid Args')
+        // }
+        // const hashedArgs = web3Utils.padLeft(
+        //   parsedArgs
+        //     .map((arg: string | any[], index: number) => {
+        //       if (
+        //         scope.inputs[index].type.includes('[]') &&
+        //         typeof arg === 'object'
+        //       ) {
+        //         console.log('[] input')
+        //         const arrayLength = web3Utils.toHex(arg.length).substring(2)
+        //         const arrayElementsHash = arg
+        //           .map((element) => web3Utils.toHex(element).substring(2))
+        //           .join('')
+        //         return arrayLength + arrayElementsHash
+        //       }
+        //       return web3Utils.toHex(arg).substring(2)
+        //     })
+        //     .join(''),
+        //   32
+        // )
         const data = hashedSignature + hashedArgs
-        console.log({
-          to,
-          from: this.selectedAccount,
-          scope,
-          parsedSignature,
-          hashedSignature,
-          hashedArgs,
-          data,
-          gas: this.gasLimit
-        })
+        if (process.env.NODE_ENV !== 'production') {
+          console.log({
+            to,
+            from: this.selectedAccount,
+            scope,
+            parsedSignature,
+            hashedSignature,
+            hashedArgs,
+            data,
+            gas: this.gasLimit
+          })
+        }
         let res: any
         if (scope.outputs.length < 1) {
           const txhash = await this.providerInstance.sendTransaction({
@@ -179,12 +203,10 @@ export default class Console extends Vue {
               }
               return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
             } else if (type.includes('address')) {
-              console.log({ address: res })
               return `0x${res}`
             }
           })
         }
-        console.log(res)
         return res
       } else {
         throw new Error('Provider not set')
