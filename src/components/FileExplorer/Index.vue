@@ -4,14 +4,14 @@
       <el-col :span="24">
         <el-tree :data="data" :allow-drop="allowDrop" :expand-on-click-node="false" node-key="id" default-expand-all draggable @node-click="handleNodeClick">
           <div slot-scope="{ node, data }" class="custom-tree-node">
-            <p>{{ node.label }}</p>
+            <p id="fileName">{{ node.label }}</p>
             <p v-if="data.type === 'folder'" class="m-top-25">
-              <el-button class="secondaryButton" type="primary" icon="el-icon-d-arrow-left" size="mini" circle @click="$emit('collapse')" />
-              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click="(e) => handleItemClick(e, {action:'add', data, type:'file'})" />
+              <el-button id="collapseLeft" class="secondaryButton" type="primary" icon="el-icon-d-arrow-left" size="mini" circle @click="$emit('collapse')" />
+              <el-button id="addFile" type="primary" icon="el-icon-plus" size="mini" circle @click="(e) => handleItemClick(e, {action:'add', data, type:'file'})" />
               <!-- <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="handleItemClick(action='remove', data, type='file', node)" /> -->
             </p>
             <p v-else-if="data.type === 'file'" class="m-top-25">
-              <el-button class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="(e) => { handleItemClick(e, {action:'remove', data, node}) }" />
+              <el-button id="deleteFile" class="actionButton secondaryButton" type="primary" icon="el-icon-delete" size="mini" circle @click="(e) => { handleItemClick(e, {action:'remove', data, node}) }" />
             </p>
           </div>
         </el-tree>

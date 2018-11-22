@@ -17,6 +17,7 @@
       <el-table-column :width="accountsLoading ? '140px' : ''" align="center">
         <template slot-scope="slot" slot="header">
           <el-button
+            id="refreshAccounts"
             :loading="accountsLoading"
             type="primary"
             size="mini"
@@ -32,9 +33,10 @@
             v-model="scope.row.popoverOpen"
             trigger="hover"
             placement="left"
-            width="200"
+            width="250"
           >
             <el-input
+              id="accountPasswordInput"
               v-model="scope.row.password"
               type="password"
               placeholder="Account Password"
@@ -42,12 +44,14 @@
             />
             <div style="text-align: right; margin: 0;padding:inherit">
               <el-button
+                id="cancelUnlock"
                 size="mini"
                 type="text"
                 @click="scope.row.popoverOpen = false"
               >Cancel</el-button
               >
               <el-button
+                id="confirmUnlock"
                 type="primary"
                 size="mini"
                 @click="
@@ -59,6 +63,7 @@
             </div>
             <el-button
               v-show="accounts.length > 0"
+              id="unlock"
               slot="reference"
               :loading="scope.row.loading"
               :type="scope.row.unlocked ? 'success' : 'info'"

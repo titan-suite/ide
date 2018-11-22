@@ -1,19 +1,19 @@
 <template>
   <div>
-    <NodeAddressInput/>
+    <NodeAddressInput id="compileNodeAddressContainer"/>
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
       </el-col>
       <el-col :span="13">
-        <el-select v-model="selectedSolVersionModal" class="select" style="display: block">
+        <el-select id="compilerVersionSelect" v-model="selectedSolVersionModal" class="select" style="display: block">
           <el-option v-for="version in solVersions" :key="version.value" :label="version.label" :value="version.value" />
         </el-select>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="24" :offset="10">
-        <el-button :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
+        <el-button id="startCompile" :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
           Start to Compile
         </el-button>
       </el-col>
@@ -21,20 +21,20 @@
     
     <el-row>
       <el-col :span="18" :offset="3">
-        <ContractNameSelect />
+        <ContractNameSelect id="compileContractNameSelect"/>
       </el-col>
     </el-row>
     
     <el-row>
       <el-col v-show="selectedContract !== ''" :span="24" :offset="13">
-        <el-button type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
+        <el-button id="showContractDetails" type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
           Details
         </el-button>
       </el-col>
     </el-row>
     
     <el-row>
-      <el-col :span="23" :offset="1" style="padding-right:1rem">
+      <el-col id="lint" :span="23" :offset="1" style="padding-right:1rem">
         <h3>Problems ({{ lintDetails.length }})</h3>
         <el-collapse v-model="activeName" accordion>
           <el-collapse-item v-for="(report, index) in lintDetails" :key="index" :title="`line ${report.line} column ${report.column} - ${report.ruleId}`" :name="index" class="lint-report" style="overflow:hidden">
@@ -53,7 +53,7 @@
     </el-row>
     
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible" width="80%">
-      <tree-view :data="contractDetails()" :options="{maxDepth: 4}" />
+      <tree-view id="treeView" :data="contractDetails()" :options="{maxDepth: 4}" />
     </el-dialog>
   </div>
 </template>
