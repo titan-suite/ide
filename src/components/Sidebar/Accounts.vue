@@ -36,7 +36,6 @@
             width="250"
           >
             <el-input
-              id="accountPasswordInput"
               v-model="scope.row.password"
               type="password"
               placeholder="Account Password"

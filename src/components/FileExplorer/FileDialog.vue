@@ -2,11 +2,15 @@
   <el-dialog :visible.sync="isVisible" title="New Smart Contract">
     <el-form ref="form" :model="form">
       <el-form-item :label-width="formLabelWidth" label="Name">
-        <el-input v-model="form.name" />
+        <el-input id="filename" v-model="form.name" />
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Language">
-        <el-select v-model="form.language" placeholder="Please select a language">
+        <el-select
+          id="selectLanguage"
+          v-model="form.language"
+          placeholder="Please select a language"
+        >
           <el-option label="Solidity" value="solidity" />
           <el-option label="SolidityX" value="solidityx" />
           <el-option label="Vyper" value="vyper" />
@@ -15,7 +19,11 @@
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Compiler Version">
-        <el-select v-model="form.compiler" placeholder="Please select a version">
+        <el-select
+          id="selectVersion"
+          v-model="form.compiler"
+          placeholder="Please select a version"
+        >
           <el-option label="v0.4.9" value="sol-v049" />
           <!-- <el-option label="v0.4.15" value="sol-v0415" /> -->
         </el-select>
@@ -23,9 +31,16 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button class="secondaryButton" type="primary" @click="$emit('closeDialog')">Cancel
+      <el-button
+        id="cancelCreate"
+        class="secondaryButton"
+        type="primary"
+        @click="$emit('closeDialog')"
+      >Cancel
       </el-button>
-      <el-button type="primary" @click="handleFormSubmit">Confirm</el-button>
+      <el-button id="confirmCreate" type="primary" @click="handleFormSubmit"
+      >Confirm</el-button
+      >
     </span>
   </el-dialog>
 </template>
