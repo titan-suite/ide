@@ -10,7 +10,16 @@ Vue.use(Vuex)
 const store: StoreOptions<RootState> = {
   plugins:
     process.env.NODE_ENV === 'production'
-      ? [createPersistedState()]
+      ? [
+          createPersistedState({
+            reducer: persistedState => {
+              const Run = { ...persistedState.run }
+              delete Run.isProviderSet
+              delete Run.providerInstance
+              return { ...persistedState, run: Run }
+            }
+          })
+        ]
       : undefined,
   modules: {
     workspace,
