@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NodeAddressInput id="runNodeAddressContainer"/>
+    <NodeAddressInput id="run"/>
     
     <el-row :gutter="11" >
       <el-col :span="7" :offset="1">
@@ -50,7 +50,7 @@
     
     <el-row :gutter="11">
       <el-col :span="20" :offset="1">
-        <ContractNameSelect id="runContractNameSelect"/>
+        <ContractNameSelect id="run"/>
       </el-col>
       <el-col :span="3">
         <el-button id="contractRefresh" :loading="compileLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="handleCompile" />

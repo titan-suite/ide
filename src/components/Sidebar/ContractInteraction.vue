@@ -6,6 +6,7 @@
         :key="index"
         :title="contract.title"
         :name="contract.contractAddress"
+        :id="'deployedContract'+index"
       >
         <el-table :data="contract.abi" :show-header="false" style="width: 100%">
           <el-table-column>
@@ -15,6 +16,7 @@
               <el-row type="flex">
                 <el-col :offset="1" :span="scope.row.loading ? 8 : 7">
                   <el-button
+                    :id="'deployedContract'+index+scope.row.name"
                     :loading="scope.row.loading"
                     style="width:100%"
                     class="secondaryButton"
@@ -45,6 +47,7 @@
                     trigger="focus"
                   >
                     <el-input
+                    :id="'deployedContract'+index+scope.row.name+'input'"
                       slot="reference"
                       v-model="scope.row.argsModel"
                       :placeholder="scope.row.combinedInputs"

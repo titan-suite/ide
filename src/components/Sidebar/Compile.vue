@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NodeAddressInput id="compileNodeAddressContainer"/>
+    <NodeAddressInput id="compile"/>
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
@@ -21,7 +21,7 @@
     
     <el-row>
       <el-col :span="18" :offset="3">
-        <ContractNameSelect id="compileContractNameSelect"/>
+        <ContractNameSelect id="compile"/>
       </el-col>
     </el-row>
     
