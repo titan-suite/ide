@@ -4,6 +4,7 @@ import store from './store/index'
 import './registerServiceWorker'
 import './plugins/element.js'
 import './plugins/treeView.js'
+import './plugins/vueClipboard.js'
 import './style.css'
 Vue.config.productionTip = false
 

@@ -21,6 +21,7 @@
     "solhint": "^1.4.0",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
+    "vue-clipboard2": "^0.2.1",
     "vue-codemirror": "^4.0.5",
     "vue-draggable-resizable": "^1.7.5",
     "vue-json-tree-view": "^2.1.4",

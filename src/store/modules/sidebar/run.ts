@@ -143,10 +143,15 @@ const runMutations: MutationTree<RunState> = {
     state.accountsLoading = !state.accountsLoading
   },
   saveReceipt(state, payload) {
-    const address = payload.contractAddress || payload.transactionHash
+    const address =
+      payload.contractAddress || payload.transactionHash || payload.to
     const receipt = {
       title: `${
-        payload.contractAddress ? 'Contract: ' : 'Tx Hash: '
+        payload.contractAddress
+          ? 'Contract: '
+          : payload.transactionHash
+          ? 'Tx Hash: '
+          : 'Call: '
       } ${shortenAddress(address)}`,
       address,
       data: Object.keys(payload).map((j: any) => {

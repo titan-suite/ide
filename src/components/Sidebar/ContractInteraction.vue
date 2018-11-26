@@ -5,18 +5,17 @@
         v-for="(contract, index) in parsedContracts"
         :key="index"
         :title="contract.title"
-        :name="contract.contractAddress"
-        :id="'deployedContract'+index"
+        :name="'deployedContract' + index"
+        :id="'deployedContract' + index"
       >
         <el-table :data="contract.abi" :show-header="false" style="width: 100%">
           <el-table-column>
             <template slot-scope="scope">
               <!-- {{ JSON.stringify(scope.row) }} -->
-
               <el-row type="flex">
                 <el-col :offset="1" :span="scope.row.loading ? 8 : 7">
                   <el-button
-                    :id="'deployedContract'+index+scope.row.name"
+                    :id="'deployedContract' + index + scope.row.name"
                     :loading="scope.row.loading"
                     style="width:100%"
                     class="secondaryButton"
@@ -25,20 +24,16 @@
                       scope.row.loading = true
                       handleFunctionCall(
                         scope.row,
-                        contract.contractInstance
+                        contract.contractInstance,
+                        contract.contractAddress
                       ).then((res) => {
                         scope.row.res = res
                         scope.row.loading = false
                       })
                     "
-                  >
-                    {{ scope.row.name }}
-                  </el-button>
+                  >{{ scope.row.name }}</el-button>
                 </el-col>
-                <el-col
-                  v-if="scope.row.inputs.length > 0"
-                  :span="scope.row.loading ? 12 : 13"
-                >
+                <el-col v-if="scope.row.inputs.length > 0" :span="scope.row.loading ? 12 : 13">
                   <el-popover
                     :content="scope.row.combinedInputs"
                     :open-delay="200"
@@ -47,8 +42,10 @@
                     trigger="focus"
                   >
                     <el-input
-                    :id="'deployedContract'+index+scope.row.name+'input'"
                       slot="reference"
+                      :id="
+                        'deployedContract' + index + scope.row.name + 'input'
+                      "
                       v-model="scope.row.argsModel"
                       :placeholder="scope.row.combinedInputs"
                       clearable
@@ -93,6 +90,7 @@ export default class Console extends Vue {
   @State('providerInstance', { namespace }) public providerInstance!: any
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
+  @State('value', { namespace }) public value!: {amount: number; unit: string}
   @Mutation('saveReceipt', { namespace }) public saveReceipt!: (
     receipt: any
   ) => void
@@ -101,7 +99,7 @@ export default class Console extends Vue {
     return this.deployedContracts
   }
 
-  public async handleFunctionCall(scope: any, contractInstance: any) {
+  public async handleFunctionCall(scope: any, contractInstance: any, contractAddress: string) {
     const parseType = (type: string, value: any) => {
       if (type.includes('byte')) {
         if (type.includes('[]')) {
@@ -122,7 +120,8 @@ export default class Console extends Vue {
           ).send({
             from: this.selectedAccount,
             data,
-            gas: this.gasLimit
+            gas: this.gasLimit,
+            value: web3Utils.fromWei(this.value.amount) // TODO check unit
           })
           this.saveReceipt(txReceipt)
           res = true
@@ -131,6 +130,7 @@ export default class Console extends Vue {
             from: this.selectedAccount,
             data
           })
+          this.saveReceipt({ from: this.selectedAccount,to:contractAddress, data:res })
           return scope.outputs.length === 1
             ? [parseType(scope.outputs[0].type, res)]
             : scope.outputs.map(({ type }: any, index: number) => {

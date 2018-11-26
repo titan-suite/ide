@@ -6,54 +6,86 @@
         <p>Compiler Version</p>
       </el-col>
       <el-col :span="13">
-        <el-select id="compilerVersionSelect" v-model="selectedSolVersionModal" class="select" style="display: block">
-          <el-option v-for="version in solVersions" :key="version.value" :label="version.label" :value="version.value" />
+        <el-select
+          id="compilerVersionSelect"
+          v-model="selectedSolVersionModal"
+          class="select"
+          style="display: block"
+        >
+          <el-option
+            v-for="version in solVersions"
+            :key="version.value"
+            :label="version.label"
+            :value="version.value"
+          />
         </el-select>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="24" :offset="10">
-        <el-button id="startCompile" :loading="loading" type="primary" class="textColorBlack" @click="handleCompile">
-          Start to Compile
-        </el-button>
+        <el-button
+          id="startCompile"
+          :loading="loading"
+          type="primary"
+          class="textColorBlack"
+          @click="handleCompile"
+        >Start to Compile</el-button>
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="18" :offset="3">
         <ContractNameSelect id="compile"/>
       </el-col>
     </el-row>
-    
+
     <el-row>
-      <el-col v-show="selectedContract !== ''" :span="24" :offset="13">
-        <el-button id="showContractDetails" type="primary" class="textColorBlack" @click="dialogAbiDetailsVisible = true">
-          Details
-        </el-button>
+      <el-col v-show="selectedContract !== ''" :offset="13">
+        <el-button
+          id="showContractDetails"
+          type="primary"
+          class="textColorBlack"
+          @click="dialogAbiDetailsVisible = true"
+        >Details</el-button>
+        <el-button
+          type="primary"
+          class="secondaryButton"
+          icon="el-icon-tickets"
+          circle
+          style="padding: 5px;margin-top: .65rem;"
+          @click="copyToClipboard"
+        />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col id="lint" :span="23" :offset="1" style="padding-right:1rem">
         <h3>Problems ({{ lintDetails.length }})</h3>
         <el-collapse v-model="activeName" accordion>
-          <el-collapse-item v-for="(report, index) in lintDetails" :key="index" :title="`line ${report.line} column ${report.column} - ${report.ruleId}`" :name="index" class="lint-report" style="overflow:hidden">
+          <el-collapse-item
+            v-for="(report, index) in lintDetails"
+            :key="index"
+            :title="`line ${report.line} column ${report.column} - ${report.ruleId}`"
+            :name="index"
+            class="lint-report"
+            style="overflow:hidden"
+          >
             <el-row style="margin-top:1rem">
               <el-col :span="23" :offset="1">
-                <i v-if="report.severity === 2" class="el-icon-warning warning" />
-                <i v-if="report.severity === 3" class="el-icon-warning danger" />
+                <i v-if="report.severity === 2" class="el-icon-warning warning"/>
+                <i v-if="report.severity === 3" class="el-icon-warning danger"/>
               </el-col>
               <el-col :span="23" :offset="1">
-                <p>{{ report.message }} </p>
+                <p>{{ report.message }}</p>
               </el-col>
             </el-row>
           </el-collapse-item>
         </el-collapse>
       </el-col>
     </el-row>
-    
+
     <el-dialog :title="selectedContract" :visible.sync="dialogAbiDetailsVisible" width="80%">
-      <tree-view id="treeView" :data="contractDetails()" :options="{maxDepth: 4}" />
+      <tree-view id="treeView" :data="contractDetails()" :options="{maxDepth: 4}"/>
     </el-dialog>
   </div>
 </template>
@@ -82,7 +114,7 @@ export default class Compile extends Vue {
     @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
 
     @Getter('activeFile', { namespace: 'workspace' }) public activeFile!: File
-    @Getter('contractDetails', { namespace }) public contractDetails!: (contractName: string) => any
+    @Getter('contractDetails', { namespace }) public contractDetails!: (contractName ? : string) => any
 
     @Mutation('setSolVersion', { namespace }) public setSolVersion!: (version: string) => void
 
@@ -92,7 +124,7 @@ export default class Compile extends Vue {
     public dialogAbiDetailsVisible: boolean = false
     public loading: boolean = false
     public activeName: string = '1'
-
+    public $copyText: any
     public async handleCompile(): Promise < void > {
         this.loading = true
         try {
@@ -131,7 +163,23 @@ export default class Compile extends Vue {
         const { reports } = linter.processStr(code, configAsJson)
         return reports
     }
-
+    public async copyToClipboard() {
+        try {
+            await this.$copyText(JSON.stringify(this.contractDetails()))
+            await Notification.success({
+                title: 'Success',
+                message: 'Copied to Clipboard',
+                duration: 500
+            })
+        } catch (e) {
+            await Notification.error({
+                title: 'Error',
+                message: 'Unable to Copy',
+                duration: 10000
+            })
+            console.error(e)
+        }
+    }
 }
 </script>
 
