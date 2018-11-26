@@ -8,19 +8,21 @@
     "build": "node --max_old_space_size=4096 node_modules/.bin/vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:e2e": "vue-cli-service test:e2e",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit",
+    "postinstall": "node fix-xml-http-request.js"
   },
   "dependencies": {
-    "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core\\#jsonrpc",
+    "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core",
+    "aion-web3": "^1.1.0",
     "codemirror": "^5.42.0",
-    "element-ui": "^2.4.5",
+    "element-ui": "^2.4.11",
     "ethereum-types": "^1.1.2",
     "register-service-worker": "^1.0.0",
     "solhint": "^1.4.0",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-codemirror": "^4.0.5",
-    "vue-draggable-resizable": "^1.7.3",
+    "vue-draggable-resizable": "^1.7.5",
     "vue-json-tree-view": "^2.1.4",
     "vue-property-decorator": "^7.0.0",
     "vuex": "^3.0.1",
@@ -30,7 +32,7 @@
   },
   "devDependencies": {
     "@types/jest": "^23.1.4",
-    "@types/node": "^10.12.5",
+    "@types/node": "^10.12.10",
     "@vue/cli-plugin-babel": "^3.1.1",
     "@vue/cli-plugin-e2e-nightwatch": "^3.1.1",
     "@vue/cli-plugin-pwa": "^3.1.1",
@@ -49,12 +51,12 @@
     "sass-loader": "^7.1.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
-    "ts-jest": "^23.0.0",
+    "ts-jest": "^23.10.5",
     "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.0",
     "typescript-eslint-parser": "^21.0.0",
     "vue-cli-plugin-element": "^1.0.0",
-    "vue-eslint-parser": "^3.2.2",
+    "vue-eslint-parser": "^3.3.0",
     "vue-template-compiler": "^2.5.17"
   }
 }

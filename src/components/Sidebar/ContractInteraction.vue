@@ -23,7 +23,7 @@
                       scope.row.loading = true
                       handleFunctionCall(
                         scope.row,
-                        contract.contractAddress
+                        contract.contractInstance
                       ).then((res) => {
                         scope.row.res = res
                         scope.row.loading = false
@@ -75,7 +75,6 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Mutation, State } from 'vuex-class'
-import { parseSignature, hashArgs } from '../../utils'
 import * as web3Utils from 'web3-utils'
 import { MethodAbi } from 'ethereum-types'
 import { Notification } from 'element-ui'
@@ -99,121 +98,53 @@ export default class Console extends Vue {
     return this.deployedContracts
   }
 
-  public async handleFunctionCall(scope: any, to: string) {
+  public async handleFunctionCall(scope: any, contractInstance: any) {
+    const parseType = (type: string, value: any) => {
+      if (type.includes('byte')) {
+        if (type.includes('[]')) {
+          return value.map((i: string) => parseType('byte', i))
+        }
+        return web3Utils.toUtf8(value)
+      }
+      return value
+    }
+
     try {
       if (this.providerInstance) {
-        const parsedSignature = scope.parsedSignature
-        const hashedSignature = scope.hashedSignature
-        const hashedArgs = hashArgs(scope.argsModel)
-        // const parsedArgs = [...JSON.parse(`[${scope.argsModel}]`)]
-        // if (scope.inputs.length !== parsedArgs.length) {
-        //   throw new Error('Invalid Args')
-        // }
-        // const hashedArgs = web3Utils.padLeft(
-        //   parsedArgs
-        //     .map((arg: string | any[], index: number) => {
-        //       if (
-        //         scope.inputs[index].type.includes('[]') &&
-        //         typeof arg === 'object'
-        //       ) {
-        //         console.log('[] input')
-        //         const arrayLength = web3Utils.toHex(arg.length).substring(2)
-        //         const arrayElementsHash = arg
-        //           .map((element) => web3Utils.toHex(element).substring(2))
-        //           .join('')
-        //         return arrayLength + arrayElementsHash
-        //       }
-        //       return web3Utils.toHex(arg).substring(2)
-        //     })
-        //     .join(''),
-        //   32
-        // )
-        const data = hashedSignature + hashedArgs
+        const data = [...JSON.parse(`[${scope.argsModel}]`)]
+        console.log({ scope }, data, scope.argsModel)
         if (process.env.NODE_ENV !== 'production') {
           console.log({
-            to,
             from: this.selectedAccount,
             scope,
-            parsedSignature,
-            hashedSignature,
-            hashedArgs,
             data,
             gas: this.gasLimit
           })
         }
         let res: any
         if (scope.outputs.length < 1) {
-          const txhash = await this.providerInstance.sendTransaction({
+          const txReceipt = await contractInstance.methods[scope.name](
+            ...data
+          ).send({
             from: this.selectedAccount,
-            to,
             data,
             gas: this.gasLimit
           })
-          if (!txhash) {
-            throw new Error('Transaction Failed')
-          }
-          const receipt = await this.providerInstance.getReceiptWhenMined(
-            txhash
-          )
-          this.saveReceipt(receipt)
+          console.log(txReceipt)
+          this.saveReceipt(txReceipt)
           res = true
         } else {
-          res = await this.providerInstance.call({
+          res = await contractInstance.methods[scope.name](...data).call({
             from: this.selectedAccount,
-            to,
             data
           })
-          res = res.substring(2)
-          console.dir(res)
-          const NUMBER = 'number'
-          const STRING = 'string'
-          const cutFromHex = (targetType: string) => {
-            let targetString
-            if (targetType === NUMBER) {
-              targetString = res.substring(0, 32)
-            } else if (targetType === STRING) {
-              targetString = res.substring(0, 64)
-            }
-            res = res.substring(targetString.length)
-            return targetString
-          }
-          res = scope.outputs.map(({ type }: any) => {
-            if (type.includes('int')) {
-              if (type.includes('[]')) {
-                const parsedLengthOfArray = Number(
-                  web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
-                )
-                return [...Array(parsedLengthOfArray).keys()].map(() =>
-                  web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
-                )
-              }
-              return web3Utils.hexToNumber(`0x${cutFromHex(NUMBER)}`)
-            } else if (type.includes('byte')) {
-              if (type.includes('[]')) {
-                cutFromHex(NUMBER)
-                if (res.length > 64) {
-                  cutFromHex(NUMBER)
-                  cutFromHex(NUMBER)
-                }
-                return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
-              }
-              const resp = web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
-              cutFromHex(NUMBER)
-              cutFromHex(NUMBER)
-              return resp
-            } else if (type.includes('address')) {
-              return `0x${res}`
-            } else if (type.includes('bool')) {
-              const resp = Number(`${res}`.substring(-1)) === 1 ? true : false
-              cutFromHex(NUMBER)
-              return resp
-            } else if (type.includes('string')) {
-              cutFromHex(STRING)
-              return web3Utils.hexToUtf8(`0x${cutFromHex(STRING)}`)
-            }
-          })
+          console.log({ res })
+          return scope.outputs.length === 1
+            ? [parseType(scope.outputs[0].type, res)]
+            : scope.outputs.map(({ type }: any, index: number) => {
+                return parseType(type, res[index])
+              })
         }
-        return res
       } else {
         throw new Error('Provider not set')
       }
@@ -227,35 +158,4 @@ export default class Console extends Vue {
     return null
   }
 }
-// uint, bytes32[], uint128[]
-// 0000000000000000000000000000000c //12
-// 00000000000000000000000000000030 //
-// 00000000000000000000000000000060 //
-// 00000000000000000000000000000001 //
-// 000000000000005b2234222c2235225d00000000000000000000000000000000 //["4","5"]
-// 00000000000000000000000000000003 //length
-// 00000000000000000000000000000001 [1,2,4]
-// 00000000000000000000000000000002
-// 00000000000000000000000000000004
-
-// uint, bytes32, uint128[], bytes32[]
-// 0000000000000000000000000000000c //12
-// 68656c6c6f000000000000000000000000000000000000000000000000000000 //"hello"
-// 00000000000000000000000000000050 //
-// 00000000000000000000000000000090 //
-// 00000000000000000000000000000003 // length
-// 00000000000000000000000000000001 // [1,2,4]
-// 00000000000000000000000000000002
-// 00000000000000000000000000000004
-// 00000000000000000000000000000001 //
-// 000000000000005b2234222c2235225d00000000000000000000000000000000  //["4","5"]
-
-// uint, bytes32, uint128[]
-// 0000000000000000000000000000000c // 12
-// 68656c6c6f000000000000000000000000000000000000000000000000000000 // "hello"
-// 00000000000000000000000000000040 //
-// 00000000000000000000000000000003 // length
-// 00000000000000000000000000000001 //[1,2,4]
-// 00000000000000000000000000000002
-// 00000000000000000000000000000004
 </script>

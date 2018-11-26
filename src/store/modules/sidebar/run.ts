@@ -5,11 +5,9 @@ import {
   BLOCKCHAINS,
   PROVIDERS,
   getUnits,
-  parseDeployedContract,
-  getPadLength
+  parseDeployedContract
 } from '../../../utils'
 import { Aion, Ethereum } from '@titan-suite/core'
-
 let nodeAddress = ''
 let devProviderInstance
 let isProviderSet = false
@@ -201,39 +199,40 @@ const runActions: ActionTree<RunState, RootState> = {
     const from = state.selectedAccount
     const gas = state.gasLimit
     const gasPrice = state.gasPrice
-    const bytecode = compiledCode[contractName].code
+    const code = compiledCode[contractName].code
     const abi = compiledCode[contractName].info.abiDefinition
     const contractArgs = rootState.compile.contracts[contractName] // TODO check constructor
       ? state.contractArgs
       : ''
-    const parameters: any[] = [...JSON.parse(`[${contractArgs}]`)]
-    const padLength = getPadLength(blockchain)
+    const args: any[] = [...JSON.parse(`[${contractArgs}]`)]
     if (process.env.NODE_ENV !== 'production') {
       console.log('deploying with', {
-        bytecode,
+        code,
         from,
         gas,
         gasPrice,
-        parameters,
-        padLength
+        args
       })
     }
     const { txReceipt, txHash } = await providerInstance.deploy({
-      bytecode,
+      abi,
+      code,
       from,
       gas,
       gasPrice,
-      parameters,
-      padLength
+      args
     })
     if (process.env.NODE_ENV !== 'production') {
       console.log({ txReceipt, txHash })
     }
     if (txReceipt && txReceipt.contractAddress) {
-      commit(
-        'saveDeployedContract',
-        parseDeployedContract(contractName, txReceipt.contractAddress, abi)
-      )
+      commit('saveDeployedContract', {
+        ...parseDeployedContract(contractName, txReceipt.contractAddress, abi),
+        contractInstance: providerInstance.getContract(
+          abi,
+          txReceipt.contractAddress
+        )
+      })
       commit('saveReceipt', txReceipt)
     } else {
       throw new Error('Failed to fetch receipt.')
@@ -252,10 +251,10 @@ const runActions: ActionTree<RunState, RootState> = {
     const compiledCode = await providerInstance.compile(contract)
     if (contractName in compiledCode) {
       const abi = compiledCode[contractName].info.abiDefinition
-      commit(
-        'saveDeployedContract',
-        parseDeployedContract(contractName, address, abi)
-      )
+      commit('saveDeployedContract', {
+        ...parseDeployedContract(contractName, address, abi),
+        contractInstance: providerInstance.getContract(abi, address)
+      })
     } else {
       throw new Error('Invalid Abi')
     }
@@ -285,12 +284,12 @@ const runActions: ActionTree<RunState, RootState> = {
       throw new Error('Provider not set')
     }
   },
-  async saveTxReceipt({ state, commit }, txHash) {
+  async saveTxReceipt({ state, commit }, functionCall) {
     const providerInstance = state.providerInstance
     if (!providerInstance) {
       throw new Error('Provider not set')
     }
-    const receipt = await providerInstance.getReceiptWhenMined(txHash)
+    const receipt = await providerInstance.getResponseWhenMined(functionCall)
     commit('saveReceipt', receipt)
   }
 }
