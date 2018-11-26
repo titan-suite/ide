@@ -112,15 +112,6 @@ export default class Console extends Vue {
     try {
       if (this.providerInstance) {
         const data = [...JSON.parse(`[${scope.argsModel}]`)]
-        console.log({ scope }, data, scope.argsModel)
-        if (process.env.NODE_ENV !== 'production') {
-          console.log({
-            from: this.selectedAccount,
-            scope,
-            data,
-            gas: this.gasLimit
-          })
-        }
         let res: any
         if (scope.outputs.length < 1) {
           const txReceipt = await contractInstance.methods[scope.name](
@@ -130,7 +121,6 @@ export default class Console extends Vue {
             data,
             gas: this.gasLimit
           })
-          console.log(txReceipt)
           this.saveReceipt(txReceipt)
           res = true
         } else {
@@ -138,7 +128,6 @@ export default class Console extends Vue {
             from: this.selectedAccount,
             data
           })
-          console.log({ res })
           return scope.outputs.length === 1
             ? [parseType(scope.outputs[0].type, res)]
             : scope.outputs.map(({ type }: any, index: number) => {
