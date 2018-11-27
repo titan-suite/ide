@@ -212,20 +212,18 @@ const runActions: ActionTree<RunState, RootState> = {
     if (!providerInstance) {
       throw new Error('Provider not set')
     }
-    const blockchain = state.selectedBlockchain
     const contractName = rootState.compile.selectedContract
     const compiledCode = rootState.compile.compiledCode
+    const useInBrowserCompiler = rootState.compile.useInBrowserCompiler
     const from = state.selectedAccount
     const gas = state.gasLimit
     const gasPrice = state.gasPrice
-    const code =
-      blockchain === BLOCKCHAINS.AION
-        ? compiledCode[contractName].code
-        : compiledCode[contractName].bytecode
-    const abi =
-      blockchain === BLOCKCHAINS.AION
-        ? compiledCode[contractName].info.abiDefinition
-        : JSON.parse(compiledCode[contractName].interface)
+    const code = useInBrowserCompiler
+      ? compiledCode[contractName].bytecode
+      : compiledCode[contractName].code
+    const abi = useInBrowserCompiler
+      ? JSON.parse(compiledCode[contractName].interface)
+      : compiledCode[contractName].info.abiDefinition
     const contractArgs = rootState.compile.contracts[contractName] // TODO check constructor
       ? state.contractArgs
       : ''
@@ -271,14 +269,13 @@ const runActions: ActionTree<RunState, RootState> = {
     if (!providerInstance) {
       throw new Error('Provider not set')
     }
-    const blockchain = state.selectedBlockchain
     const contractName = rootState.compile.selectedContract
     const compiledCode = rootState.compile.compiledCode
+    const useInBrowserCompiler = rootState.compile.useInBrowserCompiler
     if (contractName in compiledCode) {
-      const abi =
-        blockchain === BLOCKCHAINS.AION
-          ? compiledCode[contractName].info.abiDefinition
-          : JSON.parse(compiledCode[contractName].interface)
+      const abi = useInBrowserCompiler
+        ? JSON.parse(compiledCode[contractName].interface)
+        : compiledCode[contractName].info.abiDefinition
       commit('saveDeployedContract', {
         ...parseDeployedContract(contractName, address, abi),
         contractInstance: providerInstance.getContract(abi, address)

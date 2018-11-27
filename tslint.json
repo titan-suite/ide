@@ -1,31 +1,25 @@
 {
-  "defaultSeverity": "warning",
-  "extends": ["tslint:latest", "tslint-config-prettier"],
-  "jsRules": {
-    "no-unused-expression": true
-  },
-  "linterOptions": {
-    "exclude": ["node_modules/**"]
-  },
-  "rules": {
-    "quotemark": [true, "single"],
-    "semicolon": [true, "never"],
-    "indent": [true, "spaces", 2],
-    "interface-name": false,
-    "ordered-imports": false,
-    "object-literal-sort-keys": false,
-    "no-consecutive-blank-lines": false,
-    "no-empty-interface": false,
-    "no-var-requires": false,
-    "no-empty": false,
-    "no-console": false,
-    "triple-equals": true,
-    "no-submodule-imports": [
-      true,
-      "codemirror",
-      "@titan-suite",
-      "typechain",
-      "solhint"
-    ]
-  }
+	"defaultSeverity": "warning",
+	"extends": ["tslint:latest", "tslint-config-prettier"],
+	"jsRules": {
+		"no-unused-expression": true
+	},
+	"linterOptions": {
+		"exclude": ["node_modules/**"]
+	},
+	"rules": {
+		"quotemark": [true, "single"],
+		"semicolon": [true, "never"],
+		"indent": [true, "spaces", 2],
+		"interface-name": false,
+		"ordered-imports": false,
+		"object-literal-sort-keys": false,
+		"no-consecutive-blank-lines": false,
+		"no-empty-interface": false,
+		"no-var-requires": false,
+		"no-empty": false,
+		"no-console": false,
+		"triple-equals": true,
+		"no-submodule-imports": [true, "codemirror", "@titan-suite", "typechain", "solhint"]
+	}
 }

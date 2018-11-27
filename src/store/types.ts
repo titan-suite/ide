@@ -7,14 +7,15 @@ export interface RootState {
 }
 export interface CompileState {
   compiledCode: {
-    [key: string]: any;
+    [key: string]: any
   }
   solVersions: string[]
   contracts: {
-    [key: string]: string | undefined;
+    [key: string]: string | undefined
   }
   selectedContract: string
   selectedSolVersion: string
+  useInBrowserCompiler: boolean
 }
 
 export interface RunState {

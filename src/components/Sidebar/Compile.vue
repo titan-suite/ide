@@ -1,7 +1,7 @@
 <template>
   <div>
-    <NodeAddressInput v-show="isAion" id="compile"/>
-    <el-row v-show="!isAion" :gutter="11">
+    <NodeAddressInput v-show="!useInBrowserCompiler" id="compile"/>
+    <el-row v-show="useInBrowserCompiler" :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
       </el-col>
@@ -32,6 +32,12 @@
           style="margin-top:0.69rem"
           @click="loadSolVersions"
         />
+      </el-col>
+    </el-row>
+
+    <el-row>
+      <el-col :span="24" :offset="8">
+        <el-checkbox v-model="useInBrowserCompilerModal">Use In browser compiler</el-checkbox>
       </el-col>
     </el-row>
 
@@ -116,88 +122,92 @@ import linter from 'solhint/lib/index'
 const namespace = 'compile'
 
 @Component({
-    components: {
-        ContractNameSelect,
-        NodeAddressInput
-    }
+  components: {
+    ContractNameSelect,
+    NodeAddressInput,
+  },
 })
 export default class Compile extends Vue {
-    @State('selectedContract', { namespace }) public selectedContract!: string
-    @State('solVersions', { namespace }) public solVersions!: string[]
-    @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
-    @State('selectedBlockchain', { namespace:'run' }) public selectedBlockchain!: string
-    @State('blockchains', { namespace:'run' }) public blockchains!: any
+  @State('selectedContract', { namespace }) public selectedContract!: string
+  @State('solVersions', { namespace }) public solVersions!: string[]
+  @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
+  @State('useInBrowserCompiler', { namespace }) public useInBrowserCompiler!: boolean
 
-    @Getter('activeFile', { namespace: 'workspace' }) public activeFile!: File
-    @Getter('contractDetails', { namespace }) public contractDetails!: (contractName ? : string) => any
+  @Getter('activeFile', { namespace: 'workspace' }) public activeFile!: File
+  @Getter('contractDetails', { namespace }) public contractDetails!: (contractName?: string) => any
 
-    @Mutation('setSolVersion', { namespace }) public setSolVersion!: (version: string) => void
+  @Mutation('setSolVersion', { namespace }) public setSolVersion!: (version: string) => void
+  @Mutation('toggleInBrowserCompiler', { namespace }) public toggleInBrowserCompiler!: () => void
 
-    @Action('compile', { namespace }) public compile!: () => void
-    @Action('loadSolVersions', { namespace }) public loadSolVersions!: () => void
-    @Action('fetchAccounts', { namespace: 'run' }) public fetchAccounts!: () => void
-    
-    public dialogAbiDetailsVisible: boolean = false
-    public loading: boolean = false
-    public activeName: string = '1'
-    public $copyText: any
-    public async handleCompile(): Promise < void > {
-        this.loading = true
-        try {
-            await this.compile()
-        } catch (e) {
-            await Notification.error({
-                title: 'Error',
-                message: `${e.message}${JSON.stringify(e)}`,
-                duration: 10000
-            })
-            console.error(e)
-        } finally {
-            this.loading = false
-        }
+  @Action('compile', { namespace }) public compile!: () => void
+  @Action('loadSolVersions', { namespace }) public loadSolVersions!: () => void
+  @Action('fetchAccounts', { namespace: 'run' }) public fetchAccounts!: () => void
+
+  public dialogAbiDetailsVisible: boolean = false
+  public loading: boolean = false
+  public activeName: string = '1'
+  public $copyText: any
+  public async handleCompile(): Promise<void> {
+    this.loading = true
+    try {
+      await this.compile()
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: `${e.message}${JSON.stringify(e)}`,
+        duration: 10000,
+      })
+      console.error(e)
+    } finally {
+      this.loading = false
     }
-    public get isAion(){
-      return this.blockchains.AION === this.selectedBlockchain
+  }
+  public set useInBrowserCompilerModal(val: boolean) {
+    this.toggleInBrowserCompiler()
+  }
+  public get useInBrowserCompilerModal(): boolean {
+    return this.useInBrowserCompiler
+  }
+
+  public set selectedSolVersionModal(solVersion: string) {
+    this.setSolVersion(solVersion)
+  }
+  public get selectedSolVersionModal(): string {
+    return this.selectedSolVersion
+  }
+  public get lintDetails(): string {
+    const configAsJson = {
+      extends: 'default',
+      rules: {
+        'avoid-throw': false,
+        'compiler-fixed': true,
+        'avoid-suicide': 'error',
+        'avoid-sha3': 'warn',
+        indent: true,
+        'payable-fallback': false,
+      },
     }
-    public set selectedSolVersionModal(solVersion: string) {
-        this.setSolVersion(solVersion)
+    const code = this.activeFile.code
+    const { reports } = linter.processStr(code, configAsJson)
+    return reports
+  }
+  public async copyToClipboard() {
+    try {
+      await this.$copyText(JSON.stringify(this.contractDetails()))
+      await Notification.success({
+        title: 'Success',
+        message: 'Copied to Clipboard',
+        duration: 500,
+      })
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: 'Unable to Copy',
+        duration: 10000,
+      })
+      console.error(e)
     }
-    public get selectedSolVersionModal(): string {
-        return this.selectedSolVersion
-    }
-    public get lintDetails(): string {
-        const configAsJson = {
-            extends: 'default',
-            rules: {
-                'avoid-throw': false,
-                'compiler-fixed': true,
-                'avoid-suicide': 'error',
-                'avoid-sha3': 'warn',
-                indent: true,
-                'payable-fallback': false
-            }
-        }
-        const code = this.activeFile.code
-        const { reports } = linter.processStr(code, configAsJson)
-        return reports
-    }
-    public async copyToClipboard() {
-        try {
-            await this.$copyText(JSON.stringify(this.contractDetails()))
-            await Notification.success({
-                title: 'Success',
-                message: 'Copied to Clipboard',
-                duration: 500
-            })
-        } catch (e) {
-            await Notification.error({
-                title: 'Error',
-                message: 'Unable to Copy',
-                duration: 10000
-            })
-            console.error(e)
-        }
-    }
+  }
 }
 </script>
 
@@ -226,3 +236,4 @@ export default class Compile extends Vue {
   padding: 6px;
 }
 </style>
+
