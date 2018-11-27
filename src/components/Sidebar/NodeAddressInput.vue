@@ -5,32 +5,76 @@
         <p>Blockchain</p>
       </el-col>
       <el-col :span="15">
-        <el-select :id="id+'SelectBlockchain'" v-model="selectedBlockchainModel" class="select" style="display: block">
-          <el-option v-for="[key, value] in Object.entries(BLOCKCHAINS)" :key="key" :label="value" :value="value" />
+        <el-select
+          :id="id+'SelectBlockchain'"
+          v-model="selectedBlockchainModel"
+          class="select"
+          style="display: block"
+        >
+          <el-option
+            v-for="[key, value] in Object.entries(BLOCKCHAINS)"
+            :key="key"
+            :label="value"
+            :value="value"
+          />
         </el-select>
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Provider</p>
       </el-col>
-      <el-col :span="15">
-        <el-select :id="id+'SelectProvider'" v-model="selectedProviderModel" class="select" style="display: block">
-          <el-option v-for="[key, value] in Object.entries(PROVIDERS)" :key="key" :label="value" :value="value" />
+      <el-col :span="requireNodeAddress ? 15 : 13">
+        <el-select
+          :id="id+'SelectProvider'"
+          v-model="selectedProviderModel"
+          class="select"
+          style="display: block"
+        >
+          <el-option
+            v-for="[key, value] in Object.entries(PROVIDERS)"
+            :key="key"
+            :label="value"
+            :value="value"
+          />
         </el-select>
       </el-col>
+      <el-col v-if="!requireNodeAddress" :span="2">
+        <el-button
+          :id="id+'SetProvider'"
+          :type="isProviderSet ? 'success' : 'info'"
+          size="mini"
+          icon="el-icon-check"
+          circle
+          style="margin-top:0.69rem"
+          @click="instantiateProvider"
+        />
+      </el-col>
     </el-row>
-    
-    <el-row v-show="requireNodeAddress" :gutter="11">
+
+    <el-row v-if="requireNodeAddress" :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Provider Address</p>
       </el-col>
       <el-col :span="13">
-        <el-input :id="id+'ProviderAddressInput'" v-model="providerAddressModel" :value="providerAddress" clearable />
+        <el-input
+          :id="id+'ProviderAddressInput'"
+          v-model="providerAddressModel"
+          :value="providerAddress"
+          clearable
+        />
       </el-col>
       <el-col :span="2">
-        <el-button :id="id+'SetProvider'" :type="isProviderSet ? 'success' : 'info'" size="mini" icon="el-icon-check" circle style="margin-top:0.69rem" @click="instantiateProvider" />
+        <el-button
+          :id="id+'SetProvider'"
+          :type="isProviderSet ? 'success' : 'info'"
+          size="mini"
+          icon="el-icon-check"
+          circle
+          style="margin-top:0.69rem"
+          @click="instantiateProvider"
+        />
       </el-col>
     </el-row>
   </div>

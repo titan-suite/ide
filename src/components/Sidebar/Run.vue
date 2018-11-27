@@ -1,27 +1,54 @@
 <template>
   <div>
     <NodeAddressInput id="run"/>
-    
-    <el-row :gutter="11" >
+
+    <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Account</p>
       </el-col>
       <el-col :span="13">
-        <el-select id="accountSelect" v-model="selectedAccountModel" :loading="accountsLoading" class="select" placeholder="Choose an Account" style="display: block">
-          <el-option v-for="account in accounts" :key="account.value" :label="account.label" :value="account.value" />
+        <el-select
+          id="accountSelect"
+          v-model="selectedAccountModel"
+          :loading="accountsLoading"
+          class="select"
+          placeholder="Choose an Account"
+          style="display: block"
+        >
+          <el-option
+            v-for="account in accounts"
+            :key="account.value"
+            :label="account.label"
+            :value="account.value"
+          />
         </el-select>
       </el-col>
       <el-col :span="2">
-        <el-button id="refreshAccounts" :loading="accountsLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="getAccounts" />
+        <el-button
+          id="refreshAccounts"
+          :loading="accountsLoading"
+          type="primary"
+          size="mini"
+          icon="el-icon-refresh"
+          circle
+          style="margin-top:0.69rem"
+          @click="getAccounts"
+        />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :span="7" :offset="1">
         <p>Gas Limit</p>
       </el-col>
       <el-col :span="13">
-        <el-input id="gasLimitInput" v-model="gasLimitModel" :value="gasLimit" type="number" clearable />
+        <el-input
+          id="gasLimitInput"
+          v-model="gasLimitModel"
+          :value="gasLimit"
+          type="number"
+          clearable
+        />
       </el-col>
     </el-row>
 
@@ -30,60 +57,119 @@
         <p>Gas Price</p>
       </el-col>
       <el-col :span="13">
-        <el-input id="gasPriceInput" v-model="gasPriceModel" :value="gasPrice" type="number" clearable />
+        <el-input
+          id="gasPriceInput"
+          v-model="gasPriceModel"
+          :value="gasPrice"
+          type="number"
+          clearable
+        />
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Value</p>
       </el-col>
       <el-col :span="7">
-        <el-input id="valueInput" v-model="amountModel" :value="value.amount" type="number" clearable />
+        <el-input
+          id="valueInput"
+          v-model="amountModel"
+          :value="value.amount"
+          type="number"
+          clearable
+        />
       </el-col>
       <el-col :span="6">
-        <el-select id="valueSelect" v-model="unitModel" class="select" placeholder="Unit" style="display: block">
-          <el-option v-for="unit in getUnits" :key="unit.value" :label="unit.label" :value="unit.value" />
+        <el-select
+          id="valueSelect"
+          v-model="unitModel"
+          class="select"
+          placeholder="Unit"
+          style="display: block"
+        >
+          <el-option
+            v-for="unit in getUnits"
+            :key="unit.value"
+            :label="unit.label"
+            :value="unit.value"
+          />
         </el-select>
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="11">
       <el-col :span="20" :offset="1">
         <ContractNameSelect id="run"/>
       </el-col>
       <el-col :span="3">
-        <el-button id="contractRefresh" :loading="compileLoading" type="primary" size="mini" icon="el-icon-refresh" circle style="margin-top:0.69rem" @click="handleCompile" />
+        <el-button
+          id="contractRefresh"
+          :loading="compileLoading"
+          type="primary"
+          size="mini"
+          icon="el-icon-refresh"
+          circle
+          style="margin-top:0.69rem"
+          @click="handleCompile"
+        />
       </el-col>
     </el-row>
-    
+
     <el-row>
       <el-col :offset="1" :span="deployLoading ? 8: 7">
-        <el-button id="deploy" :loading="deployLoading" style="width:100%" type="primary" class="textColorBlack" @click="handleDeploy">
-          Deploy
-        </el-button>
+        <el-button
+          id="deploy"
+          :loading="deployLoading"
+          style="width:100%"
+          type="primary"
+          class="textColorBlack"
+          @click="handleDeploy"
+        >Deploy</el-button>
       </el-col>
       <el-col v-if="constructorArgs" :span="deployLoading ? 12: 13">
-        <el-popover :content="constructorArgs" :open-delay="200" placement="bottom-start" width="50%" trigger="focus">
-          <el-input id="deployArgsInput" slot="reference" v-model="contractArgsModel" :placeholder="constructorArgs" clearable />
+        <el-popover
+          :content="constructorArgs"
+          :open-delay="200"
+          placement="bottom-start"
+          width="50%"
+          trigger="focus"
+        >
+          <el-input
+            id="deployArgsInput"
+            slot="reference"
+            v-model="contractArgsModel"
+            :placeholder="constructorArgs"
+            clearable
+          />
         </el-popover>
       </el-col>
     </el-row>
-    
+
     <el-row style="margin-top:-20px;margin-bottom:0px">
       <el-col :offset="3">
         <p>or</p>
       </el-col>
     </el-row>
-    
+
     <el-row type="flex">
       <el-col :offset="1" :span="retrieveContractFromAddressLoading ? 8: 7">
-        <el-button id="atAddress" :loading="retrieveContractFromAddressLoading" style="width:100%" class="secondaryButton" type="primary" @click="handleRetrieveContractFromAddress">
-          At Address
-        </el-button>
+        <el-button
+          id="atAddress"
+          :loading="retrieveContractFromAddressLoading"
+          style="width:100%"
+          class="secondaryButton"
+          type="primary"
+          @click="handleRetrieveContractFromAddress"
+        >At Address</el-button>
       </el-col>
       <el-col :span="retrieveContractFromAddressLoading ? 12: 13">
-        <el-input id="contractAddressInput" v-model="fromAddressModel" placeholder="Load contract from Address" clearable />
+        <el-input
+          id="contractAddressInput"
+          v-model="fromAddressModel"
+          placeholder="Load contract from Address"
+          clearable
+        />
       </el-col>
     </el-row>
     <ContractInteraction/>
@@ -94,7 +180,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { Notification } from 'element-ui'
-import { SolVersions, Account, Value } from '../../store/types'
+import { Account, Value } from '../../store/types'
 import { ParsedContractConstructor } from '../../store/modules/sidebar/compile'
 import { SaveValue } from '../../store/modules/sidebar/run'
 import NodeAddressInput from './NodeAddressInput.vue'
@@ -243,10 +329,10 @@ export default class Run extends Vue {
 
 <style lang="stylus" scoped>
 .el-row {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 
-    &:last-child {
-        margin-bottom: 0;
-    }
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>

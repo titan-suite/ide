@@ -44,6 +44,7 @@ export default class FileExplorer extends Vue {
 
     @Mutation('setActiveFile', { namespace }) public setActiveFile: any
     @Mutation('showTab', { namespace }) public showTab: any
+    @Mutation('setSelectedContract', { namespace:'compile' }) public setSelectedContract!: (contractName: string) => void
 
     public id = 100
     public data = []
@@ -69,6 +70,7 @@ export default class FileExplorer extends Vue {
             const file: File = this.fileById(0, nodeId)
             this.setActiveFile(file)
             this.showTab(file)
+            this.setSelectedContract('')
         }
     }
 

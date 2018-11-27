@@ -6,6 +6,7 @@
     style="border:none;box-shadow:none;"
     editable
     @edit="handleTabsEdit"
+    @tab-click="setSelectedContract('')"
   >
     <el-tab-pane
       v-for="(item, index) in openFiles"
@@ -40,6 +41,7 @@ export default class Editor extends Vue {
   @Getter('openFiles', { namespace }) public openFiles!: any
   @Mutation('setActiveFile', { namespace }) public setActiveFile!: any
   @Mutation('setOpenFiles', { namespace }) public setOpenFiles!: any
+  @Mutation('setSelectedContract', { namespace:'compile' }) public setSelectedContract!: (contractName: string) => void
 
   get openTabValue() {
     const open = this.activeFile.name

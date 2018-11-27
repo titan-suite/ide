@@ -9,16 +9,12 @@ export interface CompileState {
   compiledCode: {
     [key: string]: any;
   }
-  solVersions: SolVersions[]
+  solVersions: string[]
   contracts: {
     [key: string]: string | undefined;
   }
   selectedContract: string
   selectedSolVersion: string
-}
-export interface SolVersions {
-  value: string
-  label: string
 }
 
 export interface RunState {

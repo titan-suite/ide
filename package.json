@@ -14,6 +14,7 @@
   "dependencies": {
     "@titan-suite/core": "git+https://26f3e2f59debaad49d75f94d503ccd5ff5bae190:x-oauth-basic@github.com/arjitkhullar/core",
     "aion-web3": "^1.1.0",
+    "browser-solc": "^1.0.0",
     "codemirror": "^5.42.0",
     "element-ui": "^2.4.11",
     "ethereum-types": "^1.1.2",
@@ -46,7 +47,7 @@
     "emoji-regex": "^7.0.1",
     "eslint": "^5.9.0",
     "eslint-config-typescript": "^1.1.0",
-    "eslint-plugin-typescript": "^0.13.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "eslint-plugin-vue": "^4.7.1",
     "node-sass": "^4.10.0",
     "sass-loader": "^7.1.0",

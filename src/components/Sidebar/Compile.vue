@@ -1,7 +1,7 @@
 <template>
   <div>
-    <NodeAddressInput id="compile"/>
-    <el-row>
+    <NodeAddressInput v-show="isAion" id="compile"/>
+    <el-row v-show="!isAion" :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Compiler Version</p>
       </el-col>
@@ -11,16 +11,30 @@
           v-model="selectedSolVersionModal"
           class="select"
           style="display: block"
+          placeholder="Select new compiler version"
+          autocomplete
         >
           <el-option
             v-for="version in solVersions"
-            :key="version.value"
-            :label="version.label"
-            :value="version.value"
+            :key="version"
+            :label="version"
+            :value="version"
           />
         </el-select>
       </el-col>
+      <el-col :span="3">
+        <el-button
+          id="solVersionsRefresh"
+          type="primary"
+          size="mini"
+          icon="el-icon-refresh"
+          circle
+          style="margin-top:0.69rem"
+          @click="loadSolVersions"
+        />
+      </el-col>
     </el-row>
+
     <el-row>
       <el-col :span="24" :offset="10">
         <el-button
@@ -91,13 +105,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { Action, Mutation, Getter, State } from 'vuex-class'
 import { Notification } from 'element-ui'
 import ContractNameSelect from './ContractNameSelect.vue'
 import NodeAddressInput from './NodeAddressInput.vue'
-import { SolVersions, File } from '../../store/types'
-
+import { File } from '../../store/types'
 import linter from 'solhint/lib/index'
 
 const namespace = 'compile'
@@ -110,8 +123,10 @@ const namespace = 'compile'
 })
 export default class Compile extends Vue {
     @State('selectedContract', { namespace }) public selectedContract!: string
-    @State('solVersions', { namespace }) public solVersions!: SolVersions
+    @State('solVersions', { namespace }) public solVersions!: string[]
     @State('selectedSolVersion', { namespace }) public selectedSolVersion!: string
+    @State('selectedBlockchain', { namespace:'run' }) public selectedBlockchain!: string
+    @State('blockchains', { namespace:'run' }) public blockchains!: any
 
     @Getter('activeFile', { namespace: 'workspace' }) public activeFile!: File
     @Getter('contractDetails', { namespace }) public contractDetails!: (contractName ? : string) => any
@@ -119,8 +134,9 @@ export default class Compile extends Vue {
     @Mutation('setSolVersion', { namespace }) public setSolVersion!: (version: string) => void
 
     @Action('compile', { namespace }) public compile!: () => void
+    @Action('loadSolVersions', { namespace }) public loadSolVersions!: () => void
     @Action('fetchAccounts', { namespace: 'run' }) public fetchAccounts!: () => void
-
+    
     public dialogAbiDetailsVisible: boolean = false
     public loading: boolean = false
     public activeName: string = '1'
@@ -140,7 +156,9 @@ export default class Compile extends Vue {
             this.loading = false
         }
     }
-
+    public get isAion(){
+      return this.blockchains.AION === this.selectedBlockchain
+    }
     public set selectedSolVersionModal(solVersion: string) {
         this.setSolVersion(solVersion)
     }

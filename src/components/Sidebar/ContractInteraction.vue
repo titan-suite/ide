@@ -112,23 +112,21 @@ export default class Console extends Vue {
 
     try {
       if (this.providerInstance) {
-        const data = [...JSON.parse(`[${scope.argsModel}]`)]
+        const data = [...JSON.parse(`[${scope.argsModel}]`)].map(i=>`${i}`)
         let res: any
         if (scope.outputs.length < 1) {
           const txReceipt = await contractInstance.methods[scope.name](
             ...data
           ).send({
             from: this.selectedAccount,
-            data,
             gas: this.gasLimit,
-            value: web3Utils.fromWei(this.value.amount) // TODO check unit
+            value: web3Utils.fromWei(`${this.value.amount}`, 'ether') // TODO check unit
           })
           this.saveReceipt(txReceipt)
           res = true
         } else {
           res = await contractInstance.methods[scope.name](...data).call({
             from: this.selectedAccount,
-            data
           })
           this.saveReceipt({ from: this.selectedAccount,to:contractAddress, data:res })
           return scope.outputs.length === 1

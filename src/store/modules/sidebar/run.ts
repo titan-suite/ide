@@ -173,6 +173,13 @@ const runActions: ActionTree<RunState, RootState> = {
           case PROVIDERS.Web3Provider:
             commit('setProviderInstance', new Aion(state.providerAddress))
             break
+          case PROVIDERS.InjectedWeb3:
+            console.log((window as any).aionweb3)
+            commit(
+              'setProviderInstance',
+              new Aion('', true, (window as any).aionweb3)
+            )
+            break
           default:
             commit('setProviderInstance', undefined)
             break
@@ -182,6 +189,13 @@ const runActions: ActionTree<RunState, RootState> = {
         switch (state.selectedProvider) {
           case PROVIDERS.Web3Provider:
             commit('setProviderInstance', new Ethereum(state.providerAddress))
+            break
+          case PROVIDERS.InjectedWeb3:
+            console.log((window as any).web3)
+            commit(
+              'setProviderInstance',
+              new Ethereum('', true, (window as any).web3)
+            )
             break
           default:
             commit('setProviderInstance', undefined)
@@ -204,8 +218,14 @@ const runActions: ActionTree<RunState, RootState> = {
     const from = state.selectedAccount
     const gas = state.gasLimit
     const gasPrice = state.gasPrice
-    const code = compiledCode[contractName].code
-    const abi = compiledCode[contractName].info.abiDefinition
+    const code =
+      blockchain === BLOCKCHAINS.AION
+        ? compiledCode[contractName].code
+        : compiledCode[contractName].bytecode
+    const abi =
+      blockchain === BLOCKCHAINS.AION
+        ? compiledCode[contractName].info.abiDefinition
+        : JSON.parse(compiledCode[contractName].interface)
     const contractArgs = rootState.compile.contracts[contractName] // TODO check constructor
       ? state.contractArgs
       : ''
@@ -244,18 +264,21 @@ const runActions: ActionTree<RunState, RootState> = {
     }
   },
   async retrieveContractFromAddress(
-    { state, rootState, commit, rootGetters },
+    { state, rootState, commit, rootGetters, dispatch },
     address
   ) {
     const providerInstance = state.providerInstance
     if (!providerInstance) {
       throw new Error('Provider not set')
     }
-    const contract = rootGetters['workspace/activeFile'].code
+    const blockchain = state.selectedBlockchain
     const contractName = rootState.compile.selectedContract
-    const compiledCode = await providerInstance.compile(contract)
+    const compiledCode = rootState.compile.compiledCode
     if (contractName in compiledCode) {
-      const abi = compiledCode[contractName].info.abiDefinition
+      const abi =
+        blockchain === BLOCKCHAINS.AION
+          ? compiledCode[contractName].info.abiDefinition
+          : JSON.parse(compiledCode[contractName].interface)
       commit('saveDeployedContract', {
         ...parseDeployedContract(contractName, address, abi),
         contractInstance: providerInstance.getContract(abi, address)
