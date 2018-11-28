@@ -87,13 +87,13 @@ export default class Console extends Vue {
     contractAddress: string;
     title: string;
   }>
+  @State('isPrivateKeySet', { namespace }) public isPrivateKeySet!: boolean
+  @State('privateKey', { namespace }) public privateKey!: string
   @State('providerInstance', { namespace }) public providerInstance!: any
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
-  @State('value', { namespace }) public value!: {amount: number; unit: string}
-  @Mutation('saveReceipt', { namespace }) public saveReceipt!: (
-    receipt: any
-  ) => void
+  @State('value', { namespace }) public value!: { amount: number; unit: string }
+  @Mutation('saveReceipt', { namespace }) public saveReceipt!: (receipt: any) => void
 
   public get parsedContracts() {
     return this.deployedContracts
@@ -112,15 +112,15 @@ export default class Console extends Vue {
 
     try {
       if (this.providerInstance) {
-        const data = [...JSON.parse(`[${scope.argsModel}]`)].map(i=>`${i}`)
+        const data = [...JSON.parse(`[${scope.argsModel}]`)].map(i => `${i}`)
         let res: any
         if (scope.outputs.length < 1) {
-          const txReceipt = await contractInstance.methods[scope.name](
-            ...data
-          ).send({
+          const txReceipt = await this.providerInstance.executeContractFunction({
+            func: contractInstance.methods[scope.name](...data),
             from: this.selectedAccount,
             gas: this.gasLimit,
-            value: web3Utils.fromWei(`${this.value.amount}`, 'ether') // TODO check unit
+            value: web3Utils.fromWei(`${this.value.amount}`, 'ether'), // TODO check unit,
+            privateKey: this.isPrivateKeySet ? this.privateKey : undefined,
           })
           this.saveReceipt(txReceipt)
           res = true
@@ -128,7 +128,7 @@ export default class Console extends Vue {
           res = await contractInstance.methods[scope.name](...data).call({
             from: this.selectedAccount,
           })
-          this.saveReceipt({ from: this.selectedAccount,to:contractAddress, data:res })
+          this.saveReceipt({ from: this.selectedAccount, to: contractAddress, data: res })
           return scope.outputs.length === 1
             ? [parseType(scope.outputs[0].type, res)]
             : scope.outputs.map(({ type }: any, index: number) => {
@@ -141,7 +141,7 @@ export default class Console extends Vue {
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: `${e.message}${JSON.stringify(e)}`
+        message: `${e.message}${JSON.stringify(e)}`,
       })
       console.error(e)
     }

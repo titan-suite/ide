@@ -16,15 +16,17 @@ const store: StoreOptions<RootState> = {
               const Run = { ...persistedState.run }
               delete Run.isProviderSet
               delete Run.providerInstance
+              delete Run.privateKey
+              delete Run.isPrivateKeySet
               return { ...persistedState, run: Run }
-            }
-          })
+            },
+          }),
         ]
       : undefined,
   modules: {
     workspace,
     compile,
-    run
-  }
+    run,
+  },
 }
 export default new Vuex.Store<RootState>(store)

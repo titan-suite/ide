@@ -19,11 +19,12 @@ export interface CompileState {
 }
 
 export interface RunState {
-  blockchains: {}
-  providers: {}
+  blockchains: { [key: string]: any }
+  providers: { [key: string]: any }
   selectedBlockchain: string
   selectedProvider: string
   providerAddress: string
+  privateKey: { key: string; address: string } | undefined
   accountsLoading: boolean
   selectedAccount: string
   accounts: Account[]
@@ -35,6 +36,7 @@ export interface RunState {
   deployedContracts: any[]
   providerInstance: undefined | Aion | Ethereum
   isProviderSet: boolean
+  isPrivateKeySet: boolean
 }
 export interface Value {
   amount: number

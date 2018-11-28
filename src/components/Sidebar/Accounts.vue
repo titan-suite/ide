@@ -1,5 +1,18 @@
 <template>
-  <div>
+  <div v-if="!isPrivateKeySet">
+    <el-row>
+      <el-col :span="24">
+        <el-button
+          id="addAccount"
+          type="primary"
+          class="secondaryButton"
+          icon="el-icon-plus"
+          size="medium"
+          style="float:right"
+          @click="createAccount"
+        >Create an Account</el-button>
+      </el-col>
+    </el-row>
     <el-table :data="formattedAccounts" :border="false" style="width: 100%">
       <el-table-column type="expand">
         <template slot-scope="props">
@@ -12,8 +25,8 @@
           </p>
         </template>
       </el-table-column>
-      <el-table-column prop="shortenAddress" label="Address" />
-      <el-table-column prop="etherBalance" label="Balance" />
+      <el-table-column prop="shortenAddress" label="Address"/>
+      <el-table-column prop="etherBalance" label="Balance"/>
       <el-table-column :width="accountsLoading ? '140px' : ''" align="center">
         <template slot-scope="slot" slot="header">
           <el-button
@@ -23,18 +36,11 @@
             size="mini"
             icon="el-icon-refresh"
             @click="getAccounts"
-          >
-            {{ accountsLoading ? 'Refreshing' : 'Refresh' }}</el-button
-            >
+          >{{ accountsLoading ? 'Refreshing' : 'Refresh' }}</el-button>
         </template>
 
         <template slot-scope="scope" v-if="showUnlockButtons">
-          <el-popover
-            v-model="scope.row.popoverOpen"
-            trigger="hover"
-            placement="left"
-            width="250"
-          >
+          <el-popover v-model="scope.row.popoverOpen" trigger="hover" placement="left" width="250">
             <el-input
               v-model="scope.row.password"
               type="password"
@@ -47,8 +53,7 @@
                 size="mini"
                 type="text"
                 @click="scope.row.popoverOpen = false"
-              >Cancel</el-button
-              >
+              >Cancel</el-button>
               <el-button
                 id="confirmUnlock"
                 type="primary"
@@ -57,8 +62,7 @@
                   handleUnlock(scope.row.address, scope.row.password)
                   scope.row.popoverOpen = false
                 "
-              >Confirm</el-button
-              >
+              >Confirm</el-button>
             </div>
             <el-button
               v-show="accounts.length > 0"
@@ -68,9 +72,7 @@
               :type="scope.row.unlocked ? 'success' : 'info'"
               size="mini"
               @click="scope.row.password = ''"
-            >
-              {{ scope.row.unlocked ? 'Unlocked' : 'Unlock' }}</el-button
-              >
+            >{{ scope.row.unlocked ? 'Unlocked' : 'Unlock' }}</el-button>
           </el-popover>
         </template>
       </el-table-column>
@@ -87,19 +89,17 @@ import { shortenAddress } from '../../utils'
 @Component
 export default class Accounts extends Vue {
   @State('accounts', { namespace: 'run' }) public accounts!: Account[]
-  @State('accountsLoading', { namespace: 'run' })
-  public accountsLoading!: boolean
-  @Getter('showUnlockButtons', { namespace: 'run' })
-  public showUnlockButtons!: boolean
+  @State('isPrivateKeySet', { namespace: 'run' }) public isPrivateKeySet!: boolean
+  @State('accountsLoading', { namespace: 'run' }) public accountsLoading!: boolean
+  @State('providerInstance', { namespace: 'run' }) public providerInstance!: any
+  @Getter('showUnlockButtons', { namespace: 'run' }) public showUnlockButtons!: boolean
 
-  @Action('fetchAccounts', { namespace: 'run' })
-  public fetchAccounts!: () => void
-  @Action('unlockAccount', { namespace: 'run' }) public unlockAccount!: (
-    {  }: { address: string; password: string }
-  ) => void
+  @Action('fetchAccounts', { namespace: 'run' }) public fetchAccounts!: () => void
+  @Action('unlockAccount', { namespace: 'run' }) public unlockAccount!: (params: { address: string; password: string }) => void
 
   @Mutation('toggleAccountsLoading', { namespace: 'run' })
   public toggleAccountsLoading!: () => void
+  public $copyText: any
 
   public async getAccounts(): Promise<void> {
     try {
@@ -108,7 +108,7 @@ export default class Accounts extends Vue {
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: `${e.message}${JSON.stringify(e)}`
+        message: `${e.message}${JSON.stringify(e)}`,
       })
       console.error(e)
     } finally {
@@ -119,12 +119,35 @@ export default class Accounts extends Vue {
     try {
       await this.unlockAccount({
         address,
-        password
+        password,
       })
     } catch (e) {
       await Notification.error({
         title: 'Error',
-        message: `${e.message}${JSON.stringify(e)}`
+        message: `${e.message}${JSON.stringify(e)}`,
+      })
+      console.error(e)
+    }
+  }
+
+  public async createAccount() {
+    try {
+      if (this.providerInstance) {
+        const data = await this.providerInstance.newAccount('titan')
+        console.log(data)
+        this.$copyText(JSON.stringify(data))
+        await Notification.success({
+          title: 'Success',
+          message: 'Account Copied to clipboard',
+          duration: 5000,
+        })
+      } else {
+        throw new Error('Provider not set')
+      }
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: 'Couldn\'t create an Account try Again.',
       })
       console.error(e)
     }
@@ -132,11 +155,11 @@ export default class Accounts extends Vue {
 
   public get formattedAccounts() {
     return this.accounts.length > 0
-      ? this.accounts.map((account) => ({
+      ? this.accounts.map(account => ({
           ...account,
           popoverOpen: false,
           password: '',
-          shortenAddress: shortenAddress(account.address)
+          shortenAddress: shortenAddress(account.address),
         }))
       : [{ address: '', etherBalance: '', shortenAddress: '' }]
   }

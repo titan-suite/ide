@@ -2,11 +2,11 @@
   <div>
     <NodeAddressInput id="run"/>
 
-    <el-row :gutter="11">
+    <el-row v-if="!isPrivateKeySet" :gutter="11">
       <el-col :span="7" :offset="1">
         <p>Account</p>
       </el-col>
-      <el-col :span="13">
+      <el-col :span="11">
         <el-select
           id="accountSelect"
           v-model="selectedAccountModel"
@@ -35,6 +35,23 @@
           @click="getAccounts"
         />
       </el-col>
+      <el-col :span="2">
+        <el-button
+          id="copyAccount"
+          type="primary"
+          class="secondaryButton"
+          size="mini"
+          icon="el-icon-tickets"
+          circle
+          style="margin-top:0.69rem"
+          @click="$copyText(selectedAccount);$notify({
+            title: 'Success',
+            message: 'Copied Address to clipboard',
+            type: 'success',
+            duration: 1500
+          })"
+        />
+      </el-col>
     </el-row>
 
     <el-row>
@@ -52,7 +69,7 @@
       </el-col>
     </el-row>
 
-    <el-row>
+    <el-row v-if="!isPrivateKeySet">
       <el-col :span="7" :offset="1">
         <p>Gas Price</p>
       </el-col>
@@ -195,6 +212,8 @@ const namespace = 'run'
   },
 })
 export default class Run extends Vue {
+  @State('providerInstance', { namespace }) public providerInstance!: any
+  @State('isPrivateKeySet', { namespace }) public isPrivateKeySet!: boolean
   @State('accountsLoading', { namespace }) public accountsLoading!: boolean
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
@@ -251,21 +270,40 @@ export default class Run extends Vue {
     }
   }
   public async handleDeploy(): Promise<void> {
-    this.deployLoading = true
-    try {
-      await this.deploy()
-      await Notification.success({
-        title: 'Success',
-        message: `Contract deployed at ${this.getLatestContractAddress}`,
-      })
-    } catch (e) {
+    const deploy = async () => {
+      try {
+        this.deployLoading = true
+        await this.deploy()
+        await Notification.success({
+          title: 'Success',
+          message: `Contract deployed at ${this.getLatestContractAddress}`,
+        })
+      } catch (e) {
+        await Notification.error({
+          title: 'Error',
+          message: `${e.message}${JSON.stringify(e)}`,
+        })
+        console.error(e)
+      } finally {
+        this.deployLoading = false
+      }
+    }
+    if (!this.providerInstance) {
       await Notification.error({
         title: 'Error',
-        message: `${e.message}${JSON.stringify(e)}`,
+        message: 'Provider not set',
       })
-      console.error(e)
-    } finally {
-      this.deployLoading = false
+    }
+    if (await this.providerInstance.isMainnet()) {
+      this.$confirm('You are trying to deploy to Mainnet. Continue?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      })
+        .then(() => {
+          deploy()
+        })
+        .catch(e => {})
     }
   }
   public async handleRetrieveContractFromAddress(): Promise<void> {

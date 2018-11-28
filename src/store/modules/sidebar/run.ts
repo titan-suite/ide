@@ -1,12 +1,6 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { RunState, RootState, Account } from '../../types'
-import {
-  shortenAddress,
-  BLOCKCHAINS,
-  PROVIDERS,
-  getUnits,
-  parseDeployedContract
-} from '../../../utils'
+import { shortenAddress, BLOCKCHAINS, PROVIDERS, getUnits, parseDeployedContract } from '../../../utils'
 import { Aion, Ethereum } from '@titan-suite/core'
 let nodeAddress = ''
 let devProviderInstance
@@ -31,13 +25,15 @@ const runState: RunState = {
   gasPrice: 10000000000000,
   value: {
     amount: 0,
-    unit: ''
+    unit: '',
   },
   contractArgs: '',
   deployedContracts: [],
   receipts: [],
   providerInstance: devProviderInstance,
-  isProviderSet
+  isProviderSet,
+  privateKey: undefined,
+  isPrivateKeySet: false,
 }
 
 const runGetters: GetterTree<RunState, RootState> = {
@@ -46,31 +42,24 @@ const runGetters: GetterTree<RunState, RootState> = {
     return state.accounts.length > 0
       ? state.accounts.map(({ address, etherBalance }) => {
           const label = `${shortenAddress(address)}${
-            etherBalance
-              ? ' (' +
-                etherBalance.toString() +
-                ` ${units[units.length - 1].value})`
-              : ''
+            etherBalance ? ' (' + etherBalance.toString() + ` ${units[units.length - 1].value})` : ''
           }`
           return {
             label,
-            value: address
+            value: address,
           }
         })
       : [{ label: 'No Accounts Available', value: '' }]
   },
   getLatestContractAddress(state) {
-    return (
-      state.receipts.length > 0 &&
-      state.receipts[state.receipts.length - 1].address
-    )
+    return state.receipts.length > 0 && state.receipts[state.receipts.length - 1].address
   },
   getUnits(state) {
     return getUnits(state.selectedBlockchain)
   },
   showUnlockButtons(state) {
-    return state.selectedBlockchain === BLOCKCHAINS.AION
-  }
+    return state.selectedBlockchain === state.blockchains.AION
+  },
 }
 
 export interface SaveValue {
@@ -84,6 +73,8 @@ const runMutations: MutationTree<RunState> = {
     if (state.isProviderSet) {
       state.isProviderSet = false
       state.providerInstance = undefined
+      state.privateKey = undefined
+      state.isPrivateKeySet = false
     }
   },
   setProvider(state, payload) {
@@ -91,6 +82,8 @@ const runMutations: MutationTree<RunState> = {
     if (state.isProviderSet) {
       state.isProviderSet = false
       state.providerInstance = undefined
+      state.privateKey = undefined
+      state.isPrivateKeySet = false
     }
   },
   setProviderAddress(state, payload) {
@@ -98,7 +91,15 @@ const runMutations: MutationTree<RunState> = {
     if (state.isProviderSet) {
       state.isProviderSet = false
       state.providerInstance = undefined
+      state.privateKey = undefined
+      state.isPrivateKeySet = false
     }
+  },
+  setPrivateKey(state, { key, address }) {
+    state.privateKey = { key, address }
+    state.isPrivateKeySet = true
+    state.selectedAccount = ''
+    state.accounts = []
   },
   setProviderInstance(state, payload) {
     state.providerInstance = payload
@@ -126,76 +127,59 @@ const runMutations: MutationTree<RunState> = {
     state.deployedContracts.push(payload)
   },
   updateAccountStatus(state, { address, status }) {
-    const targetAccountIndex = state.accounts.findIndex(
-      account => account.address === address
-    )
+    const targetAccountIndex = state.accounts.findIndex(account => account.address === address)
     state.accounts[targetAccountIndex].unlocked = status
   },
   toggleAccountLoadingStatus(state, address) {
-    const targetAccountIndex = state.accounts.findIndex(
-      account => account.address === address
-    )
-    state.accounts[targetAccountIndex].loading = !state.accounts[
-      targetAccountIndex
-    ].loading
+    const targetAccountIndex = state.accounts.findIndex(account => account.address === address)
+    state.accounts[targetAccountIndex].loading = !state.accounts[targetAccountIndex].loading
   },
   toggleAccountsLoading(state) {
     state.accountsLoading = !state.accountsLoading
   },
   saveReceipt(state, payload) {
-    const address =
-      payload.contractAddress || payload.transactionHash || payload.to
+    const address = payload.contractAddress || payload.transactionHash || payload.to
     const receipt = {
-      title: `${
-        payload.contractAddress
-          ? 'Contract: '
-          : payload.transactionHash
-          ? 'Tx Hash: '
-          : 'Call: '
-      } ${shortenAddress(address)}`,
+      title: `${payload.contractAddress ? 'Contract: ' : payload.transactionHash ? 'Tx Hash: ' : 'Call: '} ${shortenAddress(
+        address
+      )}`,
       address,
       data: Object.keys(payload).map((j: any) => {
         return {
           key: j,
-          value: payload[j]
+          value: payload[j],
         }
-      })
+      }),
     }
     state.receipts.push(receipt)
-  }
+  },
 }
 
 const runActions: ActionTree<RunState, RootState> = {
   async instantiateProvider({ state, commit }) {
     switch (state.selectedBlockchain) {
-      case BLOCKCHAINS.AION:
+      case state.blockchains.AION:
         switch (state.selectedProvider) {
-          case PROVIDERS.Web3Provider:
+          case state.providers.Web3Provider:
             commit('setProviderInstance', new Aion(state.providerAddress))
             break
-          case PROVIDERS.InjectedWeb3:
+          case state.providers.InjectedWeb3:
             console.log((window as any).aionweb3)
-            commit(
-              'setProviderInstance',
-              new Aion('', true, (window as any).aionweb3)
-            )
+            commit('setProviderInstance', new Aion('', true, (window as any).aionweb3))
             break
           default:
             commit('setProviderInstance', undefined)
             break
         }
         break
-      case BLOCKCHAINS.ETHEREUM:
+      case state.blockchains.ETHEREUM:
         switch (state.selectedProvider) {
-          case PROVIDERS.Web3Provider:
+          case state.providers.Web3Provider:
             commit('setProviderInstance', new Ethereum(state.providerAddress))
             break
-          case PROVIDERS.InjectedWeb3:
+          case state.providers.InjectedWeb3:
             console.log((window as any).web3)
-            commit(
-              'setProviderInstance',
-              new Ethereum('', true, (window as any).web3)
-            )
+            commit('setProviderInstance', new Ethereum('', true, (window as any).web3))
             break
           default:
             commit('setProviderInstance', undefined)
@@ -218,9 +202,7 @@ const runActions: ActionTree<RunState, RootState> = {
     const from = state.selectedAccount
     const gas = state.gasLimit
     const gasPrice = state.gasPrice
-    const code = useInBrowserCompiler
-      ? compiledCode[contractName].bytecode
-      : compiledCode[contractName].code
+    const code = useInBrowserCompiler ? compiledCode[contractName].bytecode : compiledCode[contractName].code
     const abi = useInBrowserCompiler
       ? JSON.parse(compiledCode[contractName].interface)
       : compiledCode[contractName].info.abiDefinition
@@ -230,20 +212,23 @@ const runActions: ActionTree<RunState, RootState> = {
     const args: any[] = [...JSON.parse(`[${contractArgs}]`)]
     if (process.env.NODE_ENV !== 'production') {
       console.log('deploying with', {
+        abi,
         code,
-        from,
+        from: state.isPrivateKeySet ? state.privateKey!.address : from,
         gas,
         gasPrice,
-        args
+        args,
+        privateKey: state.isPrivateKeySet ? state.privateKey!.key : undefined,
       })
     }
     const { txReceipt, txHash } = await providerInstance.deploy({
       abi,
       code,
-      from,
+      from: state.isPrivateKeySet ? state.privateKey!.address : from,
       gas,
       gasPrice,
-      args
+      args,
+      privateKey: state.isPrivateKeySet ? state.privateKey!.key : undefined,
     })
     if (process.env.NODE_ENV !== 'production') {
       console.log({ txReceipt, txHash })
@@ -251,20 +236,14 @@ const runActions: ActionTree<RunState, RootState> = {
     if (txReceipt && txReceipt.contractAddress) {
       commit('saveDeployedContract', {
         ...parseDeployedContract(contractName, txReceipt.contractAddress, abi),
-        contractInstance: providerInstance.getContract(
-          abi,
-          txReceipt.contractAddress
-        )
+        contractInstance: providerInstance.getContract(abi, txReceipt.contractAddress),
       })
       commit('saveReceipt', txReceipt)
     } else {
       throw new Error('Failed to fetch receipt.')
     }
   },
-  async retrieveContractFromAddress(
-    { state, rootState, commit, rootGetters, dispatch },
-    address
-  ) {
+  async retrieveContractFromAddress({ state, rootState, commit, rootGetters, dispatch }, address) {
     const providerInstance = state.providerInstance
     if (!providerInstance) {
       throw new Error('Provider not set')
@@ -278,7 +257,7 @@ const runActions: ActionTree<RunState, RootState> = {
         : compiledCode[contractName].info.abiDefinition
       commit('saveDeployedContract', {
         ...parseDeployedContract(contractName, address, abi),
-        contractInstance: providerInstance.getContract(abi, address)
+        contractInstance: providerInstance.getContract(abi, address),
       })
     } else {
       throw new Error('Invalid Abi')
@@ -316,7 +295,7 @@ const runActions: ActionTree<RunState, RootState> = {
     }
     const receipt = await providerInstance.getResponseWhenMined(functionCall)
     commit('saveReceipt', receipt)
-  }
+  },
 }
 
 export default {
@@ -324,5 +303,5 @@ export default {
   state: runState,
   getters: runGetters,
   mutations: runMutations,
-  actions: runActions
+  actions: runActions,
 }

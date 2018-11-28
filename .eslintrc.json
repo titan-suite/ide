@@ -1,22 +1,23 @@
 {
-	"parser": "vue-eslint-parser",
-	"parserOptions": {
-		"parser": "typescript-eslint-parser"
-	},
-	"extends": ["eslint:recommended", "plugin:vue/recommended", "typescript"],
-	"rules": {
-		"semi": ["error", "never"],
-		"no-console": "off",
-		"no-extra-semi": "off",
-		"vue/max-attributes-per-line": [
-			6,
-			{
-				"singleline": 6,
-				"multiline": {
-					"max": 1,
-					"allowFirstLine": true
-				}
-			}
-		]
-	}
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "parser": "typescript-eslint-parser"
+  },
+  "extends": ["eslint:recommended", "plugin:vue/recommended", "typescript"],
+  "rules": {
+    "semi": ["error", "never"],
+    "no-console": "off",
+    "no-extra-semi": "off",
+    "vue/max-attributes-per-line": [
+      6,
+      {
+        "singleline": 6,
+        "multiline": {
+          "max": 1,
+          "allowFirstLine": true
+        }
+      }
+    ],
+    "vue/html-indent": ["error", 2, { "attribute": 1 }]
+  }
 }
