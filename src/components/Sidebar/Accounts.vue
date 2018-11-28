@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isPrivateKeySet">
+  <div>
     <el-row>
       <el-col :span="24">
         <el-button
@@ -40,8 +40,9 @@
         </template>
 
         <template slot-scope="scope" v-if="showUnlockButtons">
-          <el-popover v-model="scope.row.popoverOpen" trigger="hover" placement="left" width="250">
+          <el-popover v-model="scope.row.popoverOpen" trigger="click" placement="left" width="250">
             <el-input
+              :id="scope.row.popoverOpen ? 'unlockPasswordInput' : undefined"
               v-model="scope.row.password"
               type="password"
               placeholder="Account Password"
@@ -97,13 +98,10 @@ export default class Accounts extends Vue {
   @Action('fetchAccounts', { namespace: 'run' }) public fetchAccounts!: () => void
   @Action('unlockAccount', { namespace: 'run' }) public unlockAccount!: (params: { address: string; password: string }) => void
 
-  @Mutation('toggleAccountsLoading', { namespace: 'run' })
-  public toggleAccountsLoading!: () => void
   public $copyText: any
 
   public async getAccounts(): Promise<void> {
     try {
-      this.toggleAccountsLoading()
       await this.fetchAccounts()
     } catch (e) {
       await Notification.error({
@@ -111,8 +109,6 @@ export default class Accounts extends Vue {
         message: `${e.message}${JSON.stringify(e)}`,
       })
       console.error(e)
-    } finally {
-      this.toggleAccountsLoading()
     }
   }
   public async handleUnlock(address: string, password: string): Promise<void> {

@@ -58,7 +58,7 @@ const runGetters: GetterTree<RunState, RootState> = {
     return getUnits(state.selectedBlockchain)
   },
   showUnlockButtons(state) {
-    return state.selectedBlockchain === state.blockchains.AION
+    return state.selectedBlockchain === state.blockchains.AION && state.isPrivateKeySet === false
   },
 }
 
@@ -74,6 +74,8 @@ const runMutations: MutationTree<RunState> = {
       state.isProviderSet = false
       state.providerInstance = undefined
       state.privateKey = undefined
+      state.selectedAccount = ''
+      state.accounts = []
       state.isPrivateKeySet = false
     }
   },
@@ -82,8 +84,8 @@ const runMutations: MutationTree<RunState> = {
     if (state.isProviderSet) {
       state.isProviderSet = false
       state.providerInstance = undefined
-      state.privateKey = undefined
-      state.isPrivateKeySet = false
+      state.selectedAccount = ''
+      state.accounts = []
     }
   },
   setProviderAddress(state, payload) {
@@ -91,15 +93,18 @@ const runMutations: MutationTree<RunState> = {
     if (state.isProviderSet) {
       state.isProviderSet = false
       state.providerInstance = undefined
-      state.privateKey = undefined
-      state.isPrivateKeySet = false
+      state.selectedAccount = ''
+      state.accounts = []
     }
   },
   setPrivateKey(state, { key, address }) {
     state.privateKey = { key, address }
     state.isPrivateKeySet = true
-    state.selectedAccount = ''
-    state.accounts = []
+  },
+
+  unsetPrivateKey(state) {
+    state.privateKey = undefined
+    state.isPrivateKeySet = false
   },
   setProviderInstance(state, payload) {
     state.providerInstance = payload
@@ -268,11 +273,20 @@ const runActions: ActionTree<RunState, RootState> = {
     if (!providerInstance) {
       throw new Error('Provider not set')
     }
-    const res = await providerInstance.getBalancesWithAccounts()
-    const accounts: Account[] = res.map(acc => {
-      return { ...acc, unlocked: false, loading: false }
-    })
+    commit('toggleAccountsLoading')
+    let accounts: Account[]
+    if (state.isPrivateKeySet) {
+      const address = state.privateKey!.address
+      const etherBalance = await providerInstance.getBalance(address)
+      accounts = [{ address, etherBalance, unlocked: false, loading: false }]
+    } else {
+      const res = await providerInstance.getBalancesWithAccounts()
+      accounts = res.map(acc => {
+        return { ...acc, unlocked: false, loading: false }
+      })
+    }
     commit('saveAccounts', accounts)
+    commit('toggleAccountsLoading')
   },
   async unlockAccount({ state, commit }, { address, password }) {
     commit('toggleAccountLoadingStatus', address)
@@ -295,6 +309,16 @@ const runActions: ActionTree<RunState, RootState> = {
     }
     const receipt = await providerInstance.getResponseWhenMined(functionCall)
     commit('saveReceipt', receipt)
+  },
+  async importPrivateKey({ state, commit, dispatch }, key) {
+    const providerInstance = state.providerInstance
+    if (!providerInstance) {
+      throw new Error('Provider not set')
+    }
+    const { address } = await providerInstance.web3.eth.accounts.privateKeyToAccount(key)
+    commit('setPrivateKey', { key, address })
+    commit('saveSelectAccount', address)
+    dispatch('fetchAccounts')
   },
 }
 

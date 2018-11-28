@@ -88,7 +88,7 @@ export default class Console extends Vue {
     title: string;
   }>
   @State('isPrivateKeySet', { namespace }) public isPrivateKeySet!: boolean
-  @State('privateKey', { namespace }) public privateKey!: string
+  @State('privateKey', { namespace }) public privateKey!: { key: string; address: string }
   @State('providerInstance', { namespace }) public providerInstance!: any
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
@@ -120,7 +120,7 @@ export default class Console extends Vue {
             from: this.selectedAccount,
             gas: this.gasLimit,
             value: web3Utils.fromWei(`${this.value.amount}`, 'ether'), // TODO check unit,
-            privateKey: this.isPrivateKeySet ? this.privateKey : undefined,
+            privateKey: this.isPrivateKeySet ? this.privateKey.key : undefined,
           })
           this.saveReceipt(txReceipt)
           res = true
