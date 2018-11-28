@@ -13,7 +13,11 @@
         >Create an Account</el-button>
       </el-col>
     </el-row>
-    <el-table :data="formattedAccounts" :border="false" style="width: 100%">
+    <el-table
+      :data="formattedAccounts"
+      :border="false"
+      style="width: 100%"
+    >
       <el-table-column type="expand">
         <template slot-scope="props">
           <p>
@@ -25,10 +29,22 @@
           </p>
         </template>
       </el-table-column>
-      <el-table-column prop="shortenAddress" label="Address"/>
-      <el-table-column prop="etherBalance" label="Balance"/>
-      <el-table-column :width="accountsLoading ? '140px' : ''" align="center">
-        <template slot-scope="slot" slot="header">
+      <el-table-column
+        prop="shortenAddress"
+        label="Address"
+      />
+      <el-table-column
+        prop="etherBalance"
+        label="Balance"
+      />
+      <el-table-column
+        :width="accountsLoading ? '140px' : ''"
+        align="center"
+      >
+        <template
+          slot-scope="slot"
+          slot="header"
+        >
           <el-button
             id="refreshAccounts"
             :loading="accountsLoading"
@@ -39,8 +55,16 @@
           >{{ accountsLoading ? 'Refreshing' : 'Refresh' }}</el-button>
         </template>
 
-        <template slot-scope="scope" v-if="showUnlockButtons">
-          <el-popover v-model="scope.row.popoverOpen" trigger="hover" placement="left" width="250">
+        <template
+          slot-scope="scope"
+          v-if="showUnlockButtons"
+        >
+          <el-popover
+            v-model="scope.row.popoverOpen"
+            trigger="hover"
+            placement="left"
+            width="250"
+          >
             <el-input
               v-model="scope.row.password"
               type="password"
@@ -133,7 +157,7 @@ export default class Accounts extends Vue {
   public async createAccount() {
     try {
       if (this.providerInstance) {
-        const data = await this.providerInstance.newAccount('titan')
+        const data = await this.providerInstance.newAccount()
         console.log(data)
         this.$copyText(JSON.stringify(data))
         await Notification.success({
@@ -142,14 +166,14 @@ export default class Accounts extends Vue {
           duration: 5000,
         })
       } else {
-        throw new Error('Provider not set')
+        await Notification.error({
+          title: 'Error',
+          message: 'Provider not set.',
+        })
       }
     } catch (e) {
-      await Notification.error({
-        title: 'Error',
-        message: 'Couldn\'t create an Account try Again.',
-      })
-      console.error(e)
+      // console.error(e)
+      this.createAccount()
     }
   }
 
