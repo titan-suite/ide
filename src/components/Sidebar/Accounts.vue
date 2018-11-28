@@ -129,8 +129,7 @@ export default class Accounts extends Vue {
   public async createAccount() {
     try {
       if (this.providerInstance) {
-        const data = await this.providerInstance.newAccount('titan')
-        console.log(data)
+        const data = await this.providerInstance.newAccount()
         this.$copyText(JSON.stringify(data))
         await Notification.success({
           title: 'Success',
@@ -138,14 +137,14 @@ export default class Accounts extends Vue {
           duration: 5000,
         })
       } else {
-        throw new Error('Provider not set')
+        await Notification.error({
+          title: 'Error',
+          message: 'Provider not set.',
+        })
       }
     } catch (e) {
-      await Notification.error({
-        title: 'Error',
-        message: 'Couldn\'t create an Account try Again.',
-      })
-      console.error(e)
+      // console.error(e)
+      this.createAccount()
     }
   }
 
