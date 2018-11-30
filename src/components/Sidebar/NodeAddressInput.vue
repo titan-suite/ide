@@ -16,6 +16,7 @@
             :key="key"
             :label="value"
             :value="value"
+            class="bloackChainOptions"
           />
         </el-select>
       </el-col>
@@ -37,6 +38,7 @@
             :key="key"
             :label="value"
             :value="value"
+            class="providersOption"
           />
         </el-select>
       </el-col>

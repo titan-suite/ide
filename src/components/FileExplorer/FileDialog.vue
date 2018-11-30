@@ -2,7 +2,7 @@
   <el-dialog :visible.sync="isVisible" title="New Smart Contract">
     <el-form ref="form" :model="form">
       <el-form-item :label-width="formLabelWidth" label="Name">
-        <el-input id="filename" v-model="form.name" />
+        <el-input id="filename" v-model="form.name"/>
       </el-form-item>
 
       <el-form-item :label-width="formLabelWidth" label="Language">
@@ -11,23 +11,25 @@
           v-model="form.language"
           placeholder="Please select a language"
         >
-          <el-option label="Solidity" value="solidity" />
-          <el-option label="SolidityX" value="solidityx" />
-          <el-option label="Vyper" value="vyper" />
-          <el-option label="Java" value="java" />
+          <el-option
+            v-for="name in contractLanguages"
+            :key="name.value"
+            :label="name.label"
+            :value="name.value"
+            class="contractLanguageOption"
+          />
         </el-select>
       </el-form-item>
 
-      <el-form-item :label-width="formLabelWidth" label="Compiler Version">
+      <!-- <el-form-item :label-width="formLabelWidth" label="Compiler Version">
         <el-select
           id="selectVersion"
           v-model="form.compiler"
           placeholder="Please select a version"
         >
           <el-option label="v0.4.9" value="sol-v049" />
-          <!-- <el-option label="v0.4.15" value="sol-v0415" /> -->
         </el-select>
-      </el-form-item>
+      </el-form-item>-->
     </el-form>
 
     <span slot="footer" class="dialog-footer">
@@ -36,11 +38,8 @@
         class="secondaryButton"
         type="primary"
         @click="$emit('closeDialog')"
-      >Cancel
-      </el-button>
-      <el-button id="confirmCreate" type="primary" @click="handleFormSubmit"
-      >Confirm</el-button
-      >
+      >Cancel</el-button>
+      <el-button id="confirmCreate" type="primary" @click="handleFormSubmit">Confirm</el-button>
     </span>
   </el-dialog>
 </template>
@@ -65,9 +64,15 @@ export default class FileDialog extends Vue {
   public form: any = {
     name: '',
     language: '',
-    compiler: ''
+    compiler: '',
   }
   public formLabelWidth: string = '200px'
+  public contractLanguages: any[] = [
+    { label: 'Solidity', value: 'solidity' },
+    { label: 'SolidityX', value: 'solidityx' },
+    { label: 'Vyper', value: 'vyper' },
+    { label: 'Java', value: 'java' },
+  ]
 
   public handleFormSubmit(d: any): void {
     let formValid = true
@@ -91,7 +96,7 @@ export default class FileDialog extends Vue {
     } else {
       this.$notify.error({
         title: 'Error',
-        message: errorMessage
+        message: errorMessage,
       })
       this.form.name = ''
       formValid = true

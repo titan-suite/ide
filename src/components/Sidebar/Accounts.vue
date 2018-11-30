@@ -103,8 +103,13 @@
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" class="secondaryButton" @click="showImportDialog = false">Cancel</el-button>
-        <el-button type="primary" @click="handlePrivateKeyImport">Confirm</el-button>
+        <el-button
+          id="cancelImport"
+          type="primary"
+          class="secondaryButton"
+          @click="showImportDialog = false"
+        >Cancel</el-button>
+        <el-button id="confirmImport" type="primary" @click="handlePrivateKeyImport">Confirm</el-button>
       </span>
     </el-dialog>
   </div>

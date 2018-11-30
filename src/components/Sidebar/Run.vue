@@ -20,6 +20,7 @@
             :key="account.value"
             :label="account.label"
             :value="account.value"
+            class="accountSelectOption"
           />
         </el-select>
       </el-col>
@@ -110,6 +111,7 @@
             :key="unit.value"
             :label="unit.label"
             :value="unit.value"
+            class="selectUnitOption"
           />
         </el-select>
       </el-col>

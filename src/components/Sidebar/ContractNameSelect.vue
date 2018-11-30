@@ -1,6 +1,6 @@
 <template>
   <el-select :id="id+'SelectContract'" v-model="selectedContractModel" class="select" placeholder="Choose a Contract" style="display: block">
-    <el-option v-for="name in contractNames" :key="name" :label="name" :value="name" />
+    <el-option v-for="name in contractNames" :key="name" :label="name" :value="name" class="contractNameOption"/>
   </el-select>
 </template>
 

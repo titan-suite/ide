@@ -19,6 +19,8 @@
             :key="version"
             :label="version"
             :value="version"
+            class="solVersionOptions
+            "
           />
         </el-select>
       </el-col>
