@@ -60,6 +60,13 @@ const runGetters: GetterTree<RunState, RootState> = {
   showUnlockButtons(state) {
     return state.selectedBlockchain === state.blockchains.AION && state.isPrivateKeySet === false
   },
+  providerAddressStatus(state) {
+    return state.isProviderSet && state.selectedProvider === state.providers.Web3Provider
+      ? state.providerAddress
+      : state.selectedProvider === state.providers.InjectedWeb3
+      ? 'Using Injected Web3'
+      : false
+  },
 }
 
 export interface SaveValue {
@@ -105,6 +112,8 @@ const runMutations: MutationTree<RunState> = {
   unsetPrivateKey(state) {
     state.privateKey = undefined
     state.isPrivateKeySet = false
+    state.selectedAccount = ''
+    state.accounts = []
   },
   setProviderInstance(state, payload) {
     state.providerInstance = payload
@@ -142,21 +151,8 @@ const runMutations: MutationTree<RunState> = {
   toggleAccountsLoading(state) {
     state.accountsLoading = !state.accountsLoading
   },
-  saveReceipt(state, payload) {
-    const address = payload.contractAddress || payload.transactionHash || payload.to
-    const receipt = {
-      title: `${payload.contractAddress ? 'Contract: ' : payload.transactionHash ? 'Tx Hash: ' : 'Call: '} ${shortenAddress(
-        address
-      )}`,
-      address,
-      data: Object.keys(payload).map((j: any) => {
-        return {
-          key: j,
-          value: payload[j],
-        }
-      }),
-    }
-    state.receipts.push(receipt)
+  saveNewReceipt(state, payload) {
+    state.receipts.push(payload)
   },
 }
 
@@ -169,7 +165,12 @@ const runActions: ActionTree<RunState, RootState> = {
             commit('setProviderInstance', new Aion(state.providerAddress))
             break
           case state.providers.InjectedWeb3:
-            console.log((window as any).aionweb3)
+            if (process.env.NODE_ENV !== 'production') {
+              console.log((window as any).aionweb3)
+            }
+            if (!('aionweb3' in window)) {
+              throw new Error('No Injected Web3 was detected. Please Download Aiwa from ;http://getaiwa.com')
+            }
             commit('setProviderInstance', new Aion('', true, (window as any).aionweb3))
             break
           default:
@@ -183,7 +184,12 @@ const runActions: ActionTree<RunState, RootState> = {
             commit('setProviderInstance', new Ethereum(state.providerAddress))
             break
           case state.providers.InjectedWeb3:
-            console.log((window as any).web3)
+            if (process.env.NODE_ENV !== 'production') {
+              console.log((window as any).web3)
+            }
+            if (!('web3' in window)) {
+              throw new Error('No Injected Web3 was detected. Please Download Metamask from ;https://metamask.io')
+            }
             commit('setProviderInstance', new Ethereum('', true, (window as any).web3))
             break
           default:
@@ -196,7 +202,7 @@ const runActions: ActionTree<RunState, RootState> = {
         break
     }
   },
-  async deploy({ state, rootState, commit }) {
+  async deploy({ state, rootState, commit, dispatch }) {
     const providerInstance = state.providerInstance
     if (!providerInstance) {
       throw new Error('Provider not set')
@@ -243,7 +249,7 @@ const runActions: ActionTree<RunState, RootState> = {
         ...parseDeployedContract(contractName, txReceipt.contractAddress, abi),
         contractInstance: providerInstance.getContract(abi, txReceipt.contractAddress),
       })
-      commit('saveReceipt', txReceipt)
+      dispatch('saveReceipt', txReceipt)
     } else {
       throw new Error('Failed to fetch receipt.')
     }
@@ -274,19 +280,24 @@ const runActions: ActionTree<RunState, RootState> = {
       throw new Error('Provider not set')
     }
     commit('toggleAccountsLoading')
-    let accounts: Account[]
-    if (state.isPrivateKeySet) {
-      const address = state.privateKey!.address
-      const etherBalance = await providerInstance.getBalance(address)
-      accounts = [{ address, etherBalance, unlocked: false, loading: false }]
-    } else {
-      const res = await providerInstance.getBalancesWithAccounts()
-      accounts = res.map(acc => {
-        return { ...acc, unlocked: false, loading: false }
-      })
+    try {
+      let accounts: Account[]
+      if (state.isPrivateKeySet) {
+        const address = state.privateKey!.address
+        const etherBalance = await providerInstance.getBalance(address)
+        accounts = [{ address, etherBalance, unlocked: false, loading: false }]
+      } else {
+        const res = await providerInstance.getBalancesWithAccounts()
+        accounts = res.map(acc => {
+          return { ...acc, unlocked: false, loading: false }
+        })
+      }
+      commit('saveAccounts', accounts)
+    } catch (e) {
+      throw e
+    } finally {
+      commit('toggleAccountsLoading')
     }
-    commit('saveAccounts', accounts)
-    commit('toggleAccountsLoading')
   },
   async unlockAccount({ state, commit }, { address, password }) {
     commit('toggleAccountLoadingStatus', address)
@@ -302,13 +313,22 @@ const runActions: ActionTree<RunState, RootState> = {
       throw new Error('Provider not set')
     }
   },
-  async saveTxReceipt({ state, commit }, functionCall) {
-    const providerInstance = state.providerInstance
-    if (!providerInstance) {
-      throw new Error('Provider not set')
-    }
-    const receipt = await providerInstance.getResponseWhenMined(functionCall)
-    commit('saveReceipt', receipt)
+  async saveReceipt({ commit }, payload) {
+    const address = payload.contractAddress || payload.transactionHash || payload.to
+    const title = `${
+      payload.contractAddress ? 'Contract: ' : payload.transactionHash ? 'Tx Hash: ' : 'Call: '
+    } ${shortenAddress(address)}`
+    const data = Object.keys(payload).map((j: any) => {
+      return {
+        key: j,
+        value: payload[j],
+      }
+    })
+    commit('saveNewReceipt', {
+      title,
+      address,
+      data,
+    })
   },
   async importPrivateKey({ state, commit, dispatch }, key) {
     const providerInstance = state.providerInstance

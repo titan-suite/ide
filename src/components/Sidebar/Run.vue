@@ -6,7 +6,7 @@
       <el-col :span="7" :offset="1">
         <p>Account</p>
       </el-col>
-      <el-col :span="9">
+      <el-col :span="11">
         <el-select
           id="accountSelect"
           v-model="selectedAccountModel"
@@ -33,17 +33,6 @@
           circle
           style="margin-top:0.69rem"
           @click="getAccounts"
-        />
-      </el-col>
-      <el-col :span="2">
-        <el-button
-          id="importPK"
-          :type="isPrivateKeySet ? 'success' : 'primary'"
-          size="mini"
-          icon="el-icon-download"
-          circle
-          style="margin-top:0.69rem"
-          @click="isPrivateKeySet ? unsetPrivateKey(): showImportDialog = true"
         />
       </el-col>
       <el-col :span="2">
@@ -201,25 +190,6 @@
       </el-col>
     </el-row>
     <ContractInteraction/>
-    <el-dialog :visible.sync="showImportDialog" title="Import Private Key" width="30%">
-      <el-row>
-        <el-col :span="24">
-          <p>Warning: Your private key is only being used in this IDE session and will not be stored. As a rule of thumb, don't give your private keys to anyone!</p>
-        </el-col>
-      </el-row>
-      <el-row :gutter="11">
-        <el-col :span="7" :offset="1">
-          <p>Private Key</p>
-        </el-col>
-        <el-col :span="15">
-          <el-input id="privateKeyInput" v-model="privateKeyModel" type="password" clearable/>
-        </el-col>
-      </el-row>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" class="secondaryButton" @click="showImportDialog = false">Cancel</el-button>
-        <el-button type="primary" @click="handlePrivateKeyImport">Confirm</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -243,7 +213,6 @@ const namespace = 'run'
 })
 export default class Run extends Vue {
   @State('providerInstance', { namespace }) public providerInstance!: any
-  @State('isPrivateKeySet', { namespace }) public isPrivateKeySet!: boolean
   @State('accountsLoading', { namespace }) public accountsLoading!: boolean
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
@@ -260,8 +229,6 @@ export default class Run extends Vue {
   @Mutation('saveGasPrice', { namespace }) public saveGasPrice!: (gasPrice: number) => void
   @Mutation('saveSelectAccount', { namespace }) public saveSelectAccount!: (account: string) => void
   @Mutation('setContractArgs', { namespace }) public setContractArgs!: (contractArgs: string) => void
-  @Mutation('unsetPrivateKey', { namespace }) public unsetPrivateKey!: () => void
-  @Action('importPrivateKey', { namespace }) public importPrivateKey!: (key: string) => void
   @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
   @Action('compile', { namespace: 'compile' }) public compile!: () => void
   @Action('deploy', { namespace }) public deploy!: () => void
@@ -271,8 +238,6 @@ export default class Run extends Vue {
   public compileLoading: boolean = false
   public deployLoading: boolean = false
   public retrieveContractFromAddressLoading: boolean = false
-  public showImportDialog: boolean = false
-  public privateKeyModel: string = ''
 
   public async getAccounts(): Promise<void> {
     try {
@@ -300,6 +265,13 @@ export default class Run extends Vue {
     }
   }
   public async handleDeploy(): Promise<void> {
+    if (!this.providerInstance) {
+      await Notification.error({
+        title: 'Error',
+        message: 'Provider not set',
+      })
+    }
+
     const deploy = async () => {
       try {
         this.deployLoading = true
@@ -318,18 +290,14 @@ export default class Run extends Vue {
         this.deployLoading = false
       }
     }
-    if (!this.providerInstance) {
-      await Notification.error({
-        title: 'Error',
-        message: 'Provider not set',
-      })
-    }
+
     if (await this.providerInstance.isMainnet()) {
       this.$confirm('You are trying to deploy to Mainnet. Continue?', 'Warning', {
         // TODO color
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'warning',
+        cancelButtonClass: 'secondaryButton',
       })
         .then(() => {
           deploy()
@@ -353,20 +321,7 @@ export default class Run extends Vue {
       this.retrieveContractFromAddressLoading = false
     }
   }
-  public async handlePrivateKeyImport(): Promise<void> {
-    try {
-      await this.importPrivateKey(this.privateKeyModel)
-    } catch (e) {
-      await Notification.error({
-        title: 'Error',
-        message: `${e.message}${JSON.stringify(e)}`,
-      })
-      console.error(e)
-    } finally {
-      this.showImportDialog = false
-      this.privateKeyModel = ''
-    }
-  }
+
   public set selectedAccountModel(account: string) {
     this.saveSelectAccount(account)
   }

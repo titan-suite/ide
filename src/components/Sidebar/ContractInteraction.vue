@@ -74,7 +74,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Mutation, State } from 'vuex-class'
+import { Mutation, State, Action } from 'vuex-class'
 import * as web3Utils from 'web3-utils'
 import { MethodAbi } from 'ethereum-types'
 import { Notification } from 'element-ui'
@@ -93,7 +93,7 @@ export default class Console extends Vue {
   @State('selectedAccount', { namespace }) public selectedAccount!: string
   @State('gasLimit', { namespace }) public gasLimit!: number
   @State('value', { namespace }) public value!: { amount: number; unit: string }
-  @Mutation('saveReceipt', { namespace }) public saveReceipt!: (receipt: any) => void
+  @Action('saveReceipt', { namespace }) public saveReceipt!: (receipt: any) => void
 
   public get parsedContracts() {
     return this.deployedContracts

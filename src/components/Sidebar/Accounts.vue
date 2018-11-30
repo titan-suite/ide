@@ -1,7 +1,17 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="24">
+      <el-col :span="12">
+        <el-button
+          id="importPK"
+          :icon="isPrivateKeySet ? 'el-icon-warning':'el-icon-upload'"
+          type="primary"
+          class="secondaryButton"
+          size="medium"
+          @click="handleImportPKButtonClick"
+        >{{ isPrivateKeySet ? 'Using Private Key': 'Import Private Key' }}</el-button>
+      </el-col>
+      <el-col :span="12">
         <el-button
           id="addAccount"
           type="primary"
@@ -78,6 +88,25 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog :visible.sync="showImportDialog" title="Import Private Key" width="30%">
+      <el-row>
+        <el-col :span="24">
+          <p>Warning: Your private key is only being used in this IDE session and will not be stored. As a rule of thumb, don't give your private keys to anyone!</p>
+        </el-col>
+      </el-row>
+      <el-row :gutter="11">
+        <el-col :span="7" :offset="1">
+          <p>Private Key</p>
+        </el-col>
+        <el-col :span="15">
+          <el-input id="privateKeyInput" v-model="privateKeyModel" type="password" clearable/>
+        </el-col>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" class="secondaryButton" @click="showImportDialog = false">Cancel</el-button>
+        <el-button type="primary" @click="handlePrivateKeyImport">Confirm</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -87,18 +116,23 @@ import { Action, State, Mutation, Getter } from 'vuex-class'
 import { Notification } from 'element-ui'
 import { Account } from '../../store/types'
 import { shortenAddress } from '../../utils'
+const namespace = 'run'
 @Component
 export default class Accounts extends Vue {
-  @State('accounts', { namespace: 'run' }) public accounts!: Account[]
-  @State('isPrivateKeySet', { namespace: 'run' }) public isPrivateKeySet!: boolean
-  @State('accountsLoading', { namespace: 'run' }) public accountsLoading!: boolean
-  @State('providerInstance', { namespace: 'run' }) public providerInstance!: any
-  @Getter('showUnlockButtons', { namespace: 'run' }) public showUnlockButtons!: boolean
+  @State('accounts', { namespace }) public accounts!: Account[]
+  @State('isPrivateKeySet', { namespace }) public isPrivateKeySet!: boolean
+  @State('accountsLoading', { namespace }) public accountsLoading!: boolean
+  @State('providerInstance', { namespace }) public providerInstance!: any
+  @Getter('showUnlockButtons', { namespace }) public showUnlockButtons!: boolean
 
-  @Action('fetchAccounts', { namespace: 'run' }) public fetchAccounts!: () => void
-  @Action('unlockAccount', { namespace: 'run' }) public unlockAccount!: (params: { address: string; password: string }) => void
+  @Mutation('unsetPrivateKey', { namespace }) public unsetPrivateKey!: () => void
+  @Action('importPrivateKey', { namespace }) public importPrivateKey!: (key: string) => void
+  @Action('fetchAccounts', { namespace }) public fetchAccounts!: () => void
+  @Action('unlockAccount', { namespace }) public unlockAccount!: (params: { address: string; password: string }) => void
 
   public $copyText: any
+  public showImportDialog: boolean = false
+  public privateKeyModel: string = ''
 
   public async getAccounts(): Promise<void> {
     try {
@@ -145,6 +179,38 @@ export default class Accounts extends Vue {
     } catch (e) {
       // console.error(e)
       this.createAccount()
+    }
+  }
+
+  public async handleImportPKButtonClick(): Promise<void> {
+    if (this.isPrivateKeySet) {
+      this.$confirm('Do you want to unset the Private key ?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        cancelButtonClass: 'secondaryButton',
+        type: 'warning',
+      })
+        .then(() => {
+          this.unsetPrivateKey()
+        })
+        .catch(e => {})
+    } else {
+      this.showImportDialog = true
+    }
+  }
+
+  public async handlePrivateKeyImport(): Promise<void> {
+    try {
+      await this.importPrivateKey(this.privateKeyModel)
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: `${e.message}${JSON.stringify(e)}`,
+      })
+      console.error(e)
+    } finally {
+      this.showImportDialog = false
+      this.privateKeyModel = ''
     }
   }
 

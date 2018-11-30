@@ -48,7 +48,7 @@
           icon="el-icon-check"
           circle
           style="margin-top:0.69rem"
-          @click="instantiateProvider"
+          @click="handleInstantiateProvider"
         />
       </el-col>
     </el-row>
@@ -73,7 +73,7 @@
           icon="el-icon-check"
           circle
           style="margin-top:0.69rem"
-          @click="instantiateProvider"
+          @click="handleInstantiateProvider"
         />
       </el-col>
     </el-row>
@@ -83,6 +83,8 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Mutation, State, Action } from 'vuex-class'
+import { MessageBox } from 'element-ui'
+
 const namespace = 'run'
 @Component
 export default class NodeAddressInput extends Vue {
@@ -121,6 +123,37 @@ export default class NodeAddressInput extends Vue {
   }
   public get providerAddressModel(): string {
     return this.providerAddress
+  }
+  public async handleInstantiateProvider() {
+    try {
+      await this.instantiateProvider()
+    } catch (e) {
+      const h = this.$createElement
+      const message = `${e.message}`.split(';')
+      await MessageBox.alert('Warning', {
+        message: h('div', undefined, [
+          h('p', undefined, message[0]),
+          h(
+            'button',
+            {
+              attrs: {
+                id: 'getLink',
+                type: 'button',
+                class: 'el-button el-button--text',
+                onclick: `window.open("${message[1]}")`,
+              },
+            },
+            message[1]
+          ),
+        ]),
+        center: true,
+        title: 'Warning',
+        type: 'warning',
+        cancelButtonClass: 'secondaryButton',
+        confirmButtonText: 'OK',
+      })
+      console.error(e)
+    }
   }
 }
 </script>

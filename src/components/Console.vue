@@ -16,7 +16,7 @@
             icon="el-icon-tickets"
             circle
             style="padding: 5px;margin-left: 1rem;"
-            @click="copyToClipboard(receipt.data)"
+            @click.stop="copyToClipboard(JSON.stringify(receipt.data))"
           />
         </template>
         <el-table :data="receipt.data" :show-header="false" style="width: 100%">
@@ -47,29 +47,28 @@ import { Notification } from 'element-ui'
 const namespace = 'run'
 @Component
 export default class Console extends Vue {
-
-    @State('receipts', { namespace }) public receipts!: any
-    public $copyText: any
-    public get parsedReceipts() {
-        return this.receipts
+  @State('receipts', { namespace }) public receipts!: any
+  public $copyText: any
+  public get parsedReceipts() {
+    return this.receipts
+  }
+  public async copyToClipboard(data: any) {
+    try {
+      await this.$copyText(data)
+      await Notification.success({
+        title: 'Success',
+        message: 'Copied to Clipboard',
+        duration: 500,
+      })
+    } catch (e) {
+      await Notification.error({
+        title: 'Error',
+        message: 'Unable to Copy',
+        duration: 10000,
+      })
+      console.error(e)
     }
-    public async copyToClipboard(data: any) {
-        try {
-            await this.$copyText(JSON.stringify(data))
-            await Notification.success({
-                title: 'Success',
-                message: 'Copied to Clipboard',
-                duration: 500
-            })
-        } catch (e) {
-            await Notification.error({
-                title: 'Error',
-                message: 'Unable to Copy',
-                duration: 10000
-            })
-            console.error(e)
-        }
-    }
+  }
 }
 </script>
 

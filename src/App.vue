@@ -2,28 +2,42 @@
   <el-container style="height:100%">
     <el-header
       height="4rem"
-      style="height: 5rem;
-            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
-            color: white;
-            background-color: #2b2b2b00;
-            z-index: 1100;
-            box-sizing: border-box;
-            margin-bottom: 1.2rem;
-            width: 100%;"
+      style="height: auto;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
+        color: white;
+        background-color: #2b2b2b00;
+        z-index: 1100;
+        box-sizing: border-box;
+        margin-bottom: 1.2rem;
+        width: 100%;
+        min-height: 5rem;"
     >
-      <el-row type="flex">
-        <div
-          class="titan-mine"
-          style="-webkit-animation: titan-mine infinite 5s linear alternate;animation:titan-mine infinite 5s linear alternate;margin:7px"
-        >
-          <img alt="logo" src="./assets/logo.png" height="50px" width="50px" >
+      <el-row type="flex" justify="space-between">
+        <div>
+          <img
+            class="titan-mine"
+            style="-webkit-animation: titan-mine infinite 5s linear alternate;animation:titan-mine infinite 5s linear alternate;
+              margin-top: .5rem;position: absolute;"
+            alt="logo"
+            src="./assets/logo.png"
+            height="50px"
+            width="50px"
+          >
+          <h2
+            style="font-size: 1.569em !important;
+              font-weight: 500;
+              display: inline-block;
+              position: absolute;
+              left: 5rem;
+              top: .5rem;"
+          >TITAN IDE</h2>
         </div>
-
-        <h2
-          style="flex-grow: 1;margin-left: 15px;margin-top: 25px;font-size: 1.569em !important;font-weight: 500;line-height: 1.16667em;"
-        >
-          TITAN IDE
-        </h2>
+        <el-col>
+          <div style="float:right;color:#ffab00e6">
+            <p v-show="getProviderAddress">Provider Address: {{ getProviderAddress }}</p>
+            <p v-show="getSelectedAccount">Selected Account: {{ getSelectedAccount }}</p>
+          </div>
+        </el-col>
       </el-row>
     </el-header>
     <el-container>
@@ -38,7 +52,7 @@
           style="height: 98%;margin-right:16px;position: relative;"
           axis="x"
         >
-          <FileExplorer @collapse="fileExplorerCollapse = true" />
+          <FileExplorer @collapse="fileExplorerCollapse = true"/>
         </vue-draggable-resizable>
         <el-button
           v-show="fileExplorerCollapse"
@@ -53,7 +67,9 @@
         />
       </el-aside>
       <el-container>
-        <el-main style="padding:0"> <Editor /> </el-main>
+        <el-main style="padding:0">
+          <Editor/>
+        </el-main>
         <el-footer height="auto" style="padding:0">
           <vue-draggable-resizable
             :active="true"
@@ -65,7 +81,7 @@
             axis="y"
             style="width: 100%; top:0;z-index: 1000;display: flex;position: relative;"
           >
-            <Console />
+            <Console/>
           </vue-draggable-resizable>
         </el-footer>
       </el-container>
@@ -86,7 +102,7 @@
             style="position: absolute;"
             @click="sidebarCollapse = true"
           />
-          <Sidebar />
+          <Sidebar/>
         </vue-draggable-resizable>
         <el-button
           v-show="sidebarCollapse"
@@ -106,13 +122,14 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { State, Getter } from 'vuex-class'
 import Editor from './components/Editor/Index.vue'
 import Console from './components/Console.vue'
 import FileExplorer from './components/FileExplorer/Index.vue'
 import Sidebar from './components/Sidebar/Index.vue'
 import VueDraggableResizable from 'vue-draggable-resizable'
-
-const namespace = 'workspace'
+import { shortenAddress } from './utils'
+const namespace = 'run'
 
 @Component({
   components: {
@@ -120,11 +137,19 @@ const namespace = 'workspace'
     Console,
     FileExplorer,
     Sidebar,
-    VueDraggableResizable
-  }
+    VueDraggableResizable,
+  },
 })
 export default class App extends Vue {
+  @State('selectedAccount', { namespace }) public selectedAccount!: string
+  @Getter('providerAddressStatus', { namespace }) public providerAddressStatus!: string | boolean
   public fileExplorerCollapse: boolean = false
   public sidebarCollapse: boolean = false
+  public get getProviderAddress() {
+    return this.providerAddressStatus
+  }
+  public get getSelectedAccount() {
+    return this.selectedAccount.length > 4 ? shortenAddress(this.selectedAccount) : null
+  }
 }
 </script>

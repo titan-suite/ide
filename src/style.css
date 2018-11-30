@@ -64,6 +64,7 @@ body {
 .secondaryButton {
   color: #ffab00 !important;
   background-color: #252525;
+  border-color: #ffab00c9;
 }
 .secondaryButton:hover {
   color: #bab1a2 !important;
@@ -79,7 +80,17 @@ body {
 .el-dialog__title,
 .el-form-item__label {
   color: #ffab00;
+  border-color: #ffab00c9;
 }
+/* message box */
+.el-message-box,
+.el-message-box__content,
+.el-message-box__title {
+  color: #ffab00;
+  background-color: #252525;
+  border-color: #545050;
+}
+
 /* table & el collapse */
 .el-table th.is-leaf,
 .el-table td,
