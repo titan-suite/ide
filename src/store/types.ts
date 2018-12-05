@@ -6,6 +6,7 @@ export interface RootState {
   workspace: IdeState
 }
 export interface CompileState {
+  compilerType: string
   compiledCode: {
     [key: string]: any
   }
