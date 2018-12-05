@@ -29,9 +29,6 @@ const compileGetters: GetterTree<CompileState, RootState> = {
 }
 
 const compileMutations: MutationTree<CompileState> = {
-  setCompilerType(state, payload) {
-    state.compilerType = payload
-  },
   saveCompiledCode(state, payload) {
     state.compiledCode = payload
   },
@@ -67,7 +64,7 @@ const compileActions: ActionTree<CompileState, RootState> = {
     const selectedSolVersion = state.selectedSolVersion
     const contract = rootGetters['workspace/activeFile'].code
     const solc = (window as any).AionBrowserSolc
-    const type = state.compilerType
+    const type = rootState.run.selectedBlockchain
     if (state.useInBrowserCompiler) {
       const handleCompile = async () =>
         new Promise((resolve, reject) => {

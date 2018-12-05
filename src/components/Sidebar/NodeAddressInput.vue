@@ -114,7 +114,6 @@ export default class NodeAddressInput extends Vue {
   @State('providers', { namespace }) public providers!: { [key: string]: any }
 
   @Mutation('setBlockchain', { namespace }) public setBlockchain!: (blockchain: string) => void
-  @Mutation('setCompilerType', { namespace: 'compile' }) public setCompilerType!: (type: string) => void
   @Mutation('setProvider', { namespace }) public setProvider!: (provider: string) => void
   @Mutation('setProviderAddress', { namespace }) public setProviderAddress!: (providerAddress: string) => void
 
@@ -126,7 +125,6 @@ export default class NodeAddressInput extends Vue {
 
   public set selectedBlockchainModel(value: string) {
     this.setBlockchain(value)
-    this.setCompilerType(value)
   }
   public get selectedBlockchainModel(): string {
     return this.selectedBlockchain
