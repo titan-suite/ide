@@ -2,6 +2,7 @@ import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { CompileState, RootState } from '../../types'
 import { extractConstructor, BLOCKCHAINS } from '../../../utils'
 const compileState: CompileState = {
+  compilerType: 'Aion',
   compiledCode: {},
   solVersions: [],
   contracts: {},
@@ -28,6 +29,9 @@ const compileGetters: GetterTree<CompileState, RootState> = {
 }
 
 const compileMutations: MutationTree<CompileState> = {
+  setCompilerType(state, payload) {
+    state.compilerType = payload
+  },
   saveCompiledCode(state, payload) {
     state.compiledCode = payload
   },
@@ -49,9 +53,10 @@ const compileMutations: MutationTree<CompileState> = {
 }
 
 const compileActions: ActionTree<CompileState, RootState> = {
-  async loadSolVersions({ commit }) {
-    if ((window as any).BrowserSolc) {
-      (window as any).BrowserSolc.getVersions((sources: any, releases: any) => {
+  async loadSolVersions({ state, commit }) {
+    const solc = (window as any).AionBrowserSolc
+    if (solc) {
+      solc.getVersions((sources: any, releases: any) => {
         // console.log(sources)
         // console.log(releases)
         commit('saveSolVersions', Object.values(releases))
@@ -61,10 +66,12 @@ const compileActions: ActionTree<CompileState, RootState> = {
   async compile({ state, rootGetters, commit, rootState }) {
     const selectedSolVersion = state.selectedSolVersion
     const contract = rootGetters['workspace/activeFile'].code
+    const solc = (window as any).AionBrowserSolc
+    const type = state.compilerType
     if (state.useInBrowserCompiler) {
       const handleCompile = async () =>
         new Promise((resolve, reject) => {
-          (window as any).BrowserSolc.loadVersion(selectedSolVersion, (compiler: any) => {
+          solc.loadVersion(type, selectedSolVersion, (compiler: any) => {
             const optimize = 1
             const result = compiler.compile(contract, optimize)
             console.log(result)

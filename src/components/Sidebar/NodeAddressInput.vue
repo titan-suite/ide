@@ -1,7 +1,10 @@
 <template>
   <div style="margin-bottom:20px">
     <el-row :gutter="11">
-      <el-col :span="7" :offset="1">
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Blockchain</p>
       </el-col>
       <el-col :span="15">
@@ -23,7 +26,10 @@
     </el-row>
 
     <el-row :gutter="11">
-      <el-col :span="7" :offset="1">
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Provider</p>
       </el-col>
       <el-col :span="requireNodeAddress?15: 13">
@@ -42,7 +48,10 @@
           />
         </el-select>
       </el-col>
-      <el-col v-if="!requireNodeAddress" :span="2">
+      <el-col
+        v-if="!requireNodeAddress"
+        :span="2"
+      >
         <el-button
           :id="id+'SetProvider'"
           :type="isProviderSet ? 'success' : 'info'"
@@ -55,8 +64,14 @@
       </el-col>
     </el-row>
 
-    <el-row v-if="requireNodeAddress" :gutter="11">
-      <el-col :span="7" :offset="1">
+    <el-row
+      v-if="requireNodeAddress"
+      :gutter="11"
+    >
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Provider Address</p>
       </el-col>
       <el-col :span="13">
@@ -99,6 +114,7 @@ export default class NodeAddressInput extends Vue {
   @State('providers', { namespace }) public providers!: { [key: string]: any }
 
   @Mutation('setBlockchain', { namespace }) public setBlockchain!: (blockchain: string) => void
+  @Mutation('setCompilerType', { namespace: 'compile' }) public setCompilerType!: (type: string) => void
   @Mutation('setProvider', { namespace }) public setProvider!: (provider: string) => void
   @Mutation('setProviderAddress', { namespace }) public setProviderAddress!: (providerAddress: string) => void
 
@@ -110,6 +126,7 @@ export default class NodeAddressInput extends Vue {
 
   public set selectedBlockchainModel(value: string) {
     this.setBlockchain(value)
+    this.setCompilerType(value)
   }
   public get selectedBlockchainModel(): string {
     return this.selectedBlockchain
