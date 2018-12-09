@@ -213,7 +213,7 @@ const runActions: ActionTree<RunState, RootState> = {
     const from = state.selectedAccount
     const gas = state.gasLimit
     const gasPrice = state.gasPrice
-    const code = useInBrowserCompiler ? compiledCode[contractName].bytecode : compiledCode[contractName].code
+    const code = useInBrowserCompiler ? '0x'+compiledCode[contractName].bytecode : compiledCode[contractName].code
     const abi = useInBrowserCompiler
       ? JSON.parse(compiledCode[contractName].interface)
       : compiledCode[contractName].info.abiDefinition
