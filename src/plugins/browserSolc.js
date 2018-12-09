@@ -1,3 +1,3 @@
-import aionBrowserSolc from 'aion-browser-solc'
+import browserSolc from 'browser-solc'
 import Vue from 'vue'
-Vue.use(aionBrowserSolc)
+Vue.use(browserSolc)
