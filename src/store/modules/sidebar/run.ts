@@ -2,6 +2,7 @@ import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { RunState, RootState, Account } from '../../types'
 import { shortenAddress, BLOCKCHAINS, PROVIDERS, getUnits, parseDeployedContract } from '../../../utils'
 import { Aion, Ethereum } from '@titan-suite/core'
+import { event } from 'vue-analytics'
 let nodeAddress = ''
 let devProviderInstance
 let isProviderSet = false
@@ -114,6 +115,9 @@ const runMutations: MutationTree<RunState> = {
     state.isPrivateKeySet = false
     state.selectedAccount = ''
     state.accounts = []
+    if (process.env.NODE_ENV === 'production') {
+      event('user-click', 'unsetPK', 'unsetPK', true)
+    }
   },
   setProviderInstance(state, payload) {
     state.providerInstance = payload
@@ -213,7 +217,7 @@ const runActions: ActionTree<RunState, RootState> = {
     const from = state.selectedAccount
     const gas = state.gasLimit
     const gasPrice = state.gasPrice
-    const code = useInBrowserCompiler ? '0x'+compiledCode[contractName].bytecode : compiledCode[contractName].code
+    const code = useInBrowserCompiler ? '0x' + compiledCode[contractName].bytecode : compiledCode[contractName].code
     const abi = useInBrowserCompiler
       ? JSON.parse(compiledCode[contractName].interface)
       : compiledCode[contractName].info.abiDefinition
@@ -244,6 +248,9 @@ const runActions: ActionTree<RunState, RootState> = {
     if (process.env.NODE_ENV !== 'production') {
       console.log({ txReceipt, txHash })
     }
+    if (process.env.NODE_ENV === 'production') {
+      event('user-click', 'Deploy', 'Deploy', true)
+    }
     if (txReceipt && txReceipt.contractAddress) {
       commit('saveDeployedContract', {
         ...parseDeployedContract(contractName, txReceipt.contractAddress, abi),
@@ -270,6 +277,9 @@ const runActions: ActionTree<RunState, RootState> = {
         ...parseDeployedContract(contractName, address, abi),
         contractInstance: providerInstance.getContract(abi, address),
       })
+      if (process.env.NODE_ENV === 'production') {
+        event('response', 'Retrieve Contract', 'Retrieve Contract', true)
+      }
     } else {
       throw new Error('Invalid Abi')
     }
@@ -293,6 +303,9 @@ const runActions: ActionTree<RunState, RootState> = {
         })
       }
       commit('saveAccounts', accounts)
+      if (process.env.NODE_ENV === 'production') {
+        event('user-click', 'Fetch Accounts', 'Fetch Accounts', true)
+      }
     } catch (e) {
       throw e
     } finally {
@@ -306,6 +319,9 @@ const runActions: ActionTree<RunState, RootState> = {
       const status = await providerInstance.unlock(address, password)
       commit('updateAccountStatus', { address, status })
       commit('toggleAccountLoadingStatus', address)
+      if (process.env.NODE_ENV === 'production') {
+        event('user-click', 'Unlock Account', 'Unlock Account', true)
+      }
       if (!status) {
         throw new Error('Unlock failed')
       }
@@ -329,6 +345,9 @@ const runActions: ActionTree<RunState, RootState> = {
       address,
       data,
     })
+    if (process.env.NODE_ENV === 'production') {
+      event('response', 'Save Receipt', 'Save Receipt', true)
+    }
   },
   async importPrivateKey({ state, commit, dispatch }, key) {
     const providerInstance = state.providerInstance
@@ -339,6 +358,9 @@ const runActions: ActionTree<RunState, RootState> = {
     commit('setPrivateKey', { key, address })
     commit('saveSelectAccount', address)
     dispatch('fetchAccounts')
+    if (process.env.NODE_ENV === 'production') {
+      event('user-click', 'Import private key', 'Import private key', true)
+    }
   },
 }
 

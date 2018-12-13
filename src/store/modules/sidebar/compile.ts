@@ -1,6 +1,8 @@
 import { ActionTree, MutationTree, GetterTree } from 'vuex'
 import { CompileState, RootState } from '../../types'
-import { extractConstructor, BLOCKCHAINS } from '../../../utils'
+import { extractConstructor } from '../../../utils'
+import { event } from 'vue-analytics'
+
 const compileState: CompileState = {
   compilerType: 'Aion',
   compiledCode: {},
@@ -54,8 +56,6 @@ const compileActions: ActionTree<CompileState, RootState> = {
     const solc = (window as any).AionBrowserSolc
     if (solc) {
       solc.getVersions((sources: any, releases: any) => {
-        // console.log(sources)
-        // console.log(releases)
         commit('saveSolVersions', Object.values(releases))
       })
     }
@@ -87,6 +87,9 @@ const compileActions: ActionTree<CompileState, RootState> = {
         })
       }
       commit('setSelectedContract', Object.keys(contracts)[0])
+      if (process.env.NODE_ENV === 'production') {
+        event('user-click', 'CompileInBrowser', 'CompileInBrowser', true)
+      }
       return
     }
     const providerInstance = rootState.run.providerInstance
@@ -112,6 +115,9 @@ const compileActions: ActionTree<CompileState, RootState> = {
       // commit('setSelectedContract', Object.keys(compiledContracts)[0])
     } else {
       throw new Error('Provider not set')
+    }
+    if (process.env.NODE_ENV === 'production') {
+      event('user-click', 'CompileOnNode', 'CompileOnNode', true)
     }
   },
 }

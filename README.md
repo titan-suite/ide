@@ -1,39 +1,9 @@
-# titan-ide
+# Titan IDE
 
-## Project setup
-```
-yarn install
-```
+The complete Smart Contract Development Environment.
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
+Checkout [https://ide.titan-suite.com/](https://ide.titan-suite.com/)
 
-### Compiles and minifies for production
-```
-yarn run build
-```
+## Documentation
 
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Run your end-to-end tests
-```
-yarn run test:e2e
-```
-
-### Run your unit tests
-```
-yarn run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+[https://titan-suite.gitbook.io/ide/](https://titan-suite.gitbook.io/ide/)

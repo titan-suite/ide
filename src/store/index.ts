@@ -14,11 +14,16 @@ const store: StoreOptions<RootState> = {
           createPersistedState({
             reducer: persistedState => {
               const Run = { ...persistedState.run }
+              const Compile = { ...persistedState.compile }
+              delete Compile.solVersions
               delete Run.isProviderSet
               delete Run.providerInstance
               delete Run.privateKey
               delete Run.isPrivateKeySet
-              return { ...persistedState, run: Run }
+              delete Run.deployedContracts
+              delete Run.accountsLoading
+              delete Run.receipts
+              return { ...persistedState, run: Run, compile: Compile }
             },
           }),
         ]
