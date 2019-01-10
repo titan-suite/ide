@@ -59,7 +59,14 @@ const runGetters: GetterTree<RunState, RootState> = {
     return getUnits(state.selectedBlockchain)
   },
   showUnlockButtons(state) {
-    return state.selectedBlockchain === state.blockchains.AION && state.isPrivateKeySet === false
+    if (state.selectedBlockchain === state.blockchains.AION) {
+      if (state.isPrivateKeySet === false) {
+        if (state.selectedProvider !== state.providers.InjectedWeb3) {
+          return true
+        }
+      }
+    }
+    return false
   },
   providerAddressStatus(state) {
     return state.isProviderSet && state.selectedProvider === state.providers.Web3Provider
