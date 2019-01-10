@@ -40,6 +40,9 @@ const compileMutations: MutationTree<CompileState> = {
   saveSolVersions(state, payload) {
     state.solVersions = payload
   },
+  setCompilerType(state, payload) {
+    state.compilerType = payload
+  },
   setSolVersion(state, payload) {
     state.selectedSolVersion = payload
   },
@@ -52,11 +55,15 @@ const compileMutations: MutationTree<CompileState> = {
 }
 
 const compileActions: ActionTree<CompileState, RootState> = {
-  async loadSolVersions({ state, commit }) {
+  async loadSolVersions({ state, rootState, commit }) {
     const solc = (window as any).AionBrowserSolc
     if (solc) {
       solc.getVersions((sources: any, releases: any) => {
-        commit('saveSolVersions', Object.values(releases))
+        if (rootState.compile.compilerType === 'Aion') {
+          commit('saveSolVersions', ['soljson-0.4.15.aion.js'])
+        } else {
+          commit('saveSolVersions', Object.values(releases))
+        }
       })
     }
   },
@@ -71,7 +78,9 @@ const compileActions: ActionTree<CompileState, RootState> = {
           solc.loadVersion(type, selectedSolVersion, (compiler: any) => {
             const optimize = 1
             const result = compiler.compile(contract, optimize)
-            console.log(result)
+            if (process.env.NODE_ENV !== 'production') {
+              console.log(result)
+            }
             if ('errors' in result) {
               return reject(new Error(result.errors))
             }

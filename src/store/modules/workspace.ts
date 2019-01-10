@@ -1,13 +1,5 @@
 import { MutationTree, GetterTree, ActionTree } from 'vuex'
-import {
-  IdeState,
-  File,
-  Folder,
-  Tree,
-  Workspace,
-  RootState,
-  EditorOptions
-} from '../types'
+import { IdeState, File, Folder, Tree, Workspace, RootState, EditorOptions } from '../types'
 
 const defaultFile: File = {
   index: 0,
@@ -25,10 +17,10 @@ contract Example {
 
     function setA(uint128 a) public {
         num = a;
-        NumChanged(num);
+        // NumChanged(num);
     }
 }`,
-  path: '/Example/Example.sol'
+  path: '/Example/Example.sol',
 }
 
 const defaultFolder: Folder = {
@@ -73,15 +65,15 @@ contract WithConstructor {
         mapA[key] = value;
     }
 }`,
-      path: '/Example/WithConstructor.sol'
-    }
+      path: '/Example/WithConstructor.sol',
+    },
   ],
   path: '/Example',
-  activeFileIndex: 0
+  activeFileIndex: 0,
 }
 
 const projectTree: Tree = {
-  folders: [defaultFolder]
+  folders: [defaultFolder],
 }
 
 const editorOptions: EditorOptions = {
@@ -90,7 +82,7 @@ const editorOptions: EditorOptions = {
   theme: 'monokai',
   lineNumbers: true,
   line: true,
-  gutters: ['CodeMirror-linenumbers', 'breakpoints']
+  gutters: ['CodeMirror-linenumbers', 'breakpoints'],
 }
 
 const defaultWorkspace: Workspace = {
@@ -100,12 +92,12 @@ const defaultWorkspace: Workspace = {
   activeFolderIndex: 0,
   activeFile: defaultFile,
   openFiles: [defaultFile],
-  editorOptions
+  editorOptions,
 }
 
 const ideState: IdeState = {
   activeWorkspaceIndex: 0,
-  workspaces: [defaultWorkspace]
+  workspaces: [defaultWorkspace],
 }
 
 const ideGetters: GetterTree<IdeState, RootState> = {
@@ -117,16 +109,12 @@ const ideGetters: GetterTree<IdeState, RootState> = {
   },
   folderById(state, getters): (folderIndex: number) => Folder {
     return (folderIndex: number) => {
-      return getters.projectTree.folders.find(
-        (f: Folder) => f.index === folderIndex
-      )
+      return getters.projectTree.folders.find((f: Folder) => f.index === folderIndex)
     }
   },
   fileById(state, getters): (folderIndex: number, fileIndex: number) => File {
     return (folderIndex: number, fileIndex: number) => {
-      return getters
-        .folderById(folderIndex)
-        .files.find((f: File) => f.index === fileIndex)
+      return getters.folderById(folderIndex).files.find((f: File) => f.index === fileIndex)
     }
   },
   activeFile(state, getters): File {
@@ -137,14 +125,12 @@ const ideGetters: GetterTree<IdeState, RootState> = {
   },
   openFiles(state, getters): any[] {
     return getters.activeWorkspace.openFiles
-  }
+  },
 }
 
 const mutations: MutationTree<IdeState> = {
   updateFolder(state, payload: File[]) {
-    state.workspaces[
-      state.activeWorkspaceIndex
-    ].projectTree.folders[0].files = payload
+    state.workspaces[state.activeWorkspaceIndex].projectTree.folders[0].files = payload
   },
   setOpenFiles(state, payload: File[]) {
     state.workspaces[state.activeWorkspaceIndex].openFiles = payload
@@ -168,17 +154,14 @@ const mutations: MutationTree<IdeState> = {
     }
   },
   hideTab(state, payload: File) {
-    state.workspaces[state.activeWorkspaceIndex].openFiles = state.workspaces[
-      state.activeWorkspaceIndex
-    ].openFiles!.filter((f: File) => f.path !== payload.path)
-  }
+    state.workspaces[state.activeWorkspaceIndex].openFiles = state.workspaces[state.activeWorkspaceIndex].openFiles!.filter(
+      (f: File) => f.path !== payload.path
+    )
+  },
 }
 
 const actions: ActionTree<IdeState, RootState> = {
-  addFile(
-    { state, rootState, commit, dispatch, getters, rootGetters },
-    payload: string
-  ) {
+  addFile({ state, rootState, commit, dispatch, getters, rootGetters }, payload: string) {
     const projectFiles: File[] = getters.projectTree.folders[0].files
     const contractName = payload.endsWith('.sol')
       ? payload
@@ -190,21 +173,16 @@ const actions: ActionTree<IdeState, RootState> = {
       index: projectFiles.length,
       name: payload,
       code: `pragma solidity ^0.4.9;\n\ncontract ${contractName} {\n\n\tfunction ${contractName}() public {}\n}`,
-      path: `/Example/${payload}`
+      path: `/Example/${payload}`,
     }
     projectFiles.push(file)
     commit('updateFolder', projectFiles)
   },
-  removeFile(
-    { state, rootState, commit, dispatch, getters, rootGetters },
-    payload: string
-  ) {
+  removeFile({ state, rootState, commit, dispatch, getters, rootGetters }, payload: string) {
     const projectFiles: File[] = getters.projectTree.folders[0].files
     const tabs: File[] = getters.openFiles!
     const activeFile = getters.activeWorkspace.activeFile
-    const targetFile: File | undefined = projectFiles.find(
-      (file: File) => file.name === payload
-    )
+    const targetFile: File | undefined = projectFiles.find((file: File) => file.name === payload)
 
     if (targetFile) {
       if (targetFile.name === activeFile.name) {
@@ -218,12 +196,10 @@ const actions: ActionTree<IdeState, RootState> = {
         })
       }
       commit('hideTab', targetFile)
-      const updatedFolder = projectFiles.filter(
-        (file: File) => file.name !== payload
-      )
+      const updatedFolder = projectFiles.filter((file: File) => file.name !== payload)
       commit('updateFolder', updatedFolder)
     }
-  }
+  },
 }
 
 const workspace = {
@@ -231,7 +207,7 @@ const workspace = {
   state: ideState,
   getters: ideGetters,
   mutations,
-  actions
+  actions,
 }
 
 export default workspace
