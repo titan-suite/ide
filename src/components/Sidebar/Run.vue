@@ -1,9 +1,12 @@
 <template>
   <div>
-    <NodeAddressInput id="run"/>
+    <NodeAddressInput id="run" />
 
     <el-row :gutter="11">
-      <el-col :span="7" :offset="1">
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Account</p>
       </el-col>
       <el-col :span="11">
@@ -56,7 +59,10 @@
     </el-row>
 
     <el-row>
-      <el-col :span="7" :offset="1">
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Gas Limit</p>
       </el-col>
       <el-col :span="13">
@@ -71,7 +77,10 @@
     </el-row>
 
     <el-row>
-      <el-col :span="7" :offset="1">
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Gas Price</p>
       </el-col>
       <el-col :span="13">
@@ -86,7 +95,10 @@
     </el-row>
 
     <el-row :gutter="11">
-      <el-col :span="7" :offset="1">
+      <el-col
+        :span="7"
+        :offset="1"
+      >
         <p>Value</p>
       </el-col>
       <el-col :span="7">
@@ -118,8 +130,11 @@
     </el-row>
 
     <el-row :gutter="11">
-      <el-col :span="20" :offset="1">
-        <ContractNameSelect id="run"/>
+      <el-col
+        :span="20"
+        :offset="1"
+      >
+        <ContractNameSelect id="run" />
       </el-col>
       <el-col :span="3">
         <el-button
@@ -136,17 +151,11 @@
     </el-row>
 
     <el-row>
-      <el-col :offset="1" :span="deployLoading ? 8: 7">
-        <el-button
-          id="deploy"
-          :loading="deployLoading"
-          style="width:100%"
-          type="primary"
-          class="textColorBlack"
-          @click="handleDeploy"
-        >Deploy</el-button>
-      </el-col>
-      <el-col v-if="constructorArgs" :span="deployLoading ? 12: 13">
+      <el-col
+        v-if="constructorArgs"
+        :offset="1"
+        :span="deployLoading ? 12: 13"
+      >
         <el-popover
           :content="constructorArgs"
           :open-delay="200"
@@ -165,6 +174,39 @@
       </el-col>
     </el-row>
 
+    <el-row>
+      <el-col
+        :offset="1"
+        :span="deployLoading ? 8: 7"
+      >
+        <el-button
+          id="deploy"
+          :loading="deployLoading"
+          style="width:100%"
+          type="primary"
+          class="textColorBlack"
+          @click="handleDeploy"
+        >
+          Deploy
+        </el-button>
+      </el-col>
+      <el-col
+        v-if="constructorArgs"
+        :offset="1"
+        :span="deployLoading === true ? 12: 13"
+      >
+        <el-button
+          id="cancelDeploy"
+          type="danger"
+          size="mini"
+          icon="el-icon-close"
+          circle
+          style="margin-top:0.69rem"
+          @click="stopDeploying"
+        />
+      </el-col>
+    </el-row>
+
     <el-row style="margin-top:-20px;margin-bottom:0px">
       <el-col :offset="3">
         <p>or</p>
@@ -172,7 +214,10 @@
     </el-row>
 
     <el-row type="flex">
-      <el-col :offset="1" :span="retrieveContractFromAddressLoading ? 8: 7">
+      <el-col
+        :offset="1"
+        :span="retrieveContractFromAddressLoading ? 8: 7"
+      >
         <el-button
           id="atAddress"
           :loading="retrieveContractFromAddressLoading"
@@ -180,7 +225,9 @@
           class="secondaryButton"
           type="primary"
           @click="handleRetrieveContractFromAddress"
-        >At Address</el-button>
+        >
+          At Address
+        </el-button>
       </el-col>
       <el-col :span="retrieveContractFromAddressLoading ? 12: 13">
         <el-input
@@ -191,7 +238,7 @@
         />
       </el-col>
     </el-row>
-    <ContractInteraction/>
+    <ContractInteraction />
   </div>
 </template>
 
@@ -278,6 +325,7 @@ export default class Run extends Vue {
       try {
         this.deployLoading = true
         await this.deploy()
+        // setTimeout(() => {this.deployLoading = false}, 45e3)
         await Notification.success({
           title: 'Success',
           message: `Contract deployed at ${this.getLatestContractAddress}`,
@@ -362,6 +410,10 @@ export default class Run extends Vue {
   }
   public get constructorArgs() {
     return this.parsedContractConstructor()
+  }
+
+  public stopDeploying(): void {
+    this.deployLoading = false
   }
 }
 </script>
